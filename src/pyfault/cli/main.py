@@ -147,6 +147,7 @@ def _load_coverage_matrix_from_csv(coverage_file: str) -> CoverageMatrix:
     
     Expected CSV format:
     Element,File,Line,test1,test2,test3,...
+    OUTCOME,,PASSED,FAILED,PASSED,...
     file.py:1,file.py,1,1,0,1,...
     file.py:2,file.py,2,0,1,1,...
     
@@ -163,10 +164,28 @@ def _load_coverage_matrix_from_csv(coverage_file: str) -> CoverageMatrix:
         # Validate required columns
         if not all(col in df.columns for col in ['Element', 'File', 'Line']):
             raise ValueError("CSV file must contain 'Element', 'File', and 'Line' columns")
+
+        # Extract test names (columns after 'Line')
+        test_columns = [col for col in df.columns if col not in ['Element', 'File', 'Line']]
+        test_names = test_columns
+        
+        if not test_names:
+            raise ValueError("No test columns found in CSV file")
+
+        # Extract test outcomes from the special 'OUTCOME' row
+        outcome_row = df[df['Element'] == 'OUTCOME']
+        if outcome_row.empty:
+            raise ValueError("CSV file must contain an 'OUTCOME' row for test results.")
+        
+        test_outcomes_str = outcome_row[test_columns].iloc[0].tolist()
+        test_outcomes = [TestOutcome(outcome.lower()) for outcome in test_outcomes_str]
+
+        # Filter out the outcome row to process code elements
+        df_elements = df[df['Element'] != 'OUTCOME'].reset_index(drop=True)
         
         # Extract code elements
         code_elements = []
-        for _, row in df.iterrows():
+        for _, row in df_elements.iterrows():
             element = CodeElement(
                 file_path=Path(row['File']),
                 line_number=int(row['Line']),
@@ -174,22 +193,11 @@ def _load_coverage_matrix_from_csv(coverage_file: str) -> CoverageMatrix:
             )
             code_elements.append(element)
         
-        # Extract test names (columns after 'Line')
-        test_columns = [col for col in df.columns if col not in ['Element', 'File', 'Line']]
-        test_names = test_columns
-        
-        if not test_names:
-            raise ValueError("No test columns found in CSV file")
-        
         # Extract coverage matrix
-        coverage_data = df[test_columns].values.astype(np.int8)
+        coverage_data = df_elements[test_columns].values.astype(np.int8)
         
         # Transpose to get tests as rows, elements as columns
         matrix = coverage_data.T
-        
-        # For now, assume all tests passed (since we don't have outcome info in CSV)
-        # This could be enhanced to load test outcomes from a separate file
-        test_outcomes = [TestOutcome.PASSED] * len(test_names)
         
         return CoverageMatrix(
             test_names=test_names,
@@ -256,8 +264,8 @@ def fl(ctx: click.Context, coverage_file: str, output_dir: str,
         # Initialize fault localizer for analysis only
         output_path = Path(output_dir)
         localizer = FaultLocalizer(
-            source_dirs=[Path(".")],  # Dummy source dir
-            test_dirs=[Path(".")],    # Dummy test dir
+            source_dirs=[],  # Not needed when analyzing from data
+            test_dirs=[],    # Not needed when analyzing from data
             formulas=formulas,
             output_dir=output_path
         )
@@ -401,6 +409,10 @@ def _save_coverage_matrix_to_csv(coverage_matrix: CoverageMatrix, output_file: P
         # Create header
         header = ['Element', 'File', 'Line'] + coverage_matrix.test_names
         
+        # Add a special row for test outcomes
+        outcome_row = ['OUTCOME', '', ''] + [o.value for o in coverage_matrix.test_outcomes]
+        data.append(outcome_row)
+
         # Add rows for each code element
         for i, element in enumerate(coverage_matrix.code_elements):
             row = [

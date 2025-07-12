@@ -10,6 +10,8 @@ import logging
 from pathlib import Path
 from typing import List, Optional, Sequence, Union
 
+import numpy as np
+
 from ..coverage.collector import CoverageCollector
 from ..test_runner.pytest_runner import PytestRunner
 from ..formulas.base import SBFLFormula
@@ -117,7 +119,14 @@ class FaultLocalizer:
         test_results = self.test_runner.run_tests(test_filter)        
         
         if not test_results:
-            raise RuntimeError("No test results collected")
+            logger.warning("No tests were found or executed. Aborting analysis.")
+            # Create an empty result object
+            return FaultLocalizationResult(
+                coverage_matrix=CoverageMatrix([], [], np.array([[]]), []),
+                scores={},
+                execution_time=time.time() - start_time,
+                metadata={'message': 'No tests found or executed.'}
+            )
         
         # Step 2: Build coverage matrix  
         logger.info(f"Building coverage matrix from {len(test_results)} test results")
@@ -153,27 +162,6 @@ class FaultLocalizer:
         self._generate_reports(result)
         
         return result
-    
-    # The runner now handles coverage collection internally.
-    # def _run_tests_with_coverage(self, test_filter: Optional[str] = None) -> List[TestResult]:
-    #     """Run tests while collecting coverage information."""
-    #     # Start coverage collection
-    #     self.coverage_collector.start()
-        
-    #     try:
-    #         # Run tests
-    #         test_results = self.test_runner.run_tests(test_filter)
-            
-    #         # Get coverage data for each test
-    #         for result in test_results:
-    #             coverage_data = self.coverage_collector.get_coverage_for_test(result.test_name)
-    #             result.covered_elements = coverage_data
-            
-    #         return test_results
-            
-    #     finally:
-    #         # Stop coverage collection
-    #         self.coverage_collector.stop()
     
     def _compute_suspiciousness(
         self, 

@@ -27,6 +27,14 @@ class CodeElement:
     element_type: str = "line"  # line, function, class, etc.
     element_name: Optional[str] = None
     
+    def __post_init__(self):
+        """Normalize file path to ensure consistency."""
+        try:
+            self.file_path = self.file_path.resolve(strict=True)
+        except FileNotFoundError:
+            # Path might be relative and not exist in the current context,
+            # but we can still try to make it absolute for consistency.
+            self.file_path = self.file_path.absolute()
     def __str__(self) -> str:
         if self.element_name:
             return f"{self.file_path}:{self.line_number}:{self.element_name}"

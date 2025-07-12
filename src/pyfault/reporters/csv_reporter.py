@@ -167,7 +167,7 @@ class CSVReporter:
             
             for idx, test_name in enumerate(matrix.test_names):
                 outcome = matrix.test_outcomes[idx].value
-                elements_covered = sum(matrix.matrix[idx, :])
+                elements_covered = sum(matrix.matrix[idx, :].astype(int))
                 coverage_pct = (elements_covered / total_elements * 100) if total_elements > 0 else 0
                 
                 writer.writerow([

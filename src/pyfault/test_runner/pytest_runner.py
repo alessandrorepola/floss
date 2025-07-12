@@ -96,8 +96,10 @@ class PytestRunner:
                 for result in self.test_results:
                     result.covered_elements = all_coverage_data.get(result.test_name, set())
             
+        except ImportError as e:
+            raise RuntimeError(f"Pytest or a plugin could not be imported. Please ensure it is installed. Details: {e}")
         except Exception as e:
-            raise RuntimeError(f"Error running tests: {e}")
+            raise RuntimeError(f"An unexpected error occurred while running pytest: {e}")
         finally:
             # Stop coverage collection
             if self.coverage_collector:
@@ -144,11 +146,15 @@ class PytestRunner:
     def _get_test_name(self, report: TestReport) -> str:
         """Extract a meaningful test name from pytest report."""
         # Use nodeid which includes the full path and test name
-        if hasattr(report, 'nodeid'):
+        if hasattr(report, 'nodeid') and report.nodeid:
             return report.nodeid
         
-        # Fallback to basic name
-        return f"{report.fspath}::{report.head_line}" if hasattr(report, 'head_line') else str(report.fspath)
+        # Fallback to fspath and location if nodeid is not available
+        try:
+            return f"{report.fspath}::{report.location[2]}"
+        except (AttributeError, IndexError):
+            # Final fallback
+            return str(report.fspath)
 
 
 class PytestResultCollector:
