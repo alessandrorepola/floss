@@ -1,0 +1,7 @@
+Test Name,Outcome,Elements Covered,Coverage Percentage
+test_add_positive,passed,2,33.33%
+test_add_negative,passed,2,33.33%
+test_multiply_basic,passed,2,33.33%
+test_subtract_positive,failed,2,33.33%
+test_subtract_negative,failed,2,33.33%
+test_subtract_zero,failed,2,33.33%

@@ -1,0 +1,408 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyFault Localization Report</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PyFault Localization Report</h1>
+            <p class="subtitle">Spectrum-Based Fault Localization Results</p>
+        </header>
+        
+        <section class="summary">
+            <h2>Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>6</h3>
+                    <p>Total Tests</p>
+                </div>
+                <div class="stat-card">
+                    <h3>3</h3>
+                    <p>Failed Tests</p>
+                </div>
+                <div class="stat-card">
+                    <h3>6</h3>
+                    <p>Code Elements</p>
+                </div>
+                <div class="stat-card">
+                    <h3>0.00s</h3>
+                    <p>Execution Time</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="formulas">
+            <h2>SBFL Formulas</h2>
+            <div class="formula-grid">
+                
+                <div class="formula-card">
+                    <h3>Ochiai</h3>
+                    <p>Top Element: calculator.py:9</p>
+                    <p>Score: 1.0000</p>
+                    <a href="ochiai_ranking.html" class="btn">View Ranking</a>
+                </div>
+                
+                <div class="formula-card">
+                    <h3>Tarantula</h3>
+                    <p>Top Element: calculator.py:9</p>
+                    <p>Score: 1.0000</p>
+                    <a href="tarantula_ranking.html" class="btn">View Ranking</a>
+                </div>
+                
+                <div class="formula-card">
+                    <h3>Jaccard</h3>
+                    <p>Top Element: calculator.py:9</p>
+                    <p>Score: 1.0000</p>
+                    <a href="jaccard_ranking.html" class="btn">View Ranking</a>
+                </div>
+                
+                <div class="formula-card">
+                    <h3>Dstar2</h3>
+                    <p>Top Element: calculator.py:5</p>
+                    <p>Score: 0.0000</p>
+                    <a href="dstar2_ranking.html" class="btn">View Ranking</a>
+                </div>
+                
+                <div class="formula-card">
+                    <h3>Barinel</h3>
+                    <p>Top Element: calculator.py:9</p>
+                    <p>Score: 1.0000</p>
+                    <a href="barinel_ranking.html" class="btn">View Ranking</a>
+                </div>
+                
+                <div class="formula-card">
+                    <h3>Kulczynski2</h3>
+                    <p>Top Element: calculator.py:9</p>
+                    <p>Score: 1.0000</p>
+                    <a href="kulczynski2_ranking.html" class="btn">View Ranking</a>
+                </div>
+                
+            </div>
+        </section>
+        
+        <section class="top-suspects">
+            <h2>Top Suspicious Elements</h2>
+            
+            <div class="formula-results">
+                <h3>Ochiai</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>File</th>
+                            <th>Line</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td>1</td>
+                            <td>calculator.py</td>
+                            <td>9</td>
+                            <td>1.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>2</td>
+                            <td>calculator.py</td>
+                            <td>10</td>
+                            <td>1.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>3</td>
+                            <td>calculator.py</td>
+                            <td>5</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>4</td>
+                            <td>calculator.py</td>
+                            <td>6</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>5</td>
+                            <td>calculator.py</td>
+                            <td>13</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="formula-results">
+                <h3>Tarantula</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>File</th>
+                            <th>Line</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td>1</td>
+                            <td>calculator.py</td>
+                            <td>9</td>
+                            <td>1.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>2</td>
+                            <td>calculator.py</td>
+                            <td>10</td>
+                            <td>1.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>3</td>
+                            <td>calculator.py</td>
+                            <td>5</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>4</td>
+                            <td>calculator.py</td>
+                            <td>6</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>5</td>
+                            <td>calculator.py</td>
+                            <td>13</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="formula-results">
+                <h3>Jaccard</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>File</th>
+                            <th>Line</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td>1</td>
+                            <td>calculator.py</td>
+                            <td>9</td>
+                            <td>1.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>2</td>
+                            <td>calculator.py</td>
+                            <td>10</td>
+                            <td>1.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>3</td>
+                            <td>calculator.py</td>
+                            <td>5</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>4</td>
+                            <td>calculator.py</td>
+                            <td>6</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>5</td>
+                            <td>calculator.py</td>
+                            <td>13</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="formula-results">
+                <h3>Dstar2</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>File</th>
+                            <th>Line</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td>1</td>
+                            <td>calculator.py</td>
+                            <td>5</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>2</td>
+                            <td>calculator.py</td>
+                            <td>6</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>3</td>
+                            <td>calculator.py</td>
+                            <td>9</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>4</td>
+                            <td>calculator.py</td>
+                            <td>10</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>5</td>
+                            <td>calculator.py</td>
+                            <td>13</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="formula-results">
+                <h3>Barinel</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>File</th>
+                            <th>Line</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td>1</td>
+                            <td>calculator.py</td>
+                            <td>9</td>
+                            <td>1.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>2</td>
+                            <td>calculator.py</td>
+                            <td>10</td>
+                            <td>1.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>3</td>
+                            <td>calculator.py</td>
+                            <td>5</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>4</td>
+                            <td>calculator.py</td>
+                            <td>6</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>5</td>
+                            <td>calculator.py</td>
+                            <td>13</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="formula-results">
+                <h3>Kulczynski2</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>File</th>
+                            <th>Line</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td>1</td>
+                            <td>calculator.py</td>
+                            <td>9</td>
+                            <td>1.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>2</td>
+                            <td>calculator.py</td>
+                            <td>10</td>
+                            <td>1.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>3</td>
+                            <td>calculator.py</td>
+                            <td>5</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>4</td>
+                            <td>calculator.py</td>
+                            <td>6</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>5</td>
+                            <td>calculator.py</td>
+                            <td>13</td>
+                            <td>0.0000</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+            
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+        

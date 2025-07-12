@@ -1,0 +1,11 @@
+Metric,Value
+Total Tests,6
+Failed Tests,0
+Total Elements,6
+Execution Time (s),0.016
+Formulas Used,"ochiai, tarantula, jaccard"
+
+Formula,Top Element,File,Line,Score
+ochiai,calculator.py:9,calculator.py,9,1.000000
+tarantula,calculator.py:9,calculator.py,9,1.000000
+jaccard,calculator.py:9,calculator.py,9,1.000000
