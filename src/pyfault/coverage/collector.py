@@ -145,6 +145,19 @@ class CoverageCollector:
                         element_type="line"
                     )
                     covered_elements.add(element)
+
+                # Get branch coverage for this file
+                arcs = data.arcs(filename) or []
+                for arc in arcs:
+                    # An arc is a tuple (from_line, to_line)
+                    # A negative to_line indicates an exit from a function
+                    element = CodeElement(
+                        file_path=file_path,
+                        line_number=arc[0],
+                        element_type="branch",
+                        element_name=f"branch:{arc[0]}->{arc[1]}"
+                    )
+                    covered_elements.add(element)
         
         except Exception as e:
             # Log error but don't break the flow

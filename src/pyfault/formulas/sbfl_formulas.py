@@ -5,7 +5,6 @@ This module provides implementations of the most commonly used and effective
 SBFL formulas, including those supported by GZoltar.
 """
 
-import math
 from typing import Optional
 from .base import SBFLFormula, safe_divide, safe_sqrt
 
@@ -103,27 +102,6 @@ class DStarFormula(SBFLFormula):
         denominator = n_cp + n_nf
         
         return safe_divide(numerator, denominator)
-
-
-class BarinelFormula(SBFLFormula):
-    """
-    Barinel formula for fault localization.
-    
-    A probabilistic approach to fault localization.
-    
-    Formula: 1 - (n_cp / (n_cp + n_cf))
-    
-    Reference: Abreu, R., Zoeteweij, P., Van Gemund, A.J.: On the accuracy 
-    of spectrum-based fault localization. TAAS 2009.
-    """
-    
-    def calculate(self, n_cf: int, n_nf: int, n_cp: int, n_np: int) -> float:
-        if n_cf == 0 and n_cp == 0:
-            return 0.0
-        
-        ratio = safe_divide(n_cp, n_cp + n_cf)
-        return 1.0 - ratio
-
 
 class Kulczynski2Formula(SBFLFormula):
     """

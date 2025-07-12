@@ -5,15 +5,12 @@ This module provides integration with pytest for executing tests and collecting 
 similar to GZoltar's integration with JUnit/TestNG.
 """
 
-import subprocess
-import json
-import tempfile
-import sys
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 import pytest
-from _pytest.python import Function
 from _pytest.reports import TestReport
+
+from pyfault.coverage.collector import CoverageCollector
 
 from ..core.models import TestResult, TestOutcome
 
@@ -32,15 +29,17 @@ class PytestRunner:
         ...     print(f"{result.test_name}: {result.outcome}")
     """
     
-    def __init__(self, test_dirs: List[Path]):
+    def __init__(self, test_dirs: List[Path], coverage_collector: Optional[CoverageCollector] = None):
         """
         Initialize the pytest runner.
         
         Args:
             test_dirs: Directories containing test files
+            coverage_collector: An instance of CoverageCollector to handle per-test coverage.
         """
         self.test_dirs = test_dirs
         self.test_results: List[TestResult] = []
+        self.coverage_collector = coverage_collector
     
     def run_tests(self, test_filter: Optional[str] = None) -> List[TestResult]:
         """
@@ -78,17 +77,31 @@ class PytestRunner:
         ])
         
         # Run tests using pytest's programmatic API
-        result_plugin = PytestResultCollector()
+        result_plugin = PytestResultCollector(self.coverage_collector)
         
         try:
+            # Start coverage collection for the entire session
+            if self.coverage_collector:
+                self.coverage_collector.start()
+
             # Run pytest with our custom plugin
             exit_code = pytest.main(args + ['-p', 'no:cacheprovider'], plugins=[result_plugin])
             
             # Convert collected results to our format
             self.test_results = self._convert_results(result_plugin.test_reports)
+
+            # Populate coverage data from the collector
+            if self.coverage_collector:
+                all_coverage_data = self.coverage_collector.get_all_coverage_data()
+                for result in self.test_results:
+                    result.covered_elements = all_coverage_data.get(result.test_name, set())
             
         except Exception as e:
             raise RuntimeError(f"Error running tests: {e}")
+        finally:
+            # Stop coverage collection
+            if self.coverage_collector:
+                self.coverage_collector.stop()
         
         return self.test_results
     
@@ -146,15 +159,25 @@ class PytestResultCollector:
     test execution information.
     """
     
-    def __init__(self):
+    def __init__(self, coverage_collector: Optional[CoverageCollector] = None):
         """Initialize the result collector."""
         self.test_reports: List[TestReport] = []
+        self.coverage_collector = coverage_collector
     
+    def pytest_runtest_setup(self, item: pytest.Item) -> None:
+        """Called before a test is run."""
+        if self.coverage_collector:
+            self.coverage_collector.start_test(item.nodeid)
+
     def pytest_runtest_logreport(self, report: TestReport) -> None:
         """Collect test reports from pytest."""
-        # Only collect call phase reports (not setup/teardown)
         if report.when == 'call':
             self.test_reports.append(report)
+
+    def pytest_runtest_teardown(self, item: pytest.Item, nextitem: Optional[pytest.Item]) -> None:
+        """Called after a test is run."""
+        if self.coverage_collector:
+            self.coverage_collector.end_test(item.nodeid)
 
 
 class SimpleTestRunner:

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{ formula_name.title() }} Rankings</h1>
+            <nav>
+                <a href="index.html">← Back to Summary</a>
+            </nav>
+        </header>
+        
+        <section class="ranking">
+            <h2>Suspiciousness Ranking (Top {{ scores|length }} of {{ total_elements }})</h2>
+            <table class="ranking-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>File</th>
+                        <th>Line</th>
+                        <th>Element</th>
+                        <th>Suspiciousness Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for score in scores %}
+                    <tr class="{% if score.score > 0.7 %}high-suspicion{% elif score.score > 0.3 %}medium-suspicion{% else %}low-suspicion{% endif %}">
+                        <td>{{ score.rank }}</td>
+                        <td>{{ score.element.file_path }}</td>
+                        <td>{{ score.element.line_number }}</td>
+                        <td>{{ score.element.element_name or '' }}</td>
+                        <td>{{ "%.6f"|format(score.score) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

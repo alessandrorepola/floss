@@ -8,7 +8,7 @@ similar to GZoltar's core functionality.
 import time
 import logging
 from pathlib import Path
-from typing import List, Optional, Dict, Any, Union, Sequence
+from typing import List, Optional, Sequence, Union
 
 from ..coverage.collector import CoverageCollector
 from ..test_runner.pytest_runner import PytestRunner
@@ -18,10 +18,12 @@ from ..reporters.html_reporter import HTMLReporter
 from ..reporters.csv_reporter import CSVReporter
 from .models import (
     FaultLocalizationResult, 
-    CoverageMatrix, 
-    TestResult,
+    CoverageMatrix,
     SuspiciousnessScore
 )
+
+# Define a base type for test runners for better type hinting
+TestRunner = Union[PytestRunner]
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +56,7 @@ class FaultLocalizer:
         source_dirs: Sequence[str | Path],
         test_dirs: Sequence[str | Path],
         formulas: Optional[List[SBFLFormula]] = None,
-        test_runner: Optional[str] = "pytest",
+        test_runner: Optional[TestRunner] = None,
         coverage_collector: Optional[CoverageCollector] = None,
         output_dir: Optional[str | Path] = None
     ):
@@ -65,7 +67,7 @@ class FaultLocalizer:
             source_dirs: Directories containing source code to analyze
             test_dirs: Directories containing test files
             formulas: SBFL formulas to use (default: Ochiai, Tarantula, Jaccard)
-            test_runner: Test runner to use ('pytest', 'unittest')
+            test_runner: An instance of a test runner (e.g., PytestRunner).
             coverage_collector: Custom coverage collector (uses default if None)
             output_dir: Directory for output files (default: './pyfault_output')
         """
@@ -86,11 +88,11 @@ class FaultLocalizer:
         # Initialize components
         self.coverage_collector = coverage_collector or CoverageCollector(self.source_dirs)
         
-        if test_runner == "pytest":
-            self.test_runner = PytestRunner(self.test_dirs)
+        if test_runner is None:
+            self.test_runner: TestRunner = PytestRunner(self.test_dirs, self.coverage_collector)
         else:
-            raise ValueError(f"Unsupported test runner: {test_runner}")
-        
+            self.test_runner = test_runner    
+            
         # Ensure output directory exists
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
@@ -112,7 +114,7 @@ class FaultLocalizer:
         
         # Step 1: Collect coverage and run tests
         logger.info("Collecting coverage and executing tests")
-        test_results = self._run_tests_with_coverage(test_filter)
+        test_results = self.test_runner.run_tests(test_filter)        
         
         if not test_results:
             raise RuntimeError("No test results collected")
@@ -152,25 +154,26 @@ class FaultLocalizer:
         
         return result
     
-    def _run_tests_with_coverage(self, test_filter: Optional[str] = None) -> List[TestResult]:
-        """Run tests while collecting coverage information."""
-        # Start coverage collection
-        self.coverage_collector.start()
+    # The runner now handles coverage collection internally.
+    # def _run_tests_with_coverage(self, test_filter: Optional[str] = None) -> List[TestResult]:
+    #     """Run tests while collecting coverage information."""
+    #     # Start coverage collection
+    #     self.coverage_collector.start()
         
-        try:
-            # Run tests
-            test_results = self.test_runner.run_tests(test_filter)
+    #     try:
+    #         # Run tests
+    #         test_results = self.test_runner.run_tests(test_filter)
             
-            # Get coverage data for each test
-            for result in test_results:
-                coverage_data = self.coverage_collector.get_coverage_for_test(result.test_name)
-                result.covered_elements = coverage_data
+    #         # Get coverage data for each test
+    #         for result in test_results:
+    #             coverage_data = self.coverage_collector.get_coverage_for_test(result.test_name)
+    #             result.covered_elements = coverage_data
             
-            return test_results
+    #         return test_results
             
-        finally:
-            # Stop coverage collection
-            self.coverage_collector.stop()
+    #     finally:
+    #         # Stop coverage collection
+    #         self.coverage_collector.stop()
     
     def _compute_suspiciousness(
         self, 

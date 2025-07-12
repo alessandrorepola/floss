@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{ title }}</h1>
+            <p class="subtitle">Spectrum-Based Fault Localization Results</p>
+        </header>
+        
+        <section class="summary">
+            <h2>Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>{{ test_stats.total }}</h3>
+                    <p>Total Tests</p>
+                </div>
+                <div class="stat-card">
+                    <h3>{{ test_stats.failed }}</h3>
+                    <p>Failed Tests</p>
+                </div>
+                <div class="stat-card">
+                    <h3>{{ metadata.total_elements }}</h3>
+                    <p>Code Elements</p>
+                </div>
+                <div class="stat-card">
+                    <h3>{{ "%.2f"|format(execution_time) }}s</h3>
+                    <p>Execution Time</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="formulas">
+            <h2>SBFL Formulas</h2>
+            <div class="formula-grid">
+                {% for formula in formulas %}
+                <div class="formula-card">
+                    <h3>{{ formula.title() }}</h3>
+                    <p>Top Element: {{ top_elements[formula][0].element if top_elements[formula] }}</p>
+                    <p>Score: {{ "%.4f"|format(top_elements[formula][0].score) if top_elements[formula] }}</p>
+                    <a href="{{ formula }}_ranking.html" class="btn">View Ranking</a>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        
+        <section class="top-suspects">
+            <h2>Top Suspicious Elements</h2>
+            {% for formula, elements in top_elements.items() %}
+            <div class="formula-results">
+                <h3>{{ formula.title() }}</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>File</th>
+                            <th>Line</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for element in elements[:5] %}
+                        <tr>
+                            <td>{{ element.rank }}</td>
+                            <td>{{ element.file }}</td>
+                            <td>{{ element.line }}</td>
+                            <td>{{ "%.4f"|format(element.score) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endfor %}
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

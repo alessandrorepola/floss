@@ -7,7 +7,7 @@ similar to GZoltar's HTML output functionality.
 
 from pathlib import Path
 from typing import Dict, List, Any
-from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader, Template
 
 from ..core.models import FaultLocalizationResult, SuspiciousnessScore
 
@@ -33,6 +33,13 @@ class HTMLReporter:
         """
         self.output_dir = output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Setup Jinja2 environment
+        template_dir = Path(__file__).parent / "templates"
+        self.jinja_env = Environment(
+            loader=FileSystemLoader(template_dir),
+            autoescape=True
+        )
     
     def generate_report(self, result: FaultLocalizationResult) -> None:
         """
@@ -53,8 +60,7 @@ class HTMLReporter:
     
     def _write_main_report(self, result: FaultLocalizationResult) -> None:
         """Write the main HTML report."""
-        template_str = self._get_main_template()
-        template = Template(template_str)
+        template = self.jinja_env.get_template("main_report.html")
         
         # Prepare data for template
         template_data = {
@@ -75,8 +81,7 @@ class HTMLReporter:
     
     def _write_formula_report(self, formula_name: str, result: FaultLocalizationResult) -> None:
         """Write detailed report for a specific formula."""
-        template_str = self._get_formula_template()
-        template = Template(template_str)
+        template = self.jinja_env.get_template("formula_report.html")
         
         scores = result.scores[formula_name]
         
@@ -166,142 +171,11 @@ class HTMLReporter:
     
     def _get_main_template(self) -> str:
         """Get the main HTML template."""
-        return '''
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>{{ title }}</h1>
-            <p class="subtitle">Spectrum-Based Fault Localization Results</p>
-        </header>
-        
-        <section class="summary">
-            <h2>Summary</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>{{ test_stats.total }}</h3>
-                    <p>Total Tests</p>
-                </div>
-                <div class="stat-card">
-                    <h3>{{ test_stats.failed }}</h3>
-                    <p>Failed Tests</p>
-                </div>
-                <div class="stat-card">
-                    <h3>{{ metadata.total_elements }}</h3>
-                    <p>Code Elements</p>
-                </div>
-                <div class="stat-card">
-                    <h3>{{ "%.2f"|format(execution_time) }}s</h3>
-                    <p>Execution Time</p>
-                </div>
-            </div>
-        </section>
-        
-        <section class="formulas">
-            <h2>SBFL Formulas</h2>
-            <div class="formula-grid">
-                {% for formula in formulas %}
-                <div class="formula-card">
-                    <h3>{{ formula.title() }}</h3>
-                    <p>Top Element: {{ top_elements[formula][0].element if top_elements[formula] }}</p>
-                    <p>Score: {{ "%.4f"|format(top_elements[formula][0].score) if top_elements[formula] }}</p>
-                    <a href="{{ formula }}_ranking.html" class="btn">View Ranking</a>
-                </div>
-                {% endfor %}
-            </div>
-        </section>
-        
-        <section class="top-suspects">
-            <h2>Top Suspicious Elements</h2>
-            {% for formula, elements in top_elements.items() %}
-            <div class="formula-results">
-                <h3>{{ formula.title() }}</h3>
-                <table class="ranking-table">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>File</th>
-                            <th>Line</th>
-                            <th>Score</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for element in elements[:5] %}
-                        <tr>
-                            <td>{{ element.rank }}</td>
-                            <td>{{ element.file }}</td>
-                            <td>{{ element.line }}</td>
-                            <td>{{ "%.4f"|format(element.score) }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% endfor %}
-        </section>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
-        '''
+        return ''
     
     def _get_formula_template(self) -> str:
         """Get the formula-specific HTML template."""
-        return '''
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>{{ formula_name.title() }} Rankings</h1>
-            <nav>
-                <a href="index.html">← Back to Summary</a>
-            </nav>
-        </header>
-        
-        <section class="ranking">
-            <h2>Suspiciousness Ranking (Top {{ scores|length }} of {{ total_elements }})</h2>
-            <table class="ranking-table">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>File</th>
-                        <th>Line</th>
-                        <th>Element</th>
-                        <th>Suspiciousness Score</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for score in scores %}
-                    <tr class="{% if score.score > 0.7 %}high-suspicion{% elif score.score > 0.3 %}medium-suspicion{% else %}low-suspicion{% endif %}">
-                        <td>{{ score.rank }}</td>
-                        <td>{{ score.element.file_path }}</td>
-                        <td>{{ score.element.line_number }}</td>
-                        <td>{{ score.element.element_name or '' }}</td>
-                        <td>{{ "%.6f"|format(score.score) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
-        '''
+        return ''
     
     def _get_css_content(self) -> str:
         """Get CSS stylesheet content."""
