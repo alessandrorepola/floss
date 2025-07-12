@@ -5,11 +5,10 @@ This module provides functionality for collecting code coverage information
 during test execution, similar to GZoltar's instrumentation capabilities.
 """
 
-import sys
 import coverage
 import threading
 from pathlib import Path
-from typing import Set, List, Dict, Optional, Union
+from typing import Set, List, Dict, Optional
 from collections import defaultdict
 
 from ..core.models import CodeElement

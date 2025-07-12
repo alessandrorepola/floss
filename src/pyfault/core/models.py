@@ -5,7 +5,7 @@ Defines the fundamental data structures used throughout the fault localization p
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Tuple, Union, Any
+from typing import Dict, List, Optional, Set, Tuple, Any
 from enum import Enum
 import numpy as np
 from pathlib import Path
@@ -145,8 +145,8 @@ class SuspiciousnessScore:
     rank: Optional[int] = None
     
     def __lt__(self, other: "SuspiciousnessScore") -> bool:
-        """Enable sorting by score (descending)."""
-        return self.score > other.score
+        """Enable sorting by score."""
+        return self.score < other.score
 
 
 @dataclass 
