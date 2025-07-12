@@ -292,50 +292,133 @@ def fl(ctx: click.Context, coverage_file: str, output_dir: str,
               help='Source code directories')
 @click.option('--test-dir', '-t', multiple=True, required=True,
               help='Test directories')
+@click.option('--output-dir', '-o', default='./pyfault_output',
+              help='Output directory for coverage data')
 @click.option('--test-filter', '-k',
               help='Filter tests using pytest -k pattern')
-def test(source_dir: List[str], test_dir: List[str], test_filter: Optional[str]) -> None:
+@click.option('--save-coverage', is_flag=True, default=True,
+              help='Save coverage matrix to CSV file')
+@click.pass_context
+def test(ctx: click.Context, source_dir: List[str], test_dir: List[str], 
+         output_dir: str, test_filter: Optional[str], save_coverage: bool) -> None:
     """
     Run tests with coverage collection only.
     
     This command executes tests and collects coverage data without
-    performing fault localization analysis.
+    performing fault localization analysis. The coverage data can be
+    saved for later analysis using the 'fl' command.
     """
     try:
         source_dirs = [Path(d) for d in source_dir]
         test_dirs = [Path(d) for d in test_dir]
+        output_path = Path(output_dir)
         
-        # Just use a simple localizer to run tests
-        localizer = FaultLocalizer(
-            source_dirs=source_dirs,
-            test_dirs=test_dirs,
-            formulas=[OchiaiFormula()]  # Minimal formula for testing
-        )
+        # Validate directories
+        for d in source_dirs + test_dirs:
+            if not d.exists():
+                raise click.ClickException(f"Directory not found: {d}")
         
-        console.print("[bold green]Running tests with coverage...[/bold green]")
+        # Create output directory
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        console.print("[bold green]Running tests with coverage collection...[/bold green]")
+        console.print(f"Source dirs: {[str(d) for d in source_dirs]}")
+        console.print(f"Test dirs: {[str(d) for d in test_dirs]}")
+        console.print(f"Output dir: {output_path}")
+        
+        # Import components directly for test-only execution
+        from ..coverage.collector import CoverageCollector
+        from ..test_runner.pytest_runner import PytestRunner
+        from ..core.models import CoverageMatrix
+        
+        # Initialize components
+        coverage_collector = CoverageCollector(source_dirs)
+        test_runner = PytestRunner(test_dirs, coverage_collector)
         
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
             console=console
         ) as progress:
-            task = progress.add_task("Executing tests...", total=None)
-            result = localizer.run(test_filter=test_filter)
+            task = progress.add_task("Executing tests and collecting coverage...", total=None)
+            
+            # Run tests and get results
+            test_results = test_runner.run_tests(test_filter)
+        
+        if not test_results:
+            raise RuntimeError("No test results collected")
+        
+        # Build coverage matrix
+        coverage_matrix = CoverageMatrix.from_test_results(test_results)
         
         # Display test statistics
-        matrix = result.coverage_matrix
-        passed = sum(1 for outcome in matrix.test_outcomes if outcome.value == 'passed')
-        failed = sum(1 for outcome in matrix.test_outcomes if outcome.value in ('failed', 'error'))
+        failed_count = sum(1 for r in test_results if r.is_failed)
+        passed_count = len(test_results) - failed_count
         
-        console.print(f"\n[bold green]✓[/bold green] Tests completed!")
-        console.print(f"Total tests: {len(matrix.test_outcomes)}")
-        console.print(f"Passed: [green]{passed}[/green]")
-        console.print(f"Failed: [red]{failed}[/red]")
-        console.print(f"Coverage: {len(matrix.code_elements)} elements")
+        console.print(f"\n[bold green]✓[/bold green] Test execution completed!")
+        console.print(f"Total tests: {len(test_results)}")
+        console.print(f"Passed: [green]{passed_count}[/green]")
+        console.print(f"Failed: [red]{failed_count}[/red]")
+        console.print(f"Coverage collected for: {len(coverage_matrix.code_elements)} code elements")
+        
+        # Save coverage data if requested
+        if save_coverage:
+            coverage_file = output_path / "coverage_matrix.csv"
+            
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                console=console
+            ) as progress:
+                task = progress.add_task("Saving coverage data...", total=None)
+                _save_coverage_matrix_to_csv(coverage_matrix, coverage_file)
+            
+            console.print(f"Coverage data saved to: [blue]{coverage_file}[/blue]")
+            console.print(f"Use '[cyan]pyfault fl -c {coverage_file}[/cyan]' to perform fault localization")
         
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {e}")
+        if ctx.obj.get('verbose'):
+            console.print_exception()
         sys.exit(1)
+
+
+def _save_coverage_matrix_to_csv(coverage_matrix: CoverageMatrix, output_file: Path) -> None:
+    """
+    Save coverage matrix to CSV file.
+    
+    Args:
+        coverage_matrix: The coverage matrix to save
+        output_file: Path where to save the CSV file
+        
+    Raises:
+        RuntimeError: If there's an error saving the file
+    """
+    try:
+        # Prepare data for CSV
+        data = []
+        
+        # Create header
+        header = ['Element', 'File', 'Line'] + coverage_matrix.test_names
+        
+        # Add rows for each code element
+        for i, element in enumerate(coverage_matrix.code_elements):
+            row = [
+                f"{element.file_path.name}:{element.line_number}",
+                str(element.file_path),
+                element.line_number
+            ]
+            # Add coverage data for each test (transpose matrix to get element rows)
+            coverage_for_element = coverage_matrix.matrix[:, i].tolist()
+            row.extend(coverage_for_element)
+            data.append(row)
+        
+        # Create DataFrame and save
+        df = pd.DataFrame(data, columns=header)
+        df.to_csv(output_file, index=False)
+        
+    except Exception as e:
+        raise RuntimeError(f"Error saving coverage matrix to {output_file}: {e}")
 
 
 def _display_results(result, top: int) -> None:
