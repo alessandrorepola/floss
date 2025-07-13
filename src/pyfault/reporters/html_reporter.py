@@ -65,7 +65,6 @@ class HTMLReporter:
         # Prepare data for template
         template_data = {
             'title': 'PyFault Localization Report',
-            'metadata': result.metadata,
             'execution_time': result.execution_time,
             'formulas': list(result.scores.keys()),
             'top_elements': self._get_top_elements_summary(result),
