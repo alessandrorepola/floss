@@ -10,10 +10,17 @@
     <div class="container">
         <header>
             <h1>{{ formula_name.title() }} Rankings</h1>
-            <nav>
-                <a href="index.html">← Back to Summary</a>
-            </nav>
         </header>
+        
+        <nav>
+            <a href="index.html">← Back to Summary</a>
+            <a href="package_overview.html">Package Overview</a>
+            {% for other_formula in metadata.get('formulas_used', []) %}
+                {% if other_formula != formula_name %}
+                <a href="{{ other_formula }}_ranking.html">{{ other_formula.title() }}</a>
+                {% endif %}
+            {% endfor %}
+        </nav>
         
         <section class="ranking">
             <h2>Suspiciousness Ranking (Top {{ scores|length }} of {{ total_elements }})</h2>
@@ -23,18 +30,28 @@
                         <th>Rank</th>
                         <th>File</th>
                         <th>Line</th>
-                        <th>Element</th>
+                        <th>Element Type</th>
+                        <th>Element Name</th>
                         <th>Suspiciousness Score</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for score in scores %}
-                    <tr class="{% if score.score > 0.7 %}high-suspicion{% elif score.score > 0.3 %}medium-suspicion{% else %}low-suspicion{% endif %}">
+                    <tr class="{{ score.suspicion_level }}-suspicion">
                         <td>{{ score.rank }}</td>
-                        <td>{{ score.element.file_path }}</td>
+                        <td>{{ score.element.file_path.name }}</td>
                         <td>{{ score.element.line_number }}</td>
-                        <td>{{ score.element.element_name or '' }}</td>
-                        <td>{{ "%.6f"|format(score.score) }}</td>
+                        <td>{{ score.element.element_type }}</td>
+                        <td>{{ score.element.element_name or 'N/A' }}</td>
+                        <td data-score="{{ score.score }}" data-formula="{{ formula_name }}">
+                            <span class="score-badge {{ score.suspicion_level }}">
+                                {{ "%.6f"|format(score.score) }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ score.source_link }}" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.8em;">View Source</a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
