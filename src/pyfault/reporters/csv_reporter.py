@@ -7,9 +7,14 @@ similar to GZoltar's CSV output functionality.
 
 import csv
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List
 
-from ..core.models import FaultLocalizationResult, SuspiciousnessScore
+import numpy as np
+import pandas as pd
+
+from rich.console import Console
+
+from ..core.models import CodeElement, CoverageMatrix, FaultLocalizationResult, SuspiciousnessScore, TestOutcome
 
 
 class CSVReporter:
@@ -33,6 +38,7 @@ class CSVReporter:
         """
         self.output_dir = output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.console = Console()
     
     def generate_report(self, result: FaultLocalizationResult) -> None:
         """
@@ -49,7 +55,7 @@ class CSVReporter:
         self._write_summary_report(result)
         
         # Generate coverage matrix
-        self._write_coverage_matrix(result)
+        self.write_coverage_matrix(result.coverage_matrix)
         
         # Generate test results
         self._write_test_results(result)
@@ -118,33 +124,55 @@ class CSVReporter:
                         top_score.element.line_number,
                         f"{top_score.score:.6f}"
                     ])
+            self.console.print(f"Summary report saved to: [blue]{filename}[/blue]")
     
-    def _write_coverage_matrix(self, result: FaultLocalizationResult) -> None:
-        """Write the coverage matrix to CSV."""
-        filename = self.output_dir / "coverage_matrix.csv"
-        matrix = result.coverage_matrix
+    def write_coverage_matrix(self, matrix: CoverageMatrix, output_path: Path | None = None) -> None:
+        """
+        Save coverage matrix to CSV file.
         
-        with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
+        Args:
+            coverage_matrix: The coverage matrix to save
+            output_file: Path where to save the CSV file
             
-            # Write header with test names
-            header = ['Element', 'File', 'Line'] + matrix.test_names
-            writer.writerow(header)
+        Raises:
+            RuntimeError: If there's an error saving the file
+        """
+        try:
+            filename = (output_path or self.output_dir) / "coverage_matrix.csv"
+
+            # Prepare data for CSV
+            data = []
             
-            # Write coverage data
-            for idx, element in enumerate(matrix.code_elements):
+            # Create header
+            header = ['Element', 'File', 'Line', 'ElementType', 'ElementName'] + matrix.test_names
+            
+            # Add a special row for test outcomes
+            outcome_row = ['OUTCOME', '', '', '', ''] + [o.value for o in matrix.test_outcomes]
+            data.append(outcome_row)
+
+            # Add rows for each code element
+            for i, element in enumerate(matrix.code_elements):
                 row = [
                     str(element),
                     str(element.file_path),
-                    element.line_number
+                    element.line_number,
+                    element.element_type,
+                    element.element_name or ''
                 ]
-                
-                # Add coverage values for each test
-                for test_idx in range(len(matrix.test_names)):
-                    coverage_value = matrix.matrix[test_idx, idx]
-                    row.append(coverage_value)
-                
-                writer.writerow(row)
+                # Add coverage data for each test (transpose matrix to get element rows)
+                coverage_for_element = matrix.matrix[:, i].tolist()
+                row.extend(coverage_for_element)
+                data.append(row)
+            
+            # Create DataFrame and save
+            df = pd.DataFrame(data, columns=header)
+            df.to_csv(filename, index=False)
+
+            self.console.print(f"Coverage data saved to: [blue]{filename}[/blue]")
+            self.console.print(f"Use '[cyan]pyfault fl -c {filename}[/cyan]' to perform fault localization")
+        
+        except Exception as e:
+            raise RuntimeError(f"Error saving coverage matrix to {filename}: {e}")
     
     def _write_test_results(self, result: FaultLocalizationResult) -> None:
         """Write test results to CSV."""
@@ -176,3 +204,75 @@ class CSVReporter:
                     elements_covered,
                     f"{coverage_pct:.2f}%"
                 ])
+
+        self.console.print(f"Test results saved to: [blue]{filename}[/blue]")
+
+
+    def load_coverage_matrix(self, coverage_file: str) -> CoverageMatrix:
+        """
+        Load coverage matrix from CSV file.
+        
+        Expected CSV format:
+        Element,File,Line,test1,test2,test3,...
+        OUTCOME,,PASSED,FAILED,PASSED,...
+        file.py:1,file.py,1,1,0,1,...
+        file.py:2,file.py,2,0,1,1,...
+        
+        Args:
+            coverage_file: Path to the CSV file containing coverage matrix
+            
+        Returns:
+            CoverageMatrix object
+        """
+        try:
+            # Read CSV file
+            df = pd.read_csv(coverage_file)
+            
+            # Validate required columns
+            if not all(col in df.columns for col in ['Element', 'File', 'Line']):
+                raise ValueError("CSV file must contain 'Element', 'File', and 'Line' columns")
+
+            # Extract test names (columns after 'Line')
+            test_columns = [col for col in df.columns if col not in ['Element', 'File', 'Line']]
+            test_names = test_columns
+            
+            if not test_names:
+                raise ValueError("No test columns found in CSV file")
+
+            # Extract test outcomes from the special 'OUTCOME' row
+            outcome_row = df[df['Element'] == 'OUTCOME']
+            if outcome_row.empty:
+                raise ValueError("CSV file must contain an 'OUTCOME' row for test results.")
+            
+            test_outcomes_str = outcome_row[test_columns].iloc[0].tolist()
+            test_outcomes = [TestOutcome(outcome.lower()) for outcome in test_outcomes_str]
+
+            # Filter out the outcome row to process code elements
+            df_elements = df[df['Element'] != 'OUTCOME'].reset_index(drop=True)
+            
+            # Extract code elements
+            code_elements = []
+            for _, row in df_elements.iterrows():
+                element = CodeElement(
+                    file_path=Path(row['File']),
+                    line_number=int(row['Line']),
+                    element_type=row.get('ElementType', 'line'), # Use .get for retrocompatibility
+                    element_name=row.get('ElementName') if pd.notna(row.get('ElementName')) else None
+                )
+                code_elements.append(element)
+            
+            # Extract coverage matrix
+            coverage_data = df_elements[test_columns].values.astype(np.int8)
+            
+            # Transpose to get tests as rows, elements as columns
+            matrix = coverage_data.T
+            
+            return CoverageMatrix(
+                test_names=test_names,
+                code_elements=code_elements,
+                matrix=matrix,
+                test_outcomes=test_outcomes
+            )
+            
+        except Exception as e:
+            raise RuntimeError(f"Error loading coverage matrix from {coverage_file}: {e}")
