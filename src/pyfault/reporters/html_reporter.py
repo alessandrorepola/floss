@@ -9,9 +9,9 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Any
-from jinja2 import Environment, FileSystemLoader, Template
+from jinja2 import Environment, FileSystemLoader
 
-from ..core.models import FaultLocalizationResult, SuspiciousnessScore, CodeElement
+from ..core.models import FaultLocalizationResult, SuspiciousnessScore
 
 logger = logging.getLogger(__name__)
 
@@ -521,13 +521,21 @@ class HTMLReporter:
         }
     
     def _write_static_files(self) -> None:
-        """Write enhanced CSS and JavaScript files."""
-        # Write CSS
+        """Copy static assets (CSS, JS) to output directory and write generated files."""
+        import shutil
+        static_dir = Path(__file__).parent / "static"
+        output_static_dir = self.output_dir / "static"
+        output_static_dir.mkdir(exist_ok=True)
+
+        for asset in static_dir.glob("**/*"):
+            if asset.is_file():
+                shutil.copy(asset, output_static_dir / asset.name)
+
+        # Scrivi anche i file generati (style.css, script.js) nella root di output
         css_content = self._get_enhanced_css_content()
         with open(self.output_dir / "style.css", 'w', encoding='utf-8') as f:
             f.write(css_content)
-        
-        # Write JavaScript
+
         js_content = self._get_enhanced_js_content()
         with open(self.output_dir / "script.js", 'w', encoding='utf-8') as f:
             f.write(js_content)
