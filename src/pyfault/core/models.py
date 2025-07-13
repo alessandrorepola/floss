@@ -21,10 +21,10 @@ class TestOutcome(Enum):
 
 @dataclass
 class CodeElement:
-    """Represents a code element that can be covered (line, function, etc.)."""
+    """Represents a code element that can be covered (line, branch, etc.)."""
     file_path: Path
     line_number: int
-    element_type: str = "line"  # line, function, class, etc.
+    element_type: str = "line"  # line, branch, function, class, etc.
     element_name: Optional[str] = None
     
     def __post_init__(self):
@@ -36,12 +36,16 @@ class CodeElement:
             # but we can still try to make it absolute for consistency.
             self.file_path = self.file_path.absolute()
     def __str__(self) -> str:
+        # String representation for easy debugging and logging.
+        # Improves representation for branches    
         if self.element_name:
-            return f"{self.file_path}:{self.line_number}:{self.element_name}"
-        return f"{self.file_path}:{self.line_number}"
+            return f"{self.file_path.name}:{self.line_number} ({self.element_name})"
+        return f"{self.file_path.name}:{self.line_number}"
     
     def __hash__(self) -> int:
-        return hash((str(self.file_path), self.line_number, self.element_type))
+        """Hash based on file path, line number, element type, and name."""
+        # Use element_name to differentiate branches
+        return hash((str(self.file_path), self.line_number, self.element_type, self.element_name))
 
 
 @dataclass
@@ -165,18 +169,19 @@ class FaultLocalizationResult:
     execution_time: float = 0.0
     metadata: Dict[str, Any] = field(default_factory=dict)
     
-    def get_ranking(self, formula_name: str, limit: Optional[int] = None) -> List[Tuple[CodeElement, float]]:
-        """Get ranked list of (element, score) for a specific formula."""
+    def get_ranking(self, formula_name: str, limit: Optional[int] = None) -> List[SuspiciousnessScore]:
+        """Get ranked list of SuspiciousnessScore objects for a specific formula."""
         if formula_name not in self.scores:
             raise ValueError(f"Formula '{formula_name}' not found in results")
         
-        scores = sorted(self.scores[formula_name], reverse=True)
+        scores = self.scores[formula_name] # Scores are already sorted by score
+        
         if limit:
             scores = scores[:limit]
         
-        return [(score.element, score.score) for score in scores]
+        return scores
     
     def get_top_suspicious(self, formula_name: str, threshold: float = 0.5) -> List[CodeElement]:
         """Get code elements with suspiciousness above threshold."""
         ranking = self.get_ranking(formula_name)
-        return [element for element, score in ranking if score >= threshold]
+        return [score.element for score in ranking if score.score >= threshold]

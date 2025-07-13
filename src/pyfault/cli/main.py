@@ -19,7 +19,7 @@ import pandas as pd
 import numpy as np
 
 from ..core.fault_localizer import FaultLocalizer
-from ..core.models import CodeElement, CoverageMatrix, TestOutcome
+from ..core.models import CodeElement, CoverageMatrix, FaultLocalizationResult, TestOutcome
 from ..formulas import (
     OchiaiFormula, TarantulaFormula, JaccardFormula,
     DStarFormula, Kulczynski2Formula
@@ -189,7 +189,8 @@ def _load_coverage_matrix_from_csv(coverage_file: str) -> CoverageMatrix:
             element = CodeElement(
                 file_path=Path(row['File']),
                 line_number=int(row['Line']),
-                element_type="line"
+                element_type=row.get('ElementType', 'line'), # Use .get for retrocompatibility
+                element_name=row.get('ElementName') if pd.notna(row.get('ElementName')) else None
             )
             code_elements.append(element)
         
@@ -407,18 +408,20 @@ def _save_coverage_matrix_to_csv(coverage_matrix: CoverageMatrix, output_file: P
         data = []
         
         # Create header
-        header = ['Element', 'File', 'Line'] + coverage_matrix.test_names
+        header = ['Element', 'File', 'Line', 'ElementType', 'ElementName'] + coverage_matrix.test_names
         
         # Add a special row for test outcomes
-        outcome_row = ['OUTCOME', '', ''] + [o.value for o in coverage_matrix.test_outcomes]
+        outcome_row = ['OUTCOME', '', '', '', ''] + [o.value for o in coverage_matrix.test_outcomes]
         data.append(outcome_row)
 
         # Add rows for each code element
         for i, element in enumerate(coverage_matrix.code_elements):
             row = [
-                f"{element.file_path.name}:{element.line_number}",
+                str(element),
                 str(element.file_path),
-                element.line_number
+                element.line_number,
+                element.element_type,
+                element.element_name or ''
             ]
             # Add coverage data for each test (transpose matrix to get element rows)
             coverage_for_element = coverage_matrix.matrix[:, i].tolist()
@@ -433,7 +436,7 @@ def _save_coverage_matrix_to_csv(coverage_matrix: CoverageMatrix, output_file: P
         raise RuntimeError(f"Error saving coverage matrix to {output_file}: {e}")
 
 
-def _display_results(result, top: int) -> None:
+def _display_results(result: FaultLocalizationResult, top: int) -> None:
     """Display fault localization results in a nice table."""
     console.print(f"\n[bold]Top {top} Suspicious Elements[/bold]")
     
@@ -446,15 +449,16 @@ def _display_results(result, top: int) -> None:
         table = Table(title=f"{formula_name.title()} Formula")
         table.add_column("Rank", style="cyan", width=6)
         table.add_column("File", style="magenta")
-        table.add_column("Line", style="green", width=8)
+        table.add_column("Element", style="green", max_width=50)
         table.add_column("Score", style="yellow", width=10)
         
-        for idx, (element, score) in enumerate(ranking, 1):
+        for score in ranking: # ranking is a list of SuspiciousnessScore
+            element = score.element
             table.add_row(
-                str(idx),
+                str(score.rank),
                 str(element.file_path.name),
-                str(element.line_number),
-                f"{score:.4f}"
+                f"L{element.line_number} ({element.element_type}: {element.element_name or 'line'})",
+                f"{score.score:.4f}"
             )
         
         console.print(table)
