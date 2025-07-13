@@ -32,8 +32,11 @@ class CodeElement:
         try:
             self.file_path = self.file_path.resolve(strict=True)
         except FileNotFoundError:
-            # Path might be relative and not exist in the current context,
-            # but we can still try to make it absolute for consistency.
+            import logging
+            logging.warning(
+                f"CodeElement: FileNotFoundError for path '{self.file_path}'. "
+                "Resolved as absolute path, but this may indicate a misconfiguration (e.g., wrong source_dir)."
+            )
             self.file_path = self.file_path.absolute()
     def __str__(self) -> str:
         # String representation for easy debugging and logging.
