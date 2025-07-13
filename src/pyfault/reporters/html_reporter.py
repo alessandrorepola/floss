@@ -137,23 +137,20 @@ class HTMLReporter:
         }
     
     def _get_coverage_statistics(self, result: FaultLocalizationResult) -> Dict[str, Any]:
-        """Get coverage statistics."""
+        """
+        Get coverage statistics in an efficient way using metadata and NumPy.
+        Uses metadata for total_elements and NumPy for covered_elements count.
+        """
+        import numpy as np
         matrix = result.coverage_matrix
-        
-        # Calculate coverage statistics
-        total_elements = len(matrix.code_elements)
-        covered_elements = set()
-        
-        for test_idx in range(len(matrix.test_names)):
-            for elem_idx in range(total_elements):
-                if matrix.matrix[test_idx, elem_idx] == 1:
-                    covered_elements.add(elem_idx)
-        
-        coverage_percentage = (len(covered_elements) / total_elements * 100) if total_elements > 0 else 0
-        
+        # Usa i metadati se disponibili
+        total_elements = result.metadata.get('total_elements', len(matrix.code_elements))
+        # Calcolo efficiente degli elementi coperti
+        covered_elements_count = int(np.any(matrix.matrix, axis=0).sum())
+        coverage_percentage = (covered_elements_count / total_elements * 100) if total_elements > 0 else 0
         return {
             'total_elements': total_elements,
-            'covered_elements': len(covered_elements),
+            'covered_elements': covered_elements_count,
             'coverage_percentage': coverage_percentage
         }
     
