@@ -62,85 +62,136 @@ def main():
     import os
     preloaded_file = os.environ.get('PYFAULT_DATA_FILE')
     
+    # Initialize session state for data persistence
+    if 'loaded_data' not in st.session_state:
+        st.session_state.loaded_data = None
+    if 'data_source' not in st.session_state:
+        st.session_state.data_source = None
+    
     # Sidebar for controls
     with st.sidebar:
         st.header("🔧 Configuration")
         
         # File upload or use preloaded
-        if preloaded_file:
+        if preloaded_file and st.session_state.data_source != preloaded_file:
             st.success(f"📁 Loaded: {Path(preloaded_file).name}")
-            data_source = preloaded_file
+            st.session_state.data_source = preloaded_file
+            # Load data
+            try:
+                st.session_state.loaded_data = load_data(preloaded_file)
+            except Exception as e:
+                st.error(f"❌ Error loading preloaded data: {str(e)}")
+                st.session_state.loaded_data = None
         else:
             uploaded_file = st.file_uploader(
                 "Upload Results File", 
                 type=['json', 'csv'],
                 help="Upload PyFault JSON results or coverage CSV"
             )
-            data_source = uploaded_file
+            
+            if uploaded_file is not None:
+                # Check if it's a new file
+                if st.session_state.data_source != uploaded_file.name:
+                    st.session_state.data_source = uploaded_file.name
+                    
+                    # Load data with progress indicator
+                    with st.spinner("Loading and processing data..."):
+                        try:
+                            st.session_state.loaded_data = load_data(uploaded_file)
+                        except Exception as e:
+                            st.error(f"❌ Error loading data: {str(e)}")
+                            st.session_state.loaded_data = None
         
-        if data_source is not None:
-            # Load data
-            try:
-                data = load_data(data_source)
-                
-                if data:
-                    # Validate data structure
-                    if not validate_dashboard_data(data):
-                        st.error("❌ Invalid data structure. Please check your input file.")
-                        return
-                    
-                    st.success(f"✅ Data loaded successfully!")
-                    
-                    # Configuration options
-                    st.divider()
-                    
-                    # Formula selection
-                    available_formulas = list(data.get('formulas', {}).keys()) if isinstance(data, dict) else ['ochiai', 'tarantula', 'jaccard']
-                    selected_formula = st.selectbox(
-                        "🔬 SBFL Formula",
-                        available_formulas,
-                        help="Select the suspiciousness formula to visualize"
-                    )
-                    
-                    # Top N elements
-                    max_elements = min(100, len(data.get('elements', [])) if isinstance(data, dict) else 50)
-                    top_n = st.slider(
-                        "📊 Top N Elements", 
-                        5, max_elements, 
-                        min(20, max_elements),
-                        help="Number of top suspicious elements to display"
-                    )
-                    
-                    # Filtering options
-                    st.divider()
-                    st.subheader("🎯 Filters")
-                    
-                    min_score = st.slider(
-                        "Minimum Score", 
-                        0.0, 1.0, 0.0, 0.01,
-                        help="Show only elements with score above this threshold"
-                    )
-                    
-                    # File type filter
-                    file_extensions = st.multiselect(
-                        "File Extensions",
-                        ['.py', '.js', '.java', '.cpp', '.c'],
-                        default=['.py'],
-                        help="Filter by file extensions"
-                    )
-                    
-                    # Display main content
-                    display_results(data, selected_formula, top_n, min_score, file_extensions)
-                else:
-                    st.error("❌ Failed to load data")
-                    
-            except Exception as e:
-                st.error(f"❌ Error loading data: {str(e)}")
-                st.exception(e)
+        # Configuration controls (only show if data is loaded)
+        if st.session_state.loaded_data is not None:
+            data = st.session_state.loaded_data
+            
+            # Validate data structure
+            if not validate_dashboard_data(data):
+                st.error("❌ Invalid data structure. Please check your input file.")
+                st.session_state.loaded_data = None
+                return
+            
+            st.success("✅ Data loaded successfully!")
+            st.divider()
+            
+            # Formula selection
+            available_formulas = list(data.get('formulas', {}).keys())
+            selected_formula = st.selectbox(
+                "🔬 SBFL Formula",
+                available_formulas,
+                help="Select the suspiciousness formula to visualize"
+            )
+            
+            # Top N elements
+            formula_scores = data.get('formulas', {}).get(selected_formula, [])
+            max_elements = min(100, len(formula_scores))
+            top_n = st.slider(
+                "📊 Top N Elements", 
+                5, max_elements, 
+                min(20, max_elements),
+                help="Number of top suspicious elements to display"
+            )
+            
+            # Filtering options
+            st.divider()
+            st.subheader("🎯 Filters")
+            
+            min_score = st.slider(
+                "Minimum Score", 
+                0.0, 1.0, 0.0, 0.01,
+                help="Show only elements with score above this threshold"
+            )
+            
+            # File type filter
+            file_extensions = st.multiselect(
+                "File Extensions",
+                ['.py', '.js', '.java', '.cpp', '.c'],
+                default=['.py'],
+                help="Filter by file extensions"
+            )
+            
+            # Store config in session state for main area
+            st.session_state.config = {
+                'selected_formula': selected_formula,
+                'top_n': top_n,
+                'min_score': min_score,
+                'file_extensions': file_extensions
+            }
     
     # Main content area
-    if 'data_source' not in locals() or data_source is None:
+    if st.session_state.loaded_data is None:
         display_welcome()
+    else:
+        # Display results in main area using session state config
+        config = st.session_state.get('config', {})
+        if config:
+            display_results(
+                st.session_state.loaded_data,
+                config['selected_formula'],
+                config['top_n'],
+                config['min_score'],
+                config['file_extensions']
+            )
+        else:
+            st.info("⚙️ Please configure the settings in the sidebar.")
+
+
+@st.cache_data
+def load_data_cached(data_source_info: str) -> Optional[Dict[str, Any]]:
+    """Cached version of load_data to improve performance."""
+    # This would need to be implemented based on the data source type
+    # For now, redirect to the original function
+    pass
+
+
+def display_error_details(error: Exception):
+    """Display detailed error information for debugging."""
+    with st.expander("🔍 Error Details"):
+        st.code(str(error))
+        st.text("Stack trace:")
+        import traceback
+        st.code(traceback.format_exc())
 
 
 def load_data(data_source) -> Optional[Dict[str, Any]]:
@@ -248,15 +299,16 @@ def validate_dashboard_data(data: Dict[str, Any]) -> bool:
     try:
         # Check required top-level keys
         required_keys = ['stats', 'formulas', 'elements']
-        if not all(key in data for key in required_keys):
-            st.error(f"Missing required keys. Expected: {required_keys}, Found: {list(data.keys())}")
+        missing_keys = [key for key in required_keys if key not in data]
+        if missing_keys:
+            st.error(f"Missing required keys: {missing_keys}")
             return False
         
         # Validate stats structure
         stats = data['stats']
-        required_stats = ['total_tests', 'failed_tests', 'total_elements']
-        if not all(key in stats for key in required_stats):
-            st.warning(f"Missing stats keys. Expected: {required_stats}, Found: {list(stats.keys())}")
+        if not isinstance(stats, dict):
+            st.error("Stats must be a dictionary")
+            return False
         
         # Validate formulas structure
         formulas = data['formulas']
@@ -268,25 +320,45 @@ def validate_dashboard_data(data: Dict[str, Any]) -> bool:
             st.warning("No formula data found")
             return False
         
-        # Validate individual formula data
+        # Validate at least one formula has valid structure
+        valid_formula_found = False
         for formula_name, scores in formulas.items():
             if not isinstance(scores, list):
-                st.error(f"Formula '{formula_name}' should contain a list of scores")
-                return False
+                st.warning(f"Formula '{formula_name}' should contain a list of scores")
+                continue
             
-            if scores:  # If there are scores, validate the first one
-                score = scores[0]
-                required_score_keys = ['element', 'score', 'rank']
-                if not all(key in score for key in required_score_keys):
-                    st.error(f"Invalid score structure in formula '{formula_name}'. Expected keys: {required_score_keys}")
-                    return False
+            if not scores:  # Empty scores list
+                st.warning(f"Formula '{formula_name}' has no scores")
+                continue
                 
-                # Validate element structure
-                element = score['element']
-                required_element_keys = ['file', 'line']
-                if not all(key in element for key in required_element_keys):
-                    st.error(f"Invalid element structure. Expected keys: {required_element_keys}")
-                    return False
+            # Validate first score structure
+            score = scores[0]
+            if not isinstance(score, dict):
+                st.warning(f"Invalid score structure in formula '{formula_name}'")
+                continue
+                
+            required_score_keys = ['element', 'score', 'rank']
+            if not all(key in score for key in required_score_keys):
+                st.warning(f"Incomplete score structure in formula '{formula_name}'. Expected keys: {required_score_keys}")
+                continue
+            
+            # Validate element structure
+            element = score['element']
+            if not isinstance(element, dict):
+                st.warning(f"Invalid element structure in formula '{formula_name}'")
+                continue
+                
+            required_element_keys = ['file', 'line']
+            if not all(key in element for key in required_element_keys):
+                st.warning(f"Incomplete element structure. Expected keys: {required_element_keys}")
+                continue
+            
+            valid_formula_found = True
+            break
+        
+        if not valid_formula_found:
+            st.error("No valid formula data found")
+            return False
         
         # Validate elements structure
         elements = data['elements']
@@ -298,6 +370,7 @@ def validate_dashboard_data(data: Dict[str, Any]) -> bool:
         
     except Exception as e:
         st.error(f"Error validating data structure: {e}")
+        display_error_details(e)
         return False
 
 
@@ -455,7 +528,7 @@ def display_overview_tab(scores: List[Dict], formula: str, top_n: int):
                     x=score_values,
                     orientation='h',
                     marker_color=colors,
-                    text=[f"{s:.3f}" for s in score_values],
+                    text=[f"{s:.2f}" for s in score_values],
                     textposition='inside'
                 )
             ])
@@ -508,7 +581,7 @@ def display_ranking_tab(scores: List[Dict], formula: str, top_n: int):
                 help="Suspiciousness score (0.0 to 1.0)",
                 min_value=0.0,
                 max_value=1.0,
-                format="%.4f"
+                format="%.2f"
             ),
             "Rank": st.column_config.NumberColumn(
                 "Rank",
@@ -523,11 +596,11 @@ def display_ranking_tab(scores: List[Dict], formula: str, top_n: int):
     
     with col1:
         avg_score = np.mean([s['score'] for s in top_scores])
-        st.metric("Average Score", f"{avg_score:.4f}")
+        st.metric("Average Score", f"{avg_score:.2f}")
     
     with col2:
         max_score = max(s['score'] for s in top_scores) if top_scores else 0
-        st.metric("Max Score", f"{max_score:.4f}")
+        st.metric("Max Score", f"{max_score:.2f}")
     
     with col3:
         unique_files = len(set(s['element']['file'] for s in top_scores))
@@ -606,13 +679,13 @@ def display_files_tab(scores: List[Dict]):
                     "Max Score",
                     min_value=0.0,
                     max_value=1.0,
-                    format="%.4f"
+                    format="%.2f"
                 ),
                 "Avg Score": st.column_config.ProgressColumn(
                     "Avg Score", 
                     min_value=0.0,
                     max_value=1.0,
-                    format="%.4f"
+                    format="%.2f"
                 )
             }
         )
@@ -626,6 +699,18 @@ def display_source_tab(scores: List[Dict]):
         st.info("No data available for source viewing")
         return
     
+    # Show highlighting legend
+    st.markdown("### 🎨 Suspiciousness Legend")
+    col_legend1, col_legend2, col_legend3, col_legend4 = st.columns(4)
+    with col_legend1:
+        st.markdown("🔴 **High** (> 0.8)")
+    with col_legend2:
+        st.markdown("🟡 **Medium** (0.5 - 0.8)")
+    with col_legend3:
+        st.markdown("🟢 **Low** (0.2 - 0.5)")
+    with col_legend4:
+        st.markdown("⚪ **Minimal** (< 0.2)")
+        
     # File selector
     unique_files = list(set(s['element']['file'] for s in scores))
     selected_file = st.selectbox(
@@ -635,9 +720,11 @@ def display_source_tab(scores: List[Dict]):
     )
     
     if selected_file:
-        # Get scores for this file
-        file_scores = [s for s in scores if s['element']['file'] == selected_file]
-        file_scores.sort(key=lambda x: x['element']['line'])
+        # Get scores for this file, which are already sorted by score
+        file_scores_by_score = [s for s in scores if s['element']['file'] == selected_file]
+        
+        # Create a copy and sort by line number for code view
+        file_scores_by_line = sorted(file_scores_by_score, key=lambda x: x['element']['line'])
         
         col1, col2 = st.columns([3, 1])
         
@@ -679,55 +766,70 @@ def display_source_tab(scores: List[Dict]):
             if code_content is not None:
                 # Create line-by-line highlighting info
                 lines = code_content.split('\n')
-                score_map = {s['element']['line']: s['score'] for s in file_scores}
+                score_map = {s['element']['line']: s['score'] for s in file_scores_by_line}
                 
                 # Display the code with syntax highlighting
-                st.code(code_content, language='python', line_numbers=True)
+                try:
+                    from pygments import highlight
+                    from pygments.lexers import get_lexer_by_name
+                    from pygments.formatters import HtmlFormatter
+                    import html
+
+                    lexer = get_lexer_by_name("python", stripall=True)
+                    # Use a formatter that fits the dark theme and doesn't output a background
+                    formatter = HtmlFormatter(style='monokai', nobackground=True)
+                    
+                    # Get the CSS for the theme
+                    css = f"<style>{formatter.get_style_defs('.highlight')}</style>"
+                    st.markdown(css, unsafe_allow_html=True)
+
+                    # Highlight the entire code block
+                    highlighted_code = highlight(code_content, lexer, formatter)
+                    highlighted_lines = highlighted_code.split('\n')
+
+                except ImportError:
+                    st.warning("Pygments not installed. Falling back to plain text. `pip install Pygments`")
+                    highlighted_lines = [html.escape(line) for line in lines]
+
                 
-                # Show highlighting legend
-                st.markdown("### 🎨 Suspiciousness Legend")
-                col_legend1, col_legend2, col_legend3, col_legend4 = st.columns(4)
-                with col_legend1:
-                    st.markdown("🔴 **High** (> 0.8)")
-                with col_legend2:
-                    st.markdown("🟡 **Medium** (0.5 - 0.8)")
-                with col_legend3:
-                    st.markdown("🟢 **Low** (0.2 - 0.5)")
-                with col_legend4:
-                    st.markdown("⚪ **Minimal** (< 0.2)")
+                # Generate custom HTML for code view with highlighting
+                html_lines = []
+                line_numbers_html = []
                 
-                # Display highlighted lines with scores
-                if score_map:
-                    st.markdown("### 📍 Suspicious Lines")
-                    for line_num in sorted(score_map.keys()):
-                        if 1 <= line_num <= len(lines):
-                            score = score_map[line_num]
-                            line_content = lines[line_num - 1].strip()
-                            
-                            # Color coding
-                            if score > 0.8:
-                                color = "🔴"
-                                bg_color = "#ffe6e6"
-                            elif score > 0.5:
-                                color = "🟡"
-                                bg_color = "#fff8e6"
-                            elif score > 0.2:
-                                color = "🟢"
-                                bg_color = "#e6ffe6"
-                            else:
-                                color = "⚪"
-                                bg_color = "#f5f5f5"
-                            
-                            # Display highlighted line
-                            st.markdown(
-                                f"""
-                                <div style="background-color: {bg_color}; padding: 8px; border-radius: 4px; margin: 4px 0;">
-                                    <strong>Line {line_num}</strong> {color} Score: {score:.4f}<br>
-                                    <code>{line_content}</code>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
-                            )
+                # Define a consistent line height
+                line_height = "1.3em" 
+
+                for i, line_content in enumerate(highlighted_lines):
+                    line_num = i + 1
+                    score = score_map.get(line_num)
+                    bg_color = "transparent"
+                    
+                    if score is not None:
+                        if score > 0.8:
+                            bg_color = "rgba(255, 75, 75, 0.3)"  # Red
+                        elif score > 0.5:
+                            bg_color = "rgba(255, 165, 0, 0.3)" # Orange
+                        elif score > 0.2:
+                            bg_color = "rgba(255, 255, 0, 0.3)" # Yellow
+                
+                    # Wrap the already-highlighted HTML line
+                    html_lines.append(f'<div style="background-color: {bg_color}; height: {line_height}; white-space: pre;">{line_content if line_content else "&nbsp;"}</div>')
+                    line_numbers_html.append(f'<div style="height: {line_height};">{line_num}</div>')
+
+                # Using st.code's line numbering by creating a custom component look-alike
+                st.markdown(f"""
+                <div class="highlight" style="font-family: monospace; background-color:#272822; border-radius: 0.5rem; overflow: hidden; width: 100%;">
+                    <div style="display: flex; width: 100%;">
+                        <div style="color: #888; text-align: right; padding: 5px; user-select: none; flex-shrink: 0;">
+                            {''.join(line_numbers_html)}
+                        </div>
+                        <div style="flex-grow: 1; padding: 5px 5px 5px 10px; width: 100%;">
+                            {''.join(html_lines)}
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
             else:
                 # File not found - show alternative information
                 st.warning(f"⚠️ Could not locate source file: `{selected_file}`")
@@ -751,7 +853,7 @@ def display_source_tab(scores: List[Dict]):
                 
                 # Still show the score information
                 st.markdown("### 📊 Line Scores (No Source Preview)")
-                for score in file_scores[:10]:  # Show top 10
+                for score in file_scores_by_score[:10]:  # Show top 10
                     element = score['element']
                     score_val = score['score']
                     
@@ -762,13 +864,13 @@ def display_source_tab(scores: List[Dict]):
                     else:
                         color = "🟢"
                     
-                    st.write(f"{color} **Line {element['line']}**: {score_val:.4f}")
+                    st.write(f"{color} **Line {element['line']}**: {score_val:.2f}")
         
         with col2:
             st.subheader("📊 Line Scores")
             
-            # Show scores for this file
-            for score in file_scores[:20]:  # Limit to top 20
+            # Show scores for this file, sorted by score
+            for score in file_scores_by_score[:20]:  # Limit to top 20
                 element = score['element']
                 score_val = score['score']
                 
@@ -780,17 +882,17 @@ def display_source_tab(scores: List[Dict]):
                 else:
                     color = "🟢"
                 
-                st.write(f"{color} **Line {element['line']}**: {score_val:.4f}")
+                st.write(f"{color} **Line {element['line']}**: {score_val:.2f}")
             
             # Show file statistics
-            if file_scores:
+            if file_scores_by_score:
                 st.divider()
                 st.subheader("📈 File Statistics")
                 
-                scores_values = [s['score'] for s in file_scores]
-                st.metric("Suspicious Lines", len(file_scores))
-                st.metric("Max Score", f"{max(scores_values):.4f}")
-                st.metric("Avg Score", f"{np.mean(scores_values):.4f}")
+                scores_values = [s['score'] for s in file_scores_by_score]
+                st.metric("Suspicious Lines", len(file_scores_by_score))
+                st.metric("Max Score", f"{max(scores_values):.2f}")
+                st.metric("Avg Score", f"{np.mean(scores_values):.2f}")
                 st.metric("High Risk Lines", len([s for s in scores_values if s > 0.8]))
 
 

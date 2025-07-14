@@ -59,7 +59,7 @@ pyfault ui --data-file pyfault_output/summary.json
 - **File-level treemaps**: Visual overview of suspicious files
 
 ### 🔍 Real Source Code Viewer
-- **Actual source code display**: Shows real file contents (not mock data)
+- **Actual source code display**: Shows real file contents
 - **Intelligent file resolution**: Tries multiple paths to locate source files
 - **Syntax highlighting**: Python code with line numbers
 - **Suspicious line highlighting**: Visual indicators for high-risk lines
