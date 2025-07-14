@@ -12,6 +12,8 @@ from typing import List, Optional, Sequence, Union
 
 import numpy as np
 
+from pyfault.formulas.sbfl_formulas import DStarFormula, Kulczynski2Formula
+
 from ..coverage.collector import CoverageCollector
 from ..test_runner.pytest_runner import PytestRunner
 from ..formulas.base import SBFLFormula
@@ -48,7 +50,8 @@ class FaultLocalizer:
         >>> localizer = FaultLocalizer(
         ...     source_dirs=['src'],
         ...     test_dirs=['tests'],
-        ...     formulas=[OchiaiFormula()]
+        ...     formulas=[OchiaiFormula()],
+        ...     branch_coverage=True
         ... )
         >>> results = localizer.run()
         >>> ranking = results.get_ranking('ochiai')
@@ -61,7 +64,8 @@ class FaultLocalizer:
         formulas: Optional[List[SBFLFormula]] = None,
         test_runner: Optional[TestRunner] = None,
         coverage_collector: Optional[CoverageCollector] = None,
-        output_dir: Optional[str | Path] = None
+        output_dir: Optional[str | Path] = None,
+        branch_coverage: bool = False
     ):
         """
         Initialize the fault localizer.
@@ -73,23 +77,29 @@ class FaultLocalizer:
             test_runner: An instance of a test runner (e.g., PytestRunner).
             coverage_collector: Custom coverage collector (uses default if None)
             output_dir: Directory for output files (default: './pyfault_output')
+            branch_coverage: Use branch coverage instead of line coverage (default: False)
         """
         self.source_dirs = [Path(d) for d in source_dirs]
         self.test_dirs = [Path(d) for d in test_dirs]
         self.output_dir = Path(output_dir or './pyfault_output')
+        self.branch_coverage = branch_coverage
         
         # Default formulas if none specified
         if formulas is None:
             self.formulas = [
                 OchiaiFormula(),
                 TarantulaFormula(), 
-                JaccardFormula()
+                JaccardFormula(),
+                DStarFormula(star=2, name='DStar2'),
+                Kulczynski2Formula()
             ]
         else:
             self.formulas = formulas
         
-        # Initialize components
-        self.coverage_collector = coverage_collector or CoverageCollector(self.source_dirs)
+        # Initialize components with coverage type configuration
+        self.coverage_collector = coverage_collector or CoverageCollector(
+            self.source_dirs, branch_coverage=branch_coverage
+        )
         
         if test_runner is None:
             self.test_runner: TestRunner = PytestRunner(self.test_dirs, self.coverage_collector)
@@ -99,7 +109,8 @@ class FaultLocalizer:
         # Ensure output directory exists
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        logger.info(f"Initialized FaultLocalizer with {len(self.formulas)} formulas")
+        coverage_type = "branch" if branch_coverage else "line"
+        logger.info(f"Initialized FaultLocalizer with {len(self.formulas)} formulas, {coverage_type} coverage")
     
     def run(self, test_filter: Optional[str] = None) -> FaultLocalizationResult:
         """

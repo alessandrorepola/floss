@@ -22,23 +22,30 @@ class CoverageCollector:
     collect coverage data, similar to how GZoltar uses JaCoCo for Java.
     
     Example:
-        >>> collector = CoverageCollector(['src'])
+        >>> collector = CoverageCollector(['src'], branch_coverage=True)
         >>> collector.start()
         >>> # Run tests here
         >>> coverage_data = collector.get_coverage_for_test('test_example')
         >>> collector.stop()
     """
     
-    def __init__(self, source_dirs: List[Path], include_patterns: Optional[List[str]] = None):
+    def __init__(
+        self, 
+        source_dirs: List[Path], 
+        include_patterns: Optional[List[str]] = None,
+        branch_coverage: bool = False
+    ):
         """
         Initialize the coverage collector.
         
         Args:
             source_dirs: Directories containing source code to track
             include_patterns: Optional patterns for files to include
+            branch_coverage: Use branch coverage instead of line coverage (default: False)
         """
         self.source_dirs = source_dirs
         self.include_patterns = include_patterns or ['*.py']
+        self.branch_coverage = branch_coverage
         self.coverage_data: Dict[str, Set[CodeElement]] = defaultdict(set)
         self.current_test: Optional[str] = None
         self._coverage_instance: Optional[coverage.Coverage] = None
@@ -57,7 +64,7 @@ class CoverageCollector:
             self._coverage_instance = coverage.Coverage(
                 source=source_paths,
                 include=self.include_patterns,
-                branch=True,  # Track branch coverage
+                branch=self.branch_coverage,  # Enable branch coverage if requested
                 auto_data=False,  # We'll handle data manually
             )
             
@@ -135,31 +142,32 @@ class CoverageCollector:
                           for source_dir in self.source_dirs):
                     continue
                 
-                # Get line coverage for this file
-                lines = data.lines(filename) or []
-                
-                for line_number in lines:
-                    element = CodeElement(
-                        file_path=file_path,
-                        line_number=line_number,
-                        element_type="line"
-                    )
-                    covered_elements.add(element)
-
-                # Get branch coverage for this file
-                arcs = data.arcs(filename) or []
-                for arc in arcs:
-                    # An arc is a tuple (from_line, to_line)
-                    # A negative to_line indicates an exit from a function, which we can ignore for line-level fault localization.
-                    if arc[0] < 0 or arc[1] < 0:
-                        continue
-                    element = CodeElement(
-                        file_path=file_path,
-                        line_number=arc[0],
-                        element_type="branch",
-                        element_name=f"branch:{arc[0]}->{arc[1]}"
-                    )
-                    covered_elements.add(element)
+                if self.branch_coverage:
+                    # Get branch coverage for this file
+                    arcs = data.arcs(filename) or []
+                    for arc in arcs:
+                        # An arc is a tuple (from_line, to_line)
+                        # A negative to_line indicates an exit from a function, which we can ignore for line-level fault localization.
+                        if arc[0] < 0 or arc[1] < 0:
+                            continue
+                        element = CodeElement(
+                            file_path=file_path,
+                            line_number=arc[0],
+                            element_type="branch",
+                            element_name=f"branch:{arc[0]}->{arc[1]}"
+                        )
+                        covered_elements.add(element)
+                else:
+                    # Get line coverage for this file
+                    lines = data.lines(filename) or []
+                    
+                    for line_number in lines:
+                        element = CodeElement(
+                            file_path=file_path,
+                            line_number=line_number,
+                            element_type="line"
+                        )
+                        covered_elements.add(element)
         
         except Exception as e:
             # Log error but don't break the flow

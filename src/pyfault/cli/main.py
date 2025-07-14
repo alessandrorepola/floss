@@ -71,9 +71,12 @@ def main(ctx: click.Context, verbose: bool) -> None:
               help='Filter tests using pytest -k pattern')
 @click.option('--top', '-n', type=int, default=20,
               help='Number of top suspicious elements to display')
+@click.option('--branch-coverage', '-b', is_flag=True, default=False,
+              help='Use branch coverage instead of line coverage')
 @click.pass_context
 def run(ctx: click.Context, source_dir: List[str], test_dir: List[str], 
-        output_dir: str, formula: List[str], test_filter: Optional[str], top: int) -> None:
+        output_dir: str, formula: List[str], test_filter: Optional[str], 
+        top: int, branch_coverage: bool) -> None:
     """
     Run complete fault localization analysis.
     
@@ -107,18 +110,21 @@ def run(ctx: click.Context, source_dir: List[str], test_dir: List[str],
             }
             formulas = [formula_map[f] for f in formula]
         
+        coverage_type = "branch" if branch_coverage else "line"
         console.print(f"[bold green]Starting PyFault Analysis[/bold green]")
         console.print(f"Source dirs: {[str(d) for d in source_dirs]}")
         console.print(f"Test dirs: {[str(d) for d in test_dirs]}")
         console.print(f"Output dir: {output_path}")
+        console.print(f"Coverage type: [cyan]{coverage_type}[/cyan]")
         console.print(f"Formulas: {[f.name for f in formulas]}")
         
-        # Initialize fault localizer
+        # Initialize fault localizer with coverage type
         localizer = FaultLocalizer(
             source_dirs=source_dirs,
             test_dirs=test_dirs,
             formulas=formulas,
-            output_dir=output_path
+            output_dir=output_path,
+            branch_coverage=branch_coverage
         )
         
         # Run analysis with progress indicator
@@ -239,9 +245,12 @@ def fl(ctx: click.Context, coverage_file: str, output_dir: str,
               help='Filter tests using pytest -k pattern')
 @click.option('--save-coverage', is_flag=True, default=True,
               help='Save coverage matrix to CSV file')
+@click.option('--branch-coverage', '-b', is_flag=True, default=False,
+              help='Use branch coverage instead of line coverage')
 @click.pass_context
 def test(ctx: click.Context, source_dir: List[str], test_dir: List[str], 
-         output_dir: str, test_filter: Optional[str], save_coverage: bool) -> None:
+         output_dir: str, test_filter: Optional[str], save_coverage: bool,
+         branch_coverage: bool) -> None:
     """
     Run tests with coverage collection only.
     
@@ -262,18 +271,20 @@ def test(ctx: click.Context, source_dir: List[str], test_dir: List[str],
         # Create output directory
         output_path.mkdir(parents=True, exist_ok=True)
         
+        coverage_type = "branch" if branch_coverage else "line"
         console.print("[bold green]Running tests with coverage collection...[/bold green]")
         console.print(f"Source dirs: {[str(d) for d in source_dirs]}")
         console.print(f"Test dirs: {[str(d) for d in test_dirs]}")
         console.print(f"Output dir: {output_path}")
+        console.print(f"Coverage type: [cyan]{coverage_type}[/cyan]")
         
         # Import components directly for test-only execution
         from ..coverage.collector import CoverageCollector
         from ..test_runner.pytest_runner import PytestRunner
         from ..core.models import CoverageMatrix
         
-        # Initialize components
-        coverage_collector = CoverageCollector(source_dirs)
+        # Initialize components with coverage type
+        coverage_collector = CoverageCollector(source_dirs, branch_coverage=branch_coverage)
         test_runner = PytestRunner(test_dirs, coverage_collector)
         
         with Progress(
