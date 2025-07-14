@@ -8,7 +8,8 @@ PyFault è un framework Python per la localizzazione automatica di errori tramit
 - **SBFL Algorithms**: Implementazione di formule SBFL popolari (Ochiai, Tarantula, Jaccard, D*, Barinel, etc.)
 - **Test Integration**: Integrazione con pytest e altri framework di testing
 - **CLI Interface**: Interfaccia a riga di comando per esecuzione batch
-- **Report Generation**: Generazione di report HTML e CSV con ranking dei sospetti
+- **Interactive UI**: Dashboard web interattiva con Streamlit per visualizzazione e analisi
+- **Report Generation**: Generazione di report HTML, CSV e JSON con ranking dei sospetti
 - **Visualization**: Visualizzazioni interattive per analisi dei risultati
 
 ## Installazione
@@ -27,6 +28,9 @@ pyfault run --source-dir src --test-dir tests --output-dir results
 
 # Solo fault localization su dati esistenti
 pyfault fl --coverage-file coverage.json --test-results tests.json
+
+# 🆕 Dashboard interattiva per visualizzazione e analisi in tempo reale
+pyfault ui --data-file results/summary.json --auto-open
 ```
 
 ### Via Python API
@@ -59,8 +63,31 @@ pyfault/
 ├── formulas/       # Formule SBFL
 ├── test_runner/    # Esecuzione test
 ├── reporters/      # Generazione report
+├── ui/            # Dashboard web interattiva
 └── cli/           # Interfaccia CLI
 ```
+
+## 🖥️ Dashboard Interattiva
+
+La nuova UI web fornisce un'esperienza di analisi moderna e intuitiva:
+
+- **📊 Visualizzazioni Interactive**: Grafici di distribuzione, classifiche, treemap
+- **🔍 Viewer del Codice Sorgente**: Linee sospette evidenziate con colori
+- **📁 Analisi per File**: Raggruppamento degli elementi sospetti per file
+- **🎛️ Filtri Dinamici**: Soglie di punteggio, tipi di file, top-N elementi
+- **📈 Confronto Formule**: Analisi comparativa di diverse formule SBFL
+
+### Esempio di utilizzo
+
+```bash
+# Esegui analisi e apri dashboard
+pyfault run -s src -t tests && pyfault ui --data-file pyfault_output/summary.json
+
+# Carica dati esistenti
+pyfault ui --data-file my_results.json --port 8080 --auto-open
+```
+
+Vedi [UI_USAGE.md](UI_USAGE.md) per esempi dettagliati.
 
 ## Formule SBFL Supportate
 

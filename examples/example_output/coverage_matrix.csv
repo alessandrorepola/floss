@@ -1,7 +1,354 @@
-Element,File,Line,test_add_positive,test_add_negative,test_multiply_basic,test_subtract_positive,test_subtract_negative,test_subtract_zero
-calculator.py:5,calculator.py,5,1,1,0,0,0,0
-calculator.py:6,calculator.py,6,1,1,0,0,0,0
-calculator.py:9,calculator.py,9,0,0,0,1,1,1
-calculator.py:10,calculator.py,10,0,0,0,1,1,1
-calculator.py:13,calculator.py,13,0,0,1,0,0,0
-calculator.py:14,calculator.py,14,0,0,1,0,0,0
+Element,File,Line,ElementType,ElementName,tests/test_integration.py::TestIntegration::test_complete_library_workflow,tests/test_integration.py::TestIntegration::test_user_upgrade_workflow,tests/test_integration.py::TestIntegration::test_overdue_books_workflow,tests/test_integration.py::TestIntegration::test_book_availability_workflow,tests/test_integration.py::TestIntegration::test_error_handling_workflow,tests/test_models.py::TestBook::test_book_creation,tests/test_models.py::TestBook::test_book_borrow_and_return,tests/test_models.py::TestBook::test_book_invalid_copies,tests/test_models.py::TestUser::test_user_creation,tests/test_models.py::TestUser::test_user_types_max_books,tests/test_models.py::TestUser::test_user_borrow_and_return,tests/test_models.py::TestUser::test_user_max_books_limit,tests/test_models.py::TestUser::test_user_overdue_books,tests/test_models.py::TestLibrary::test_library_creation,tests/test_models.py::TestLibrary::test_add_and_remove_book,tests/test_models.py::TestLibrary::test_add_user,tests/test_models.py::TestLibrary::test_search_books,tests/test_models.py::TestLibrary::test_library_stats,tests/test_services.py::TestBookService::test_create_book_valid,tests/test_services.py::TestBookService::test_create_book_invalid_data,tests/test_services.py::TestBookService::test_update_book,tests/test_services.py::TestBookService::test_update_nonexistent_book,tests/test_services.py::TestBookService::test_delete_book,tests/test_services.py::TestBookService::test_search_books,tests/test_services.py::TestBookService::test_add_copies,tests/test_services.py::TestUserService::test_create_user_valid,tests/test_services.py::TestUserService::test_create_user_invalid_data,tests/test_services.py::TestUserService::test_create_user_duplicate_email,tests/test_services.py::TestUserService::test_update_user,tests/test_services.py::TestUserService::test_deactivate_user,tests/test_services.py::TestUserService::test_deactivate_user_with_books,tests/test_services.py::TestLoanService::test_borrow_book_success,tests/test_services.py::TestLoanService::test_borrow_book_not_available,tests/test_services.py::TestLoanService::test_borrow_book_user_limit,tests/test_services.py::TestLoanService::test_borrow_book_already_borrowed,tests/test_services.py::TestLoanService::test_return_book_success,tests/test_services.py::TestLoanService::test_return_book_not_borrowed,tests/test_services.py::TestLoanService::test_extend_loan,tests/test_services.py::TestLoanService::test_get_user_loans
+OUTCOME,,,,,failed,passed,failed,failed,passed,failed,failed,passed,passed,passed,passed,passed,passed,passed,passed,passed,passed,failed,failed,passed,failed,passed,failed,failed,failed,passed,passed,passed,passed,passed,passed,failed,passed,passed,passed,failed,passed,passed,passed
+book.py:15,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,15,line,,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1
+book.py:19 (branch:19->20),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,19,branch,branch:19->20,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+book.py:19,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,19,line,,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1
+book.py:20,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,20,line,,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+book.py:24,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,24,line,,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,0,1,1
+book.py:28,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,28,line,,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+book.py:28 (branch:28->29),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,28,branch,branch:28->29,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+book.py:29,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,29,line,,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+book.py:29 (branch:29->30),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,29,branch,branch:29->30,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+book.py:30,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,30,line,,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+book.py:35 (branch:35->36),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,35,branch,branch:35->36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+book.py:35,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,35,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+book.py:36 (branch:36->37),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,36,branch,branch:36->37,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+book.py:36,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,36,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+book.py:37,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\book.py,37,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+library.py:10,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,10,line,,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:10 (branch:10->11),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,10,branch,branch:10->11,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:11 (branch:11->12),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,11,branch,branch:11->12,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:11,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,11,line,,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:12 (branch:12->13),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,12,branch,branch:12->13,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:12,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,12,line,,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:13,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,13,line,,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:13 (branch:13->14),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,13,branch,branch:13->14,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:14,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,14,line,,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:14 (branch:14->15),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,14,branch,branch:14->15,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:15,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,15,line,,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:19,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,19,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1
+library.py:19 (branch:19->20),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,19,branch,branch:19->20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1
+library.py:19 (branch:19->22),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,19,branch,branch:19->22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:20 (branch:20->21),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,20,branch,branch:20->21,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1
+library.py:20,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,20,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1
+library.py:21,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,21,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1
+library.py:22,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,22,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:26 (branch:26->27),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,26,branch,branch:26->27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:26,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,26,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:27,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,27,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:27 (branch:27->28),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,27,branch,branch:27->28,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:28,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,28,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:28 (branch:28->29),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,28,branch,branch:28->29,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:29 (branch:29->30),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,29,branch,branch:29->30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:29,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,29,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:30,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,30,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:35 (branch:35->36),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,35,branch,branch:35->36,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:35,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,35,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:35 (branch:35->38),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,35,branch,branch:35->38,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:36,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,36,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:36 (branch:36->37),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,36,branch,branch:36->37,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:37,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,37,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1
+library.py:38,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,38,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:42 (branch:42->43),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,42,branch,branch:42->43,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:42,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,42,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:43 (branch:43->44),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,43,branch,branch:43->44,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:43 (branch:43->46),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,43,branch,branch:43->46,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:43,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,43,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:44,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,44,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:44 (branch:44->45),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,44,branch,branch:44->45,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:44 (branch:44->43),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,44,branch,branch:44->43,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:45,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,45,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:45 (branch:45->43),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,45,branch,branch:45->43,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:46,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,46,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:50 (branch:50->51),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,50,branch,branch:50->51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:50,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,50,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:51 (branch:51->54),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,51,branch,branch:51->54,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:51,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,51,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:51 (branch:51->52),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,51,branch,branch:51->52,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:52 (branch:52->51),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,52,branch,branch:52->51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:52 (branch:52->53),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,52,branch,branch:52->53,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:52,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,52,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:53 (branch:53->51),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,53,branch,branch:53->51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:53,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,53,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:54,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,54,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:58,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,58,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:58 (branch:58->59),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,58,branch,branch:58->59,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:59 (branch:59->62),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,59,branch,branch:59->62,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:59,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,59,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:59 (branch:59->60),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,59,branch,branch:59->60,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:60,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,60,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:60 (branch:60->61),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,60,branch,branch:60->61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:60 (branch:60->59),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,60,branch,branch:60->59,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:61,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,61,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:61 (branch:61->59),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,61,branch,branch:61->59,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:62,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,62,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:70 (branch:70->71),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,70,branch,branch:70->71,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+library.py:70 (branch:70->73),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,70,branch,branch:70->73,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,0,0
+library.py:70,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,70,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,0,0
+library.py:71 (branch:71->72),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,71,branch,branch:71->72,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+library.py:71,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,71,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+library.py:72,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,72,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+library.py:73,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,73,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,0,0
+library.py:77,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,77,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:77 (branch:77->77),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,77,branch,branch:77->77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:77 (branch:77->78),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,77,branch,branch:77->78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:78,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,78,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:78 (branch:78->78),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,78,branch,branch:78->78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:78 (branch:78->81),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,78,branch,branch:78->81,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:80,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,80,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:81 (branch:81->82),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,81,branch,branch:81->82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:81,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,81,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:82 (branch:82->83),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,82,branch,branch:82->83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:82,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,82,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:83 (branch:83->84),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,83,branch,branch:83->84,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:83,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,83,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:84 (branch:84->85),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,84,branch,branch:84->85,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:84,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,84,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:85,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,85,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:85 (branch:85->86),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,85,branch,branch:85->86,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:85 (branch:85->85),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,85,branch,branch:85->85,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:86,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,86,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+library.py:86 (branch:86->80),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\library.py,86,branch,branch:86->80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:13,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,13,line,,0,1,0,0,1,0,0,0,1,1,1,1,1,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1
+user.py:21,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,21,line,,0,1,0,0,1,0,0,0,1,1,1,1,1,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1
+user.py:25 (branch:25->26),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,25,branch,branch:25->26,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:25,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,25,line,,0,1,0,0,1,0,0,0,1,1,1,1,1,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1
+user.py:25 (branch:25->27),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,25,branch,branch:25->27,0,1,0,0,1,0,0,0,1,1,1,1,1,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1
+user.py:26,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,26,line,,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:27 (branch:27->30),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,27,branch,branch:27->30,0,1,0,0,1,0,0,0,1,1,1,1,1,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1
+user.py:27 (branch:27->28),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,27,branch,branch:27->28,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:27,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,27,line,,0,1,0,0,1,0,0,0,1,1,1,1,1,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1
+user.py:28,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,28,line,,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:30,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,30,line,,0,1,0,0,1,0,0,0,1,1,1,1,1,0,0,1,0,1,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1
+user.py:34,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,34,line,,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1
+user.py:38 (branch:38->47),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,38,branch,branch:38->47,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:38 (branch:38->39),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,38,branch,branch:38->39,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:38,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,38,line,,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:39 (branch:39->40),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,39,branch,branch:39->40,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:39,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,39,line,,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:40 (branch:40->46),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,40,branch,branch:40->46,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:40 (branch:40->41),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,40,branch,branch:40->41,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:40,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,40,line,,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:41 (branch:41->42),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,41,branch,branch:41->42,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:41,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,41,line,,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:42,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,42,line,,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:42 (branch:42->43),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,42,branch,branch:42->43,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:43 (branch:43->44),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,43,branch,branch:43->44,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:43,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,43,line,,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:44,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,44,line,,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:44 (branch:44->40),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,44,branch,branch:44->40,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:46,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,46,line,,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+user.py:47,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,47,line,,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:51,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,51,line,,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+user.py:51 (branch:51->59),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,51,branch,branch:51->59,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:51 (branch:51->52),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,51,branch,branch:51->52,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+user.py:52,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,52,line,,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+user.py:52 (branch:52->54),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,52,branch,branch:52->54,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+user.py:54 (branch:54->55),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,54,branch,branch:54->55,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+user.py:54,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,54,line,,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+user.py:55 (branch:55->56),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,55,branch,branch:55->56,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+user.py:55,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,55,line,,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+user.py:56,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,56,line,,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+user.py:56 (branch:56->57),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,56,branch,branch:56->57,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+user.py:57,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,57,line,,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+user.py:57 (branch:57->58),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,57,branch,branch:57->58,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+user.py:58,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,58,line,,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+user.py:59,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,59,line,,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:63 (branch:63->64),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,63,branch,branch:63->64,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:63,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,63,line,,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:64,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,64,line,,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:64 (branch:64->65),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,64,branch,branch:64->65,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:65,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,65,line,,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:65 (branch:65->68),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,65,branch,branch:65->68,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:65 (branch:65->66),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,65,branch,branch:65->66,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:66 (branch:66->67),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,66,branch,branch:66->67,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:66,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,66,line,,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:67,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,67,line,,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:67 (branch:67->65),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,67,branch,branch:67->65,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:68,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,68,line,,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:72 (branch:72->73),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,72,branch,branch:72->73,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:72,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,72,line,,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:73,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,73,line,,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:73 (branch:73->74),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,73,branch,branch:73->74,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+user.py:74,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\models\user.py,74,line,,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+book_service.py:11,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\book_service.py,11,line,,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+book_service.py:15 (branch:15->16),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\book_service.py,15,branch,branch:15->16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+book_service.py:15 (branch:15->18),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\book_service.py,15,branch,branch:15->18,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+book_service.py:15,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\book_service.py,15,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+book_service.py:16,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\book_service.py,16,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+book_service.py:18,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\book_service.py,18,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+book_service.py:18 (branch:18->19),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\book_service.py,18,branch,branch:18->19,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+book_service.py:19,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\book_service.py,19,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+book_service.py:34 (branch:34->35),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\book_service.py,34,branch,branch:34->35,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+book_service.py:34,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\book_service.py,34,line,,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+book_service.py:35,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\book_service.py,35,line,,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+loan_service.py:12,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,12,line,,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1
+loan_service.py:16 (branch:16->17),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,16,branch,branch:16->17,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+loan_service.py:16,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,16,line,,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1
+loan_service.py:16 (branch:16->19),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,16,branch,branch:16->19,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1
+loan_service.py:17,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,17,line,,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+loan_service.py:19 (branch:19->20),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,19,branch,branch:19->20,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+loan_service.py:19 (branch:19->22),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,19,branch,branch:19->22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1
+loan_service.py:19,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,19,line,,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1
+loan_service.py:20,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,20,line,,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+loan_service.py:22,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,22,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1
+loan_service.py:22 (branch:22->23),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,22,branch,branch:22->23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1
+loan_service.py:23 (branch:23->25),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,23,branch,branch:23->25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1
+loan_service.py:23,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,23,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1
+loan_service.py:25,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,25,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1
+loan_service.py:25 (branch:25->28),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,25,branch,branch:25->28,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1
+loan_service.py:28 (branch:28->31),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,28,branch,branch:28->31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,0,1,1
+loan_service.py:28 (branch:28->29),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,28,branch,branch:28->29,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0
+loan_service.py:28,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,28,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1
+loan_service.py:29,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,29,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0
+loan_service.py:31,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,31,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,0,1,1
+loan_service.py:31 (branch:31->32),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,31,branch,branch:31->32,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0
+loan_service.py:31 (branch:31->35),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,31,branch,branch:31->35,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+loan_service.py:32,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,32,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0
+loan_service.py:35 (branch:35->39),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,35,branch,branch:35->39,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+loan_service.py:35,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,35,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+loan_service.py:39 (branch:39->40),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,39,branch,branch:39->40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+loan_service.py:39,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,39,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+loan_service.py:40,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,40,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+loan_service.py:40 (branch:40->41),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,40,branch,branch:40->41,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+loan_service.py:41 (branch:41->42),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,41,branch,branch:41->42,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+loan_service.py:41,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,41,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+loan_service.py:42,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,42,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,1
+loan_service.py:48,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,48,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0
+loan_service.py:48 (branch:48->51),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,48,branch,branch:48->51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0
+loan_service.py:51,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,51,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0
+loan_service.py:51 (branch:51->54),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,51,branch,branch:51->54,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0
+loan_service.py:54 (branch:54->55),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,54,branch,branch:54->55,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0
+loan_service.py:54,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,54,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0
+loan_service.py:55,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,55,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0
+loan_service.py:55 (branch:55->57),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,55,branch,branch:55->57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0
+loan_service.py:57 (branch:57->58),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,57,branch,branch:57->58,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+loan_service.py:57,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,57,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0
+loan_service.py:57 (branch:57->61),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,57,branch,branch:57->61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+loan_service.py:58,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,58,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+loan_service.py:61,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,61,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+loan_service.py:61 (branch:61->62),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,61,branch,branch:61->62,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+loan_service.py:62,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,62,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+loan_service.py:62 (branch:62->63),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,62,branch,branch:62->63,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+loan_service.py:63,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,63,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+loan_service.py:69 (branch:69->72),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,69,branch,branch:69->72,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:69,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,69,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:72 (branch:72->74),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,72,branch,branch:72->74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:72,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,72,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:74 (branch:74->78),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,74,branch,branch:74->78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:74,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,74,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:78,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,78,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:78 (branch:78->79),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,78,branch,branch:78->79,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:79,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,79,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:79 (branch:79->81),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,79,branch,branch:79->81,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:81 (branch:81->82),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,81,branch,branch:81->82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:81,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,81,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:82 (branch:82->83),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,82,branch,branch:82->83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:82,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,82,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:83,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,83,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0
+loan_service.py:91,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,91,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:91 (branch:91->94),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,91,branch,branch:91->94,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:94 (branch:94->95),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,94,branch,branch:94->95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:94,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,94,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:95 (branch:95->97),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,95,branch,branch:95->97,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:95,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,95,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:97 (branch:97->109),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,97,branch,branch:97->109,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:97 (branch:97->98),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,97,branch,branch:97->98,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:97,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,97,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:98,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,98,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:98 (branch:98->99),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,98,branch,branch:98->99,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:99,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,99,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:99 (branch:99->100),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,99,branch,branch:99->100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:100 (branch:100->102),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,100,branch,branch:100->102,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:100,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,100,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:101,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,101,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:101 (branch:101->107),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,101,branch,branch:101->107,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:102,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,102,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:102 (branch:102->103),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,102,branch,branch:102->103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:103 (branch:103->104),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,103,branch,branch:103->104,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:103,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,103,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:104,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,104,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:104 (branch:104->105),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,104,branch,branch:104->105,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:105 (branch:105->101),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,105,branch,branch:105->101,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:105,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,105,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:107,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,107,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:107 (branch:107->97),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,107,branch,branch:107->97,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+loan_service.py:109,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\loan_service.py,109,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+user_service.py:11,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,11,line,,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:15,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,15,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:15 (branch:15->16),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,15,branch,branch:15->16,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+user_service.py:15 (branch:15->18),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,15,branch,branch:15->18,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:16,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,16,line,,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+user_service.py:18,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,18,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:18 (branch:18->21),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,18,branch,branch:18->21,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:18 (branch:18->19),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,18,branch,branch:18->19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+user_service.py:19,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,19,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+user_service.py:21 (branch:21->22),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,21,branch,branch:21->22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+user_service.py:21,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,21,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:21 (branch:21->25),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,21,branch,branch:21->25,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:22,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,22,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+user_service.py:25 (branch:25->28),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,25,branch,branch:25->28,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:25,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,25,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:25 (branch:25->26),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,25,branch,branch:25->26,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+user_service.py:26,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,26,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+user_service.py:28,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,28,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:28 (branch:28->30),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,28,branch,branch:28->30,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:30 (branch:30->31),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,30,branch,branch:30->31,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:30,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,30,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:31,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,31,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,0,0,0
+user_service.py:37 (branch:37->40),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,37,branch,branch:37->40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:37,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,37,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:40,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,40,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:40 (branch:40->42),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,40,branch,branch:40->42,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:42,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,42,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:42 (branch:42->50),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,42,branch,branch:42->50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:50,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,50,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:50 (branch:50->54),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,50,branch,branch:50->54,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:54,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,54,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:54 (branch:54->58),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,54,branch,branch:54->58,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:54 (branch:54->55),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,54,branch,branch:54->55,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:55,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,55,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:55 (branch:55->56),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,55,branch,branch:55->56,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:56 (branch:56->54),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,56,branch,branch:56->54,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:56,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,56,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:58,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,58,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+user_service.py:62,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,62,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0
+user_service.py:62 (branch:62->65),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,62,branch,branch:62->65,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0
+user_service.py:65 (branch:65->68),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,65,branch,branch:65->68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0
+user_service.py:65,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,65,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0
+user_service.py:68 (branch:68->69),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,68,branch,branch:68->69,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+user_service.py:68 (branch:68->71),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,68,branch,branch:68->71,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+user_service.py:68,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,68,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0
+user_service.py:69,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,69,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+user_service.py:71 (branch:71->72),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,71,branch,branch:71->72,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+user_service.py:71,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,71,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+user_service.py:72,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\services\user_service.py,72,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+validators.py:6 (branch:6->7),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,6,branch,branch:6->7,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+validators.py:6,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,6,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+validators.py:7,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,7,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+validators.py:12,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,12,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+validators.py:12 (branch:12->14),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,12,branch,branch:12->14,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+validators.py:14,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,14,line,,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0
+validators.py:19,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,19,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:19 (branch:19->22),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,19,branch,branch:19->22,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:22,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,22,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:22 (branch:22->24),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,22,branch,branch:22->24,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:24 (branch:24->25),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,24,branch,branch:24->25,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:24,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,24,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:24 (branch:24->27),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,24,branch,branch:24->27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:25,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,25,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:27,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,27,line,,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:51,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,51,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:51 (branch:51->55),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,51,branch,branch:51->55,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:55,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,55,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:55 (branch:55->56),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,55,branch,branch:55->56,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:56 (branch:56->57),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,56,branch,branch:56->57,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:56 (branch:56->60),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,56,branch,branch:56->60,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:56,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,56,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:57 (branch:57->58),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,57,branch,branch:57->58,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:57,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,57,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:58,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,58,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:58 (branch:58->56),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,58,branch,branch:58->56,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:60 (branch:60->61),C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,60,branch,branch:60->61,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:60,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,60,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+validators.py:61,C:\Users\Alessandro\Desktop\biblioteca\biblioteca\utils\validators.py,61,line,,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0

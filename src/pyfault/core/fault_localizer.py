@@ -18,6 +18,7 @@ from ..formulas.base import SBFLFormula
 from ..formulas import OchiaiFormula, TarantulaFormula, JaccardFormula
 from ..reporters.html_reporter import HTMLReporter
 from ..reporters.csv_reporter import CSVReporter
+from ..reporters.json_reporter import JSONReporter
 from .models import (
     FaultLocalizationResult, 
     CoverageMatrix,
@@ -198,6 +199,10 @@ class FaultLocalizer:
         # CSV reports
         csv_reporter = CSVReporter(self.output_dir)
         csv_reporter.generate_report(result)
+        
+        # JSON reports (for dashboard compatibility)
+        json_reporter = JSONReporter(self.output_dir)
+        json_reporter.generate_report(result)
         
         # HTML reports  
         html_reporter = HTMLReporter(self.output_dir)

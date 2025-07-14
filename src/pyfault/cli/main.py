@@ -320,6 +320,46 @@ def test(ctx: click.Context, source_dir: List[str], test_dir: List[str],
         sys.exit(1)
 
 
+@main.command()
+@click.option('--data-file', '-d', 
+              help='Load existing results (JSON/CSV)')
+@click.option('--port', '-p', default=8501,
+              help='Port for web interface')
+@click.option('--auto-open', is_flag=True,
+              help='Automatically open browser')
+@click.pass_context
+def ui(ctx: click.Context, data_file: Optional[str], port: int, auto_open: bool) -> None:
+    """
+    Launch interactive web UI for fault localization results.
+    
+    Opens a Streamlit-based dashboard for visualizing and analyzing
+    fault localization results. Can load existing data or allow upload.
+    """
+    try:
+        # Validate data file if provided
+        if data_file:
+            data_path = Path(data_file)
+            if not data_path.exists():
+                raise click.ClickException(f"Data file not found: {data_file}")
+            
+            console.print(f"[bold green]Loading data from:[/bold green] {data_file}")
+        
+        console.print(f"[bold green]Starting PyFault Dashboard...[/bold green]")
+        console.print(f"Port: [blue]{port}[/blue]")
+        console.print(f"Auto-open browser: [blue]{auto_open}[/blue]")
+        
+        # Import and launch dashboard
+        from ..ui.dashboard import launch_dashboard
+        
+        launch_dashboard(data_file, port, auto_open)
+        
+    except Exception as e:
+        console.print(f"[bold red]Error:[/bold red] {e}")
+        if ctx.obj.get('verbose'):
+            console.print_exception()
+        sys.exit(1)
+
+
 def _display_results(result: FaultLocalizationResult, top: int) -> None:
     """Display fault localization results in a nice table."""
     console.print(f"\n[bold]Top {top} Suspicious Elements[/bold]")
