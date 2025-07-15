@@ -24,7 +24,7 @@ classifiers = [
     "Topic :: Software Development :: Testing",
     "Topic :: Software Development :: Debuggers",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
     "coverage>=7.0.0",
     "pytest>=7.0.0",

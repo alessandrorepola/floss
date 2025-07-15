@@ -21,7 +21,7 @@ import numpy as np
 from pyfault.reporters.csv_reporter import CSVReporter
 
 from ..core.fault_localizer import FaultLocalizer
-from ..core.models import CodeElement, CoverageMatrix, FaultLocalizationResult, TestOutcome
+from ..core.models import FaultLocalizationResult
 from ..formulas import (
     OchiaiFormula, TarantulaFormula, JaccardFormula,
     DStarFormula, Kulczynski2Formula
@@ -99,7 +99,7 @@ def run(ctx: click.Context, source_dir: List[str], test_dir: List[str],
         
         # Setup formulas
         if not formula:
-            formulas = [OchiaiFormula(), TarantulaFormula(), JaccardFormula()]
+            formulas = [OchiaiFormula(), TarantulaFormula(), JaccardFormula(), DStarFormula(), Kulczynski2Formula()]
         else:
             formula_map = {
                 'ochiai': OchiaiFormula(),
@@ -176,7 +176,7 @@ def fl(ctx: click.Context, coverage_file: str, output_dir: str,
         
         # Setup formulas
         if not formula:
-            formulas = [OchiaiFormula(), TarantulaFormula(), JaccardFormula()]
+            formulas = [OchiaiFormula(), TarantulaFormula(), JaccardFormula(), DStarFormula(), Kulczynski2Formula()]
         else:
             formula_map = {
                 'ochiai': OchiaiFormula(),
