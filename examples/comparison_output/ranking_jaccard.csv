@@ -1,7 +1,0 @@
-Rank,File,Line,Element,Suspiciousness,Formula
-1,calculator.py,9,,1.000000,jaccard
-2,calculator.py,10,,1.000000,jaccard
-3,calculator.py,5,,0.000000,jaccard
-4,calculator.py,6,,0.000000,jaccard
-5,calculator.py,13,,0.000000,jaccard
-6,calculator.py,14,,0.000000,jaccard
