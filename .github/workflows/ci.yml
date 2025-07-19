@@ -34,3 +34,5 @@ jobs:
         mypy src
 
     - name: Test with pytest
+      run: |
+        pytest
