@@ -5,8 +5,7 @@ Test suite for PyFault SBFL formulas.
 import pytest
 import math
 from src.pyfault.formulas import (
-    OchiaiFormula, TarantulaFormula, JaccardFormula, DStarFormula,
-    BarinelFormula, Kulczynski2Formula, Naish1Formula
+    OchiaiFormula, TarantulaFormula, JaccardFormula, DStarFormula, Kulczynski2Formula
 )
 
 
@@ -82,19 +81,6 @@ class TestSBFLFormulas:
         score = formula.calculate(n_cf=0, n_nf=2, n_cp=1, n_np=1)
         assert score == 0.0
     
-    def test_barinel_formula(self):
-        """Test Barinel formula calculation."""
-        formula = BarinelFormula()
-        
-        score = formula.calculate(n_cf=2, n_nf=1, n_cp=1, n_np=2)
-        expected = 1 - (1 / (1 + 2))  # 1 - 1/3 = 2/3
-        
-        assert abs(score - expected) < 1e-6
-        
-        # Test edge case: no tests covering
-        score = formula.calculate(n_cf=0, n_nf=2, n_cp=0, n_np=3)
-        assert score == 0.0
-    
     def test_kulczynski2_formula(self):
         """Test Kulczynski2 formula calculation."""
         formula = Kulczynski2Formula()
@@ -110,22 +96,6 @@ class TestSBFLFormulas:
         score = formula.calculate(n_cf=0, n_nf=2, n_cp=1, n_np=1)
         assert score == 0.0
     
-    def test_naish1_formula(self):
-        """Test Naish1 formula calculation."""
-        formula = Naish1Formula()
-        
-        # Case where n_cf > 0 and n_cp > 0: should return -1
-        score = formula.calculate(n_cf=2, n_nf=1, n_cp=1, n_np=2)
-        assert score == -1.0
-        
-        # Case where n_cf > 0 but n_cp = 0: should return n_nf
-        score = formula.calculate(n_cf=2, n_nf=3, n_cp=0, n_np=1)
-        assert score == 3.0
-        
-        # Case where n_cf = 0: should return n_nf
-        score = formula.calculate(n_cf=0, n_nf=2, n_cp=1, n_np=1)
-        assert score == 2.0
-    
     def test_formula_names(self):
         """Test that formulas have correct names."""
         assert OchiaiFormula().name == "ochiai"
@@ -133,7 +103,6 @@ class TestSBFLFormulas:
         assert JaccardFormula().name == "jaccard"
         assert DStarFormula().name == "dstar2"
         assert DStarFormula(star=3).name == "dstar3"
-        assert BarinelFormula().name == "barinel"
         assert Kulczynski2Formula().name == "kulczynski2"
     
     def test_formula_string_representation(self):

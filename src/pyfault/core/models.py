@@ -12,6 +12,7 @@ from pathlib import Path
 
 
 class TestOutcome(Enum):
+    __test__ = False  # Prevent pytest from collecting this as a test case
     """Test execution outcome."""
     PASSED = "passed"
     FAILED = "failed"
@@ -53,6 +54,7 @@ class CodeElement:
 
 @dataclass
 class TestResult:
+    __test__ = False  # Prevent pytest from collecting this as a test case
     """Represents the result of a single test execution."""
     test_name: str
     outcome: TestOutcome

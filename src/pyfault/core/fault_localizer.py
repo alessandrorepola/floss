@@ -12,15 +12,19 @@ from typing import List, Optional, Sequence, Union
 
 import numpy as np
 
-from pyfault.formulas.sbfl_formulas import DStarFormula, Kulczynski2Formula
-
 from ..coverage.collector import CoverageCollector
 from ..test_runner.pytest_runner import PytestRunner
 from ..formulas.base import SBFLFormula
-from ..formulas import OchiaiFormula, TarantulaFormula, JaccardFormula
 from ..reporters.html_reporter import HTMLReporter
 from ..reporters.csv_reporter import CSVReporter
 from ..reporters.json_reporter import JSONReporter
+from ..formulas import (
+    OchiaiFormula,
+    TarantulaFormula,
+    JaccardFormula,
+    DStarFormula,
+    Kulczynski2Formula
+)
 from .models import (
     FaultLocalizationResult, 
     CoverageMatrix,
@@ -132,9 +136,9 @@ class FaultLocalizer:
         
         if not test_results:
             logger.warning("No tests were found or executed. Aborting analysis.")
-            # Create an empty result object
+            # Create an empty result object with a (0, 0) matrix
             return FaultLocalizationResult(
-                coverage_matrix=CoverageMatrix([], [], np.array([[]]), []),
+                coverage_matrix=CoverageMatrix([], [], np.empty((0, 0), dtype=np.int8), []),
                 scores={},
                 execution_time=time.time() - start_time,
                 metadata={'message': 'No tests found or executed.'}

@@ -15,13 +15,14 @@ from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.logging import RichHandler
-import pandas as pd
-import numpy as np
 
 from pyfault.reporters.csv_reporter import CSVReporter
 
 from ..core.fault_localizer import FaultLocalizer
 from ..core.models import FaultLocalizationResult
+from ..coverage.collector import CoverageCollector
+from ..test_runner.pytest_runner import PytestRunner
+from ..core.models import CoverageMatrix
 from ..formulas import (
     OchiaiFormula, TarantulaFormula, JaccardFormula,
     DStarFormula, Kulczynski2Formula
@@ -277,11 +278,6 @@ def test(ctx: click.Context, source_dir: List[str], test_dir: List[str],
         console.print(f"Test dirs: {[str(d) for d in test_dirs]}")
         console.print(f"Output dir: {output_path}")
         console.print(f"Coverage type: [cyan]{coverage_type}[/cyan]")
-        
-        # Import components directly for test-only execution
-        from ..coverage.collector import CoverageCollector
-        from ..test_runner.pytest_runner import PytestRunner
-        from ..core.models import CoverageMatrix
         
         # Initialize components with coverage type
         coverage_collector = CoverageCollector(source_dirs, branch_coverage=branch_coverage)

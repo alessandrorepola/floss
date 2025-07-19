@@ -126,7 +126,7 @@ class CSVReporter:
                     ])
             self.console.print(f"Summary report saved to: [blue]{filename}[/blue]")
     
-    def write_coverage_matrix(self, matrix: CoverageMatrix, output_path: Path | None = None) -> None:
+    def write_coverage_matrix(self, matrix: CoverageMatrix, output_file: Path | None = None) -> None:
         """
         Save coverage matrix to CSV file.
         
@@ -138,7 +138,8 @@ class CSVReporter:
             RuntimeError: If there's an error saving the file
         """
         try:
-            filename = (output_path or self.output_dir) / "coverage_matrix.csv"
+            if output_file is None:
+                output_file = self.output_dir / "coverage_matrix.csv"
 
             # Prepare data for CSV
             data = []
@@ -166,14 +167,14 @@ class CSVReporter:
             
             # Create DataFrame and save
             df = pd.DataFrame(data, columns=header)
-            df.to_csv(filename, index=False)
+            df.to_csv(output_file, index=False)
 
-            self.console.print(f"Coverage data saved to: [blue]{filename}[/blue]")
-            self.console.print(f"Use '[cyan]pyfault fl -c {filename}[/cyan]' to perform fault localization")
-        
+            self.console.print(f"Coverage data saved to: [blue]{output_file}[/blue]")
+            self.console.print(f"Use '[cyan]pyfault fl -c {output_file}[/cyan]' to perform fault localization")
+
         except Exception as e:
-            raise RuntimeError(f"Error saving coverage matrix to {filename}: {e}")
-    
+            raise RuntimeError(f"Error saving coverage matrix to {output_file}: {e}")
+
     def _write_test_results(self, result: FaultLocalizationResult) -> None:
         """Write test results to CSV."""
         filename = self.output_dir / "test_results.csv"
@@ -239,7 +240,7 @@ class CSVReporter:
             test_names = test_columns
             
             if not test_names:
-                raise ValueError("No test columns found in CSV file")
+                raise ValueError("Empty or malformed Coverage Matrix CSV file")
 
             # Extract test outcomes from the special 'OUTCOME' row
             outcome_row = df[df['Element'] == 'OUTCOME']

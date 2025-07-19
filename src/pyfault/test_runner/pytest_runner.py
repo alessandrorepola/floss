@@ -145,16 +145,18 @@ class PytestRunner:
     
     def _get_test_name(self, report: TestReport) -> str:
         """Extract a meaningful test name from pytest report."""
-        # Use nodeid which includes the full path and test name
         if hasattr(report, 'nodeid') and report.nodeid:
             return report.nodeid
-        
-        # Fallback to fspath and location if nodeid is not available
+
         try:
-            return f"{report.fspath}::{report.location[2]}"
-        except (AttributeError, IndexError):
-            # Final fallback
-            return str(report.fspath)
+            if hasattr(report, 'location') and report.location and isinstance(report.location, (tuple, list)) and len(report.location) > 2:
+                return f"{report.fspath}::{report.location[2]}"
+            elif hasattr(report, 'fspath') and report.fspath:
+                return str(report.fspath)
+            else:
+                return "Unknown Test"
+        except (AttributeError, IndexError, TypeError):
+            return "Unknown Test"
 
 
 class PytestResultCollector:
