@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Package Overview - PyFault</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Package Overview</h1>
+            <p class="subtitle">File-level Suspiciousness Analysis</p>
+        </header>
+        
+        <nav>
+            <a href="index.html">← Back to Summary</a>
+            
+            <a href="ochiai_ranking.html">Ochiai Ranking</a>
+            
+            <a href="tarantula_ranking.html">Tarantula Ranking</a>
+            
+            <a href="jaccard_ranking.html">Jaccard Ranking</a>
+            
+            <a href="dstar2_ranking.html">Dstar2 Ranking</a>
+            
+            <a href="kulczynski2_ranking.html">Kulczynski2 Ranking</a>
+            
+        </nav>
+        
+        <section class="package-analysis">
+            <h2>File-Level Statistics</h2>
+            <div class="package-grid">
+                
+                <div class="package-card">
+                    <h4>file1.py</h4>
+                    <p><strong>Path:</strong> C:\Users\Alessandro\Desktop\PyFault\file1.py</p>
+                    <p><strong>Elements:</strong> 10</p>
+                    
+                    <div style="margin-top: 15px;">
+                        <h5>Max Suspiciousness:</h5>
+                        
+                        <span class="score-badge very-high">
+                            ochiai: 1.0000
+                        </span>
+                        
+                        <span class="score-badge very-high">
+                            tarantula: 1.0000
+                        </span>
+                        
+                        <span class="score-badge very-high">
+                            jaccard: 1.0000
+                        </span>
+                        
+                        <span class="score-badge very-high">
+                            dstar2: 1.0000
+                        </span>
+                        
+                        <span class="score-badge very-high">
+                            kulczynski2: 1.0000
+                        </span>
+                        
+                    </div>
+                    
+                    <div style="margin-top: 10px;">
+                        <h5>Average Suspiciousness:</h5>
+                        
+                        <span class="score-badge low">
+                            ochiai: 0.1707
+                        </span>
+                        
+                        <span class="score-badge low">
+                            tarantula: 0.1500
+                        </span>
+                        
+                        <span class="score-badge low">
+                            jaccard: 0.1500
+                        </span>
+                        
+                        <span class="score-badge low">
+                            dstar2: 0.1000
+                        </span>
+                        
+                        <span class="score-badge low">
+                            kulczynski2: 0.1750
+                        </span>
+                        
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <a href="source/file1.html" class="btn btn-secondary">View Source</a>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

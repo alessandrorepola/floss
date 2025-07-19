@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
+from src.pyfault.formulas.sbfl_formulas import JaccardFormula, OchiaiFormula, TarantulaFormula
 from src.pyfault.reporters.csv_reporter import CSVReporter
 from src.pyfault.reporters.html_reporter import HTMLReporter
 from src.pyfault.reporters.json_reporter import JSONReporter
@@ -50,20 +51,20 @@ def sample_coverage_matrix() -> CoverageMatrix:
 def sample_result(sample_coverage_matrix: CoverageMatrix) -> FaultLocalizationResult:
     """Provide a sample fault localization result."""
     ochiai_scores = [
-        SuspiciousnessScore(sample_coverage_matrix.code_elements[0], 0.7, "Ochiai", 2),
-        SuspiciousnessScore(sample_coverage_matrix.code_elements[1], 0.9, "Ochiai", 1),
-        SuspiciousnessScore(sample_coverage_matrix.code_elements[2], 0.3, "Ochiai", 3),
+        SuspiciousnessScore(sample_coverage_matrix.code_elements[0], 0.7, "ochiai", 2),
+        SuspiciousnessScore(sample_coverage_matrix.code_elements[1], 0.9, "ochiai", 1),
+        SuspiciousnessScore(sample_coverage_matrix.code_elements[2], 0.3, "ochiai", 3),
     ]
     
     tarantula_scores = [
-        SuspiciousnessScore(sample_coverage_matrix.code_elements[0], 0.6, "Tarantula", 2),
-        SuspiciousnessScore(sample_coverage_matrix.code_elements[1], 0.8, "Tarantula", 1),
-        SuspiciousnessScore(sample_coverage_matrix.code_elements[2], 0.4, "Tarantula", 3),
+        SuspiciousnessScore(sample_coverage_matrix.code_elements[0], 0.6, "tarantula", 2),
+        SuspiciousnessScore(sample_coverage_matrix.code_elements[1], 0.8, "tarantula", 1),
+        SuspiciousnessScore(sample_coverage_matrix.code_elements[2], 0.4, "tarantula", 3),
     ]
     
     scores = {
-        "Ochiai": ochiai_scores,
-        "Tarantula": tarantula_scores
+        "ochiai": ochiai_scores,
+        "tarantula": tarantula_scores
     }
     
     return FaultLocalizationResult(
@@ -128,8 +129,9 @@ class TestCSVReporter:
         """Test writing fault localization results to CSV."""
         self.reporter.generate_report(sample_result)
         
-        ochiai_file = self.temp_dir / "ranking_ochiai.csv"
-        tarantula_file = self.temp_dir / "ranking_tarantula.csv"
+        print(f"temp dir content: {list(self.temp_dir.iterdir())}")
+        ochiai_file = self.temp_dir / f"ranking_{OchiaiFormula().name}.csv"
+        tarantula_file = self.temp_dir / f"ranking_{TarantulaFormula().name}.csv"
 
         assert ochiai_file.exists()
         assert tarantula_file.exists()
@@ -248,20 +250,20 @@ class TestJSONReporter:
         
         # Create scores for multiple formulas
         ochiai_scores = [
-            SuspiciousnessScore(elements[0], 0.4, "Ochiai", 3),
-            SuspiciousnessScore(elements[1], 0.8, "Ochiai", 1),
-            SuspiciousnessScore(elements[2], 0.6, "Ochiai", 2),
+            SuspiciousnessScore(elements[0], 0.4, "ochiai", 3),
+            SuspiciousnessScore(elements[1], 0.8, "ochiai", 1),
+            SuspiciousnessScore(elements[2], 0.6, "ochiai", 2),
         ]
         
         tarantula_scores = [
-            SuspiciousnessScore(elements[0], 0.3, "Tarantula", 3),
-            SuspiciousnessScore(elements[1], 0.7, "Tarantula", 1),
-            SuspiciousnessScore(elements[2], 0.5, "Tarantula", 2),
+            SuspiciousnessScore(elements[0], 0.3, "tarantula", 3),
+            SuspiciousnessScore(elements[1], 0.7, "tarantula", 1),
+            SuspiciousnessScore(elements[2], 0.5, "tarantula", 2),
         ]
         
         scores = {
-            "Ochiai": ochiai_scores,
-            "Tarantula": tarantula_scores
+            "ochiai": ochiai_scores,
+            "tarantula": tarantula_scores
         }
         
         return FaultLocalizationResult(
@@ -271,7 +273,7 @@ class TestJSONReporter:
             metadata={
                 "version": "1.0", 
                 "total_elements": 3,
-                "formulas_used": ["Ochiai", "Tarantula"],
+                "formulas_used": ["ochiai", "tarantula"],
                 "test_framework": "pytest"
             }
         )
@@ -304,11 +306,11 @@ class TestJSONReporter:
         
         # Check formulas structure
         assert len(data['formulas']) == 2
-        assert 'Ochiai' in data['formulas']
-        assert 'Tarantula' in data['formulas']
+        assert 'ochiai' in data['formulas']
+        assert 'tarantula' in data['formulas']
         
         # Check ranking structure
-        ochiai_ranking = data['formulas']['Ochiai']
+        ochiai_ranking = data['formulas']['ochiai']
         assert len(ochiai_ranking) == 3
 
         # Check individual ranking item structure
@@ -364,9 +366,9 @@ class TestJSONReporter:
         )
         
         scores = {
-            "Ochiai": [
-                SuspiciousnessScore(elements[0], 0.5, "Ochiai", 1),
-                SuspiciousnessScore(elements[1], 0.3, "Ochiai", 2),
+            "ochiai": [
+                SuspiciousnessScore(elements[0], 0.5, "ochiai", 1),
+                SuspiciousnessScore(elements[1], 0.3, "ochiai", 2),
             ]
         }
         
@@ -479,7 +481,7 @@ class TestReporterIntegration:
         )
         
         # Create scores for multiple formulas
-        formulas = ["Ochiai", "Tarantula", "Jaccard"]
+        formulas = ["ochiai", "tarantula", "jaccard"]
         scores = {}
         
         for formula in formulas:
@@ -515,9 +517,9 @@ class TestReporterIntegration:
 
         # Verify CSV outputs
         csv_dir = self.temp_dir / "csv"
-        assert (csv_dir / "ranking_ochiai.csv").exists()
-        assert (csv_dir / "ranking_tarantula.csv").exists()
-        assert (csv_dir / "ranking_jaccard.csv").exists()
+        assert (csv_dir / f"ranking_{OchiaiFormula().name}.csv").exists()
+        assert (csv_dir / f"ranking_{TarantulaFormula().name}.csv").exists()
+        assert (csv_dir / f"ranking_{JaccardFormula().name}.csv").exists()
         assert (csv_dir / "test_results.csv").exists()
 
         # Verify HTML outputs
@@ -539,13 +541,13 @@ class TestReporterIntegration:
         json_reporter.generate_report(self.sample_result)
 
         # Load CSV data
-        csv_ochiai = pd.read_csv(self.temp_dir / "csv" / "ranking_ochiai.csv")
+        csv_ochiai = pd.read_csv(self.temp_dir / "csv" / f"ranking_{OchiaiFormula().name}.csv")
 
         # Load JSON data
         with open(self.temp_dir / "json" / "summary.json", 'r') as f:
             json_data = json.load(f)
         
-        json_ochiai = json_data['formulas']['Ochiai']
+        json_ochiai = json_data['formulas']['ochiai']
         
         # Compare rankings
         assert len(csv_ochiai) == len(json_ochiai)

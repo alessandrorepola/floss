@@ -1,0 +1,164 @@
+{
+  "stats": {
+    "total_tests": 2,
+    "failed_tests": 1,
+    "total_elements": 2,
+    "coverage_percentage": 100.0,
+    "execution_time": 0.0,
+    "formulas_used": [
+      "ochiai",
+      "tarantula",
+      "jaccard",
+      "dstar2",
+      "kulczynski2"
+    ]
+  },
+  "formulas": {
+    "ochiai": [
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/file1.py",
+          "line": 15,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 1.0,
+        "rank": 1,
+        "formula_name": "ochiai"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/file1.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.7071067811865475,
+        "rank": 2,
+        "formula_name": "ochiai"
+      }
+    ],
+    "tarantula": [
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/file1.py",
+          "line": 15,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 1.0,
+        "rank": 1,
+        "formula_name": "tarantula"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/file1.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 2,
+        "formula_name": "tarantula"
+      }
+    ],
+    "jaccard": [
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/file1.py",
+          "line": 15,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 1.0,
+        "rank": 1,
+        "formula_name": "jaccard"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/file1.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 2,
+        "formula_name": "jaccard"
+      }
+    ],
+    "dstar2": [
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/file1.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 1.0,
+        "rank": 1,
+        "formula_name": "dstar2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/file1.py",
+          "line": 15,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.0,
+        "rank": 2,
+        "formula_name": "dstar2"
+      }
+    ],
+    "kulczynski2": [
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/file1.py",
+          "line": 15,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 1.0,
+        "rank": 1,
+        "formula_name": "kulczynski2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/file1.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.75,
+        "rank": 2,
+        "formula_name": "kulczynski2"
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "C:/Users/Alessandro/Desktop/PyFault/file1.py",
+      "line": 15,
+      "element_type": "line",
+      "element_name": null
+    },
+    {
+      "file": "C:/Users/Alessandro/Desktop/PyFault/file1.py",
+      "line": 10,
+      "element_type": "line",
+      "element_name": null
+    }
+  ],
+  "execution_time": 0.0,
+  "metadata": {
+    "total_tests": 2,
+    "total_elements": 2,
+    "formulas_used": [
+      "ochiai",
+      "tarantula",
+      "jaccard",
+      "dstar2",
+      "kulczynski2"
+    ]
+  }
+}

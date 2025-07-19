@@ -1,0 +1,3 @@
+Rank,File,Line,Element,Suspiciousness,Formula
+1,C:\Users\Alessandro\Desktop\PyFault\file1.py,15,,1.000000,jaccard
+2,C:\Users\Alessandro\Desktop\PyFault\file1.py,10,,0.500000,jaccard
