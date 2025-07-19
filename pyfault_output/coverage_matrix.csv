@@ -1,4 +1,0 @@
-Element,File,Line,ElementType,ElementName,test_1,test_2
-OUTCOME,,,,,passed,failed
-file1.py:10,C:\Users\Alessandro\Desktop\PyFault\file1.py,10,line,,1,1
-file1.py:15,C:\Users\Alessandro\Desktop\PyFault\file1.py,15,line,,0,1
