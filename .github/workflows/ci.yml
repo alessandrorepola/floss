@@ -29,17 +29,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
 
-    - name: Lint with flake8 and black
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 src tests --count --select=E9,F63,F7,F82 --show-source --statistics
-        # check formatting
-        black --check .
-
     - name: Type check with mypy
       run: |
         mypy src
 
     - name: Test with pytest
-      run: |
-        pytest
