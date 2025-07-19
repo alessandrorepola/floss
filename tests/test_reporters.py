@@ -9,12 +9,9 @@ import pytest
 import tempfile
 import shutil
 import json
-import csv
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from bs4 import BeautifulSoup
-from typing import Dict, Any
 
 from src.pyfault.reporters.csv_reporter import CSVReporter
 from src.pyfault.reporters.html_reporter import HTMLReporter
@@ -23,8 +20,6 @@ from src.pyfault.core.models import (
     CodeElement, TestOutcome, CoverageMatrix, SuspiciousnessScore,
     FaultLocalizationResult
 )
-from src.pyfault.formulas import OchiaiFormula, TarantulaFormula
-
 
 @pytest.fixture
 def sample_coverage_matrix() -> CoverageMatrix:
