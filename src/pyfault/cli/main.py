@@ -128,14 +128,9 @@ def run(ctx: click.Context, source_dir: List[str], test_dir: List[str],
             branch_coverage=branch_coverage
         )
         
-        # Run analysis with progress indicator
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console
-        ) as progress:
-            task = progress.add_task("Running fault localization...", total=None)
-            result = localizer.run(test_filter=test_filter)
+        # Run analysis
+        console.print("Running fault localization...")
+        result = localizer.run(test_filter=test_filter)
         
         # Display results
         _display_results(result, top)
@@ -191,13 +186,8 @@ def fl(ctx: click.Context, coverage_file: str, output_dir: str,
         console.print(f"[bold green]Loading coverage data from:[/bold green] {coverage_file}")
         
         # Load coverage matrix from CSV
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console
-        ) as progress:
-            task = progress.add_task("Loading coverage data...", total=None)
-            coverage_matrix = CSVReporter(Path()).load_coverage_matrix(coverage_file)
+        console.print("Loading coverage data...")
+        coverage_matrix = CSVReporter(Path()).load_coverage_matrix(coverage_file)
         
         console.print(f"Loaded {len(coverage_matrix.test_names)} tests and {len(coverage_matrix.code_elements)} elements")
         
@@ -214,13 +204,8 @@ def fl(ctx: click.Context, coverage_file: str, output_dir: str,
         console.print(f"Formulas: {[f.name for f in formulas]}")
         
         # Run analysis on loaded data
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console
-        ) as progress:
-            task = progress.add_task("Analyzing coverage data...", total=None)
-            result = localizer.analyze_from_data(coverage_matrix)
+        console.print("Analyzing coverage data...")
+        result = localizer.analyze_from_data(coverage_matrix)
         
         # Display results
         _display_results(result, top)
@@ -283,15 +268,9 @@ def test(ctx: click.Context, source_dir: List[str], test_dir: List[str],
         coverage_collector = CoverageCollector(source_dirs, branch_coverage=branch_coverage)
         test_runner = PytestRunner(test_dirs, coverage_collector)
         
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console
-        ) as progress:
-            task = progress.add_task("Executing tests and collecting coverage...", total=None)
-            
-            # Run tests and get results
-            test_results = test_runner.run_tests(test_filter)
+        console.print("Executing tests and collecting coverage...")
+        # Run tests and get results
+        test_results = test_runner.run_tests(test_filter)
         
         if not test_results:
             raise RuntimeError("No test results collected")
@@ -300,25 +279,27 @@ def test(ctx: click.Context, source_dir: List[str], test_dir: List[str],
         coverage_matrix = CoverageMatrix.from_test_results(test_results)
         
         # Display test statistics
-        failed_count = sum(1 for r in test_results if r.is_failed)
+        failed_tests = [r for r in test_results if r.is_failed]
+        failed_count = len(failed_tests)
         passed_count = len(test_results) - failed_count
         
         console.print(f"\n[bold green]✓[/bold green] Test execution completed!")
         console.print(f"Total tests: {len(test_results)}")
         console.print(f"Passed: [green]{passed_count}[/green]")
         console.print(f"Failed: [red]{failed_count}[/red]")
+
+        if failed_tests:
+            console.print("\n[bold red]Failed tests:[/bold red]")
+            for test in failed_tests:
+                console.print(f"- {test.test_name}")
+        
         console.print(f"Coverage collected for: {len(coverage_matrix.code_elements)} code elements")
         
         # Save coverage data if requested
         if save_coverage:            
-            with Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                console=console
-            ) as progress:
-                task = progress.add_task("Saving coverage data...", total=None)
-                reporter = CSVReporter(output_dir=output_path)
-                reporter.write_coverage_matrix(coverage_matrix)
+            console.print("Saving coverage data...")
+            reporter = CSVReporter(output_dir=output_path)
+            reporter.write_coverage_matrix(coverage_matrix)
         
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {e}")
