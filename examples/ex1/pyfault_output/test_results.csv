@@ -1,0 +1,5 @@
+Test Name,Outcome,Elements Covered,Coverage Percentage
+tests/test_equilateral.py::test_ea_fail,failed,0,0.00%
+tests/test_equilateral.py::test_ea_pass,passed,0,0.00%
+tests/test_isosceles.py::test_ia_crash,failed,0,0.00%
+tests/test_isosceles.py::test_ia_pass,passed,0,0.00%

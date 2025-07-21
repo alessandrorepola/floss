@@ -1,0 +1,12 @@
+Rank,File,Line,Element,Suspiciousness,Formula
+1,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\equilateral.py,10,,1.000000,dstar2
+2,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\equilateral.py,11,,1.000000,dstar2
+3,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\equilateral.py,13,,1.000000,dstar2
+4,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\equilateral.py,5,,0.500000,dstar2
+5,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\equilateral.py,7,,0.500000,dstar2
+6,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\isosceles.py,5,,0.500000,dstar2
+7,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\isosceles.py,6,,0.500000,dstar2
+8,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\isosceles.py,8,,0.500000,dstar2
+9,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\isosceles.py,10,,0.500000,dstar2
+10,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\equilateral.py,8,,0.000000,dstar2
+11,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\isosceles.py,11,,0.000000,dstar2

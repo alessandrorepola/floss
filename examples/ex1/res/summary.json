@@ -1,0 +1,714 @@
+{
+  "stats": {
+    "total_tests": 4,
+    "failed_tests": 2,
+    "total_elements": 11,
+    "coverage_percentage": 100.0,
+    "execution_time": 1.6992042064666748,
+    "formulas_used": [
+      "ochiai",
+      "tarantula",
+      "jaccard",
+      "dstar2",
+      "kulczynski2"
+    ]
+  },
+  "formulas": {
+    "ochiai": [
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.7071067811865475,
+        "rank": 1,
+        "formula_name": "ochiai"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 11,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.7071067811865475,
+        "rank": 2,
+        "formula_name": "ochiai"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 13,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.7071067811865475,
+        "rank": 3,
+        "formula_name": "ochiai"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 5,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 4,
+        "formula_name": "ochiai"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 7,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 5,
+        "formula_name": "ochiai"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 5,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 6,
+        "formula_name": "ochiai"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 6,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 7,
+        "formula_name": "ochiai"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 8,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 8,
+        "formula_name": "ochiai"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 9,
+        "formula_name": "ochiai"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 8,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.0,
+        "rank": 10,
+        "formula_name": "ochiai"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 11,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.0,
+        "rank": 11,
+        "formula_name": "ochiai"
+      }
+    ],
+    "tarantula": [
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 1.0,
+        "rank": 1,
+        "formula_name": "tarantula"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 11,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 1.0,
+        "rank": 2,
+        "formula_name": "tarantula"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 13,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 1.0,
+        "rank": 3,
+        "formula_name": "tarantula"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 5,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 4,
+        "formula_name": "tarantula"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 7,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 5,
+        "formula_name": "tarantula"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 5,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 6,
+        "formula_name": "tarantula"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 6,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 7,
+        "formula_name": "tarantula"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 8,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 8,
+        "formula_name": "tarantula"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 9,
+        "formula_name": "tarantula"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 8,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.0,
+        "rank": 10,
+        "formula_name": "tarantula"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 11,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.0,
+        "rank": 11,
+        "formula_name": "tarantula"
+      }
+    ],
+    "jaccard": [
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 1,
+        "formula_name": "jaccard"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 11,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 2,
+        "formula_name": "jaccard"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 13,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 3,
+        "formula_name": "jaccard"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 5,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.3333333333333333,
+        "rank": 4,
+        "formula_name": "jaccard"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 7,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.3333333333333333,
+        "rank": 5,
+        "formula_name": "jaccard"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 5,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.3333333333333333,
+        "rank": 6,
+        "formula_name": "jaccard"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 6,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.3333333333333333,
+        "rank": 7,
+        "formula_name": "jaccard"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 8,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.3333333333333333,
+        "rank": 8,
+        "formula_name": "jaccard"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.3333333333333333,
+        "rank": 9,
+        "formula_name": "jaccard"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 8,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.0,
+        "rank": 10,
+        "formula_name": "jaccard"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 11,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.0,
+        "rank": 11,
+        "formula_name": "jaccard"
+      }
+    ],
+    "dstar2": [
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 1.0,
+        "rank": 1,
+        "formula_name": "dstar2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 11,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 1.0,
+        "rank": 2,
+        "formula_name": "dstar2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 13,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 1.0,
+        "rank": 3,
+        "formula_name": "dstar2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 5,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 4,
+        "formula_name": "dstar2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 7,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 5,
+        "formula_name": "dstar2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 5,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 6,
+        "formula_name": "dstar2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 6,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 7,
+        "formula_name": "dstar2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 8,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 8,
+        "formula_name": "dstar2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 9,
+        "formula_name": "dstar2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 8,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.0,
+        "rank": 10,
+        "formula_name": "dstar2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 11,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.0,
+        "rank": 11,
+        "formula_name": "dstar2"
+      }
+    ],
+    "kulczynski2": [
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.75,
+        "rank": 1,
+        "formula_name": "kulczynski2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 11,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.75,
+        "rank": 2,
+        "formula_name": "kulczynski2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 13,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.75,
+        "rank": 3,
+        "formula_name": "kulczynski2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 5,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 4,
+        "formula_name": "kulczynski2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 7,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 5,
+        "formula_name": "kulczynski2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 5,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 6,
+        "formula_name": "kulczynski2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 6,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 7,
+        "formula_name": "kulczynski2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 8,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 8,
+        "formula_name": "kulczynski2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 10,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.5,
+        "rank": 9,
+        "formula_name": "kulczynski2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+          "line": 8,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.0,
+        "rank": 10,
+        "formula_name": "kulczynski2"
+      },
+      {
+        "element": {
+          "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+          "line": 11,
+          "element_type": "line",
+          "element_name": null
+        },
+        "score": 0.0,
+        "rank": 11,
+        "formula_name": "kulczynski2"
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+      "line": 10,
+      "element_type": "line",
+      "element_name": null
+    },
+    {
+      "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+      "line": 11,
+      "element_type": "line",
+      "element_name": null
+    },
+    {
+      "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+      "line": 13,
+      "element_type": "line",
+      "element_name": null
+    },
+    {
+      "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+      "line": 5,
+      "element_type": "line",
+      "element_name": null
+    },
+    {
+      "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+      "line": 7,
+      "element_type": "line",
+      "element_name": null
+    },
+    {
+      "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+      "line": 5,
+      "element_type": "line",
+      "element_name": null
+    },
+    {
+      "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+      "line": 6,
+      "element_type": "line",
+      "element_name": null
+    },
+    {
+      "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+      "line": 8,
+      "element_type": "line",
+      "element_name": null
+    },
+    {
+      "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+      "line": 10,
+      "element_type": "line",
+      "element_name": null
+    },
+    {
+      "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/equilateral.py",
+      "line": 8,
+      "element_type": "line",
+      "element_name": null
+    },
+    {
+      "file": "C:/Users/Alessandro/Desktop/PyFault/examples/ex1/src/isosceles.py",
+      "line": 11,
+      "element_type": "line",
+      "element_name": null
+    }
+  ],
+  "execution_time": 1.6992042064666748,
+  "metadata": {
+    "total_tests": 4,
+    "failed_tests": 2,
+    "total_elements": 11,
+    "formulas_used": [
+      "ochiai",
+      "tarantula",
+      "jaccard",
+      "dstar2",
+      "kulczynski2"
+    ]
+  }
+}

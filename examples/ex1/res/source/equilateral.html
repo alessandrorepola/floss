@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Source: equilateral.py</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Source: equilateral.py</h1>
+            <p class="subtitle">C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\equilateral.py</p>
+        </header>
+        
+        <nav>
+            <a href="../index.html">← Back to Summary</a>
+            <a href="../package_overview.html">Package Overview</a>
+        </nav>
+        
+        <section class="source-viewer">
+            <h2>Source Code</h2>
+            <div class="source-code">
+                
+                <div class="source-line none" id="line-1">
+                    <span class="line-number">1</span>import math
+                    
+                </div>
+                
+                <div class="source-line none" id="line-2">
+                    <span class="line-number">2</span>
+                    
+                </div>
+                
+                <div class="source-line none" id="line-3">
+                    <span class="line-number">3</span>
+                    
+                </div>
+                
+                <div class="source-line none" id="line-4">
+                    <span class="line-number">4</span>def equilateral_area(a):
+                    
+                </div>
+                
+                <div class="source-line medium" id="line-5">
+                    <span class="line-number">5</span>    const = math.sqrt(3) / 4
+                    
+                    <div class="line-scores" style="margin-left: 75px; font-size: 0.8em; color: #6c757d;">
+                        
+                        <span class="score-badge medium">
+                            ochiai: 0.5000
+                        </span>
+                        
+                        <span class="score-badge medium">
+                            tarantula: 0.5000
+                        </span>
+                        
+                        <span class="score-badge medium">
+                            jaccard: 0.3333
+                        </span>
+                        
+                        <span class="score-badge medium">
+                            dstar2: 0.5000
+                        </span>
+                        
+                        <span class="score-badge medium">
+                            kulczynski2: 0.5000
+                        </span>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="source-line none" id="line-6">
+                    <span class="line-number">6</span>
+                    
+                </div>
+                
+                <div class="source-line medium" id="line-7">
+                    <span class="line-number">7</span>    if a == 1:
+                    
+                    <div class="line-scores" style="margin-left: 75px; font-size: 0.8em; color: #6c757d;">
+                        
+                        <span class="score-badge medium">
+                            ochiai: 0.5000
+                        </span>
+                        
+                        <span class="score-badge medium">
+                            tarantula: 0.5000
+                        </span>
+                        
+                        <span class="score-badge medium">
+                            jaccard: 0.3333
+                        </span>
+                        
+                        <span class="score-badge medium">
+                            dstar2: 0.5000
+                        </span>
+                        
+                        <span class="score-badge medium">
+                            kulczynski2: 0.5000
+                        </span>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="source-line none" id="line-8">
+                    <span class="line-number">8</span>        return const
+                    
+                    <div class="line-scores" style="margin-left: 75px; font-size: 0.8em; color: #6c757d;">
+                        
+                        <span class="score-badge none">
+                            ochiai: 0.0000
+                        </span>
+                        
+                        <span class="score-badge none">
+                            tarantula: 0.0000
+                        </span>
+                        
+                        <span class="score-badge none">
+                            jaccard: 0.0000
+                        </span>
+                        
+                        <span class="score-badge none">
+                            dstar2: 0.0000
+                        </span>
+                        
+                        <span class="score-badge none">
+                            kulczynski2: 0.0000
+                        </span>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="source-line none" id="line-9">
+                    <span class="line-number">9</span>
+                    
+                </div>
+                
+                <div class="source-line very-high" id="line-10">
+                    <span class="line-number">10</span>    term = math.pow(a, 2)
+                    
+                    <div class="line-scores" style="margin-left: 75px; font-size: 0.8em; color: #6c757d;">
+                        
+                        <span class="score-badge high">
+                            ochiai: 0.7071
+                        </span>
+                        
+                        <span class="score-badge very-high">
+                            tarantula: 1.0000
+                        </span>
+                        
+                        <span class="score-badge medium">
+                            jaccard: 0.5000
+                        </span>
+                        
+                        <span class="score-badge very-high">
+                            dstar2: 1.0000
+                        </span>
+                        
+                        <span class="score-badge high">
+                            kulczynski2: 0.7500
+                        </span>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="source-line very-high" id="line-11">
+                    <span class="line-number">11</span>    area = const + term  # bug
+                    
+                    <div class="line-scores" style="margin-left: 75px; font-size: 0.8em; color: #6c757d;">
+                        
+                        <span class="score-badge high">
+                            ochiai: 0.7071
+                        </span>
+                        
+                        <span class="score-badge very-high">
+                            tarantula: 1.0000
+                        </span>
+                        
+                        <span class="score-badge medium">
+                            jaccard: 0.5000
+                        </span>
+                        
+                        <span class="score-badge very-high">
+                            dstar2: 1.0000
+                        </span>
+                        
+                        <span class="score-badge high">
+                            kulczynski2: 0.7500
+                        </span>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="source-line none" id="line-12">
+                    <span class="line-number">12</span>    # area = const * term  # patch
+                    
+                </div>
+                
+                <div class="source-line very-high" id="line-13">
+                    <span class="line-number">13</span>    return area
+                    
+                    <div class="line-scores" style="margin-left: 75px; font-size: 0.8em; color: #6c757d;">
+                        
+                        <span class="score-badge high">
+                            ochiai: 0.7071
+                        </span>
+                        
+                        <span class="score-badge very-high">
+                            tarantula: 1.0000
+                        </span>
+                        
+                        <span class="score-badge medium">
+                            jaccard: 0.5000
+                        </span>
+                        
+                        <span class="score-badge very-high">
+                            dstar2: 1.0000
+                        </span>
+                        
+                        <span class="score-badge high">
+                            kulczynski2: 0.7500
+                        </span>
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>
+        </section>
+        
+        <section class="element-details">
+            <h2>Suspicious Elements in this File</h2>
+            <table class="ranking-table">
+                <thead>
+                    <tr>
+                        <th>Line</th>
+                        <th>Element Type</th>
+                        <th>Formula</th>
+                        <th>Score</th>
+                        <th>Rank</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td><a href="#line-10" onclick="highlightSourceLine('10')">10</a></td>
+                        <td>line</td>
+                        <td>ochiai</td>
+                        <td>
+                            <span class="score-badge high">
+                                0.707107
+                            </span>
+                        </td>
+                        <td>1</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-11" onclick="highlightSourceLine('11')">11</a></td>
+                        <td>line</td>
+                        <td>ochiai</td>
+                        <td>
+                            <span class="score-badge high">
+                                0.707107
+                            </span>
+                        </td>
+                        <td>2</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-13" onclick="highlightSourceLine('13')">13</a></td>
+                        <td>line</td>
+                        <td>ochiai</td>
+                        <td>
+                            <span class="score-badge high">
+                                0.707107
+                            </span>
+                        </td>
+                        <td>3</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-5" onclick="highlightSourceLine('5')">5</a></td>
+                        <td>line</td>
+                        <td>ochiai</td>
+                        <td>
+                            <span class="score-badge medium">
+                                0.500000
+                            </span>
+                        </td>
+                        <td>4</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-7" onclick="highlightSourceLine('7')">7</a></td>
+                        <td>line</td>
+                        <td>ochiai</td>
+                        <td>
+                            <span class="score-badge medium">
+                                0.500000
+                            </span>
+                        </td>
+                        <td>5</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-8" onclick="highlightSourceLine('8')">8</a></td>
+                        <td>line</td>
+                        <td>ochiai</td>
+                        <td>
+                            <span class="score-badge none">
+                                0.000000
+                            </span>
+                        </td>
+                        <td>10</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-10" onclick="highlightSourceLine('10')">10</a></td>
+                        <td>line</td>
+                        <td>tarantula</td>
+                        <td>
+                            <span class="score-badge very-high">
+                                1.000000
+                            </span>
+                        </td>
+                        <td>1</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-11" onclick="highlightSourceLine('11')">11</a></td>
+                        <td>line</td>
+                        <td>tarantula</td>
+                        <td>
+                            <span class="score-badge very-high">
+                                1.000000
+                            </span>
+                        </td>
+                        <td>2</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-13" onclick="highlightSourceLine('13')">13</a></td>
+                        <td>line</td>
+                        <td>tarantula</td>
+                        <td>
+                            <span class="score-badge very-high">
+                                1.000000
+                            </span>
+                        </td>
+                        <td>3</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-5" onclick="highlightSourceLine('5')">5</a></td>
+                        <td>line</td>
+                        <td>tarantula</td>
+                        <td>
+                            <span class="score-badge medium">
+                                0.500000
+                            </span>
+                        </td>
+                        <td>4</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-7" onclick="highlightSourceLine('7')">7</a></td>
+                        <td>line</td>
+                        <td>tarantula</td>
+                        <td>
+                            <span class="score-badge medium">
+                                0.500000
+                            </span>
+                        </td>
+                        <td>5</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-8" onclick="highlightSourceLine('8')">8</a></td>
+                        <td>line</td>
+                        <td>tarantula</td>
+                        <td>
+                            <span class="score-badge none">
+                                0.000000
+                            </span>
+                        </td>
+                        <td>10</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-10" onclick="highlightSourceLine('10')">10</a></td>
+                        <td>line</td>
+                        <td>jaccard</td>
+                        <td>
+                            <span class="score-badge medium">
+                                0.500000
+                            </span>
+                        </td>
+                        <td>1</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-11" onclick="highlightSourceLine('11')">11</a></td>
+                        <td>line</td>
+                        <td>jaccard</td>
+                        <td>
+                            <span class="score-badge medium">
+                                0.500000
+                            </span>
+                        </td>
+                        <td>2</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-13" onclick="highlightSourceLine('13')">13</a></td>
+                        <td>line</td>
+                        <td>jaccard</td>
+                        <td>
+                            <span class="score-badge medium">
+                                0.500000
+                            </span>
+                        </td>
+                        <td>3</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-5" onclick="highlightSourceLine('5')">5</a></td>
+                        <td>line</td>
+                        <td>jaccard</td>
+                        <td>
+                            <span class="score-badge medium">
+                                0.333333
+                            </span>
+                        </td>
+                        <td>4</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-7" onclick="highlightSourceLine('7')">7</a></td>
+                        <td>line</td>
+                        <td>jaccard</td>
+                        <td>
+                            <span class="score-badge medium">
+                                0.333333
+                            </span>
+                        </td>
+                        <td>5</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-8" onclick="highlightSourceLine('8')">8</a></td>
+                        <td>line</td>
+                        <td>jaccard</td>
+                        <td>
+                            <span class="score-badge none">
+                                0.000000
+                            </span>
+                        </td>
+                        <td>10</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-10" onclick="highlightSourceLine('10')">10</a></td>
+                        <td>line</td>
+                        <td>dstar2</td>
+                        <td>
+                            <span class="score-badge very-high">
+                                1.000000
+                            </span>
+                        </td>
+                        <td>1</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-11" onclick="highlightSourceLine('11')">11</a></td>
+                        <td>line</td>
+                        <td>dstar2</td>
+                        <td>
+                            <span class="score-badge very-high">
+                                1.000000
+                            </span>
+                        </td>
+                        <td>2</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-13" onclick="highlightSourceLine('13')">13</a></td>
+                        <td>line</td>
+                        <td>dstar2</td>
+                        <td>
+                            <span class="score-badge very-high">
+                                1.000000
+                            </span>
+                        </td>
+                        <td>3</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-5" onclick="highlightSourceLine('5')">5</a></td>
+                        <td>line</td>
+                        <td>dstar2</td>
+                        <td>
+                            <span class="score-badge medium">
+                                0.500000
+                            </span>
+                        </td>
+                        <td>4</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-7" onclick="highlightSourceLine('7')">7</a></td>
+                        <td>line</td>
+                        <td>dstar2</td>
+                        <td>
+                            <span class="score-badge medium">
+                                0.500000
+                            </span>
+                        </td>
+                        <td>5</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-8" onclick="highlightSourceLine('8')">8</a></td>
+                        <td>line</td>
+                        <td>dstar2</td>
+                        <td>
+                            <span class="score-badge none">
+                                0.000000
+                            </span>
+                        </td>
+                        <td>10</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-10" onclick="highlightSourceLine('10')">10</a></td>
+                        <td>line</td>
+                        <td>kulczynski2</td>
+                        <td>
+                            <span class="score-badge high">
+                                0.750000
+                            </span>
+                        </td>
+                        <td>1</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-11" onclick="highlightSourceLine('11')">11</a></td>
+                        <td>line</td>
+                        <td>kulczynski2</td>
+                        <td>
+                            <span class="score-badge high">
+                                0.750000
+                            </span>
+                        </td>
+                        <td>2</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-13" onclick="highlightSourceLine('13')">13</a></td>
+                        <td>line</td>
+                        <td>kulczynski2</td>
+                        <td>
+                            <span class="score-badge high">
+                                0.750000
+                            </span>
+                        </td>
+                        <td>3</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-5" onclick="highlightSourceLine('5')">5</a></td>
+                        <td>line</td>
+                        <td>kulczynski2</td>
+                        <td>
+                            <span class="score-badge medium">
+                                0.500000
+                            </span>
+                        </td>
+                        <td>4</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-7" onclick="highlightSourceLine('7')">7</a></td>
+                        <td>line</td>
+                        <td>kulczynski2</td>
+                        <td>
+                            <span class="score-badge medium">
+                                0.500000
+                            </span>
+                        </td>
+                        <td>5</td>
+                    </tr>
+                    
+                    <tr>
+                        <td><a href="#line-8" onclick="highlightSourceLine('8')">8</a></td>
+                        <td>line</td>
+                        <td>kulczynski2</td>
+                        <td>
+                            <span class="score-badge none">
+                                0.000000
+                            </span>
+                        </td>
+                        <td>10</td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </section>
+    </div>
+    <script src="../script.js"></script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyFault Localization Report</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="static/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PyFault Localization Report</h1>
+            <p class="subtitle">Spectrum-Based Fault Localization Results</p>
+        </header>
+        
+        <nav>
+            <a href="index.html">Summary</a>
+            <a href="package_overview.html">Package Overview</a>
+            
+            <a href="ochiai_ranking.html">Ochiai Ranking</a>
+            
+            <a href="tarantula_ranking.html">Tarantula Ranking</a>
+            
+            <a href="jaccard_ranking.html">Jaccard Ranking</a>
+            
+            <a href="dstar2_ranking.html">Dstar2 Ranking</a>
+            
+            <a href="kulczynski2_ranking.html">Kulczynski2 Ranking</a>
+            
+        </nav>
+        
+        <section class="summary">
+            <h2>Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>4</h3>
+                    <p>Total Tests</p>
+                    <small>2 passed, 2 failed</small>
+                </div>
+                <div class="stat-card">
+                    <h3>0</h3>
+                    <p>Code Elements</p>
+                    <small>0.0% covered</small>
+                </div>
+                <div class="stat-card">
+                    <h3>0</h3>
+                    <p>Source Files</p>
+                    <small>0 packages</small>
+                </div>
+                <div class="stat-card">
+                    <h3>0.00s</h3>
+                    <p>Execution Time</p>
+                    <small>Analysis completed</small>
+                </div>
+            </div>
+        </section>
+        
+        <section class="formulas">
+            <h2>SBFL Formulas</h2>
+            <div class="formula-grid">
+                
+                <div class="formula-card">
+                    <h3>Ochiai</h3>
+                    
+                    <a href="ochiai_ranking.html" class="btn">View Full Ranking</a>
+                </div>
+                
+                <div class="formula-card">
+                    <h3>Tarantula</h3>
+                    
+                    <a href="tarantula_ranking.html" class="btn">View Full Ranking</a>
+                </div>
+                
+                <div class="formula-card">
+                    <h3>Jaccard</h3>
+                    
+                    <a href="jaccard_ranking.html" class="btn">View Full Ranking</a>
+                </div>
+                
+                <div class="formula-card">
+                    <h3>Dstar2</h3>
+                    
+                    <a href="dstar2_ranking.html" class="btn">View Full Ranking</a>
+                </div>
+                
+                <div class="formula-card">
+                    <h3>Kulczynski2</h3>
+                    
+                    <a href="kulczynski2_ranking.html" class="btn">View Full Ranking</a>
+                </div>
+                
+            </div>
+        </section>
+        
+        <section class="visualization">
+            <h2>Suspiciousness Distribution</h2>
+            <div class="visualization-container">
+                <h3>Package & File Overview</h3>
+                <div id="sunburst-chart"></div>
+            </div>
+            <div class="visualization-container">
+                <h3>Top Elements Ranking</h3>
+                <div id="ranking-chart"></div>
+            </div>
+        </section>
+        
+        <section class="top-suspects">
+            <h2>Top Suspicious Elements</h2>
+            
+            <div class="formula-results">
+                <h3>Ochiai</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>File</th>
+                            <th>Line</th>
+                            <th>Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="formula-results">
+                <h3>Tarantula</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>File</th>
+                            <th>Line</th>
+                            <th>Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="formula-results">
+                <h3>Jaccard</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>File</th>
+                            <th>Line</th>
+                            <th>Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="formula-results">
+                <h3>Dstar2</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>File</th>
+                            <th>Line</th>
+                            <th>Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="formula-results">
+                <h3>Kulczynski2</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>File</th>
+                            <th>Line</th>
+                            <th>Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+            
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

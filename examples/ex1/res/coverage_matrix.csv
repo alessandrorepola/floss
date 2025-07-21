@@ -1,0 +1,13 @@
+Element,File,Line,ElementType,ElementName,examples/ex1/tests/test_equilateral.py::test_ea_fail,examples/ex1/tests/test_equilateral.py::test_ea_pass,examples/ex1/tests/test_isosceles.py::test_ia_crash,examples/ex1/tests/test_isosceles.py::test_ia_pass
+OUTCOME,,,,,failed,passed,failed,passed
+equilateral.py:5,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\equilateral.py,5,line,,1,1,0,0
+equilateral.py:7,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\equilateral.py,7,line,,1,1,0,0
+equilateral.py:8,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\equilateral.py,8,line,,0,1,0,0
+equilateral.py:10,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\equilateral.py,10,line,,1,0,0,0
+equilateral.py:11,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\equilateral.py,11,line,,1,0,0,0
+equilateral.py:13,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\equilateral.py,13,line,,1,0,0,0
+isosceles.py:5,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\isosceles.py,5,line,,0,0,1,1
+isosceles.py:6,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\isosceles.py,6,line,,0,0,1,1
+isosceles.py:8,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\isosceles.py,8,line,,0,0,1,1
+isosceles.py:10,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\isosceles.py,10,line,,0,0,1,1
+isosceles.py:11,C:\Users\Alessandro\Desktop\PyFault\examples\ex1\src\isosceles.py,11,line,,0,0,0,1

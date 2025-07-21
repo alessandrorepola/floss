@@ -1,0 +1,36 @@
+{
+  "stats": {
+    "total_tests": 4,
+    "failed_tests": 2,
+    "total_elements": 0,
+    "coverage_percentage": 0.0,
+    "execution_time": 0.0,
+    "formulas_used": [
+      "ochiai",
+      "tarantula",
+      "jaccard",
+      "dstar2",
+      "kulczynski2"
+    ]
+  },
+  "formulas": {
+    "ochiai": [],
+    "tarantula": [],
+    "jaccard": [],
+    "dstar2": [],
+    "kulczynski2": []
+  },
+  "elements": [],
+  "execution_time": 0.0,
+  "metadata": {
+    "total_tests": 4,
+    "total_elements": 0,
+    "formulas_used": [
+      "ochiai",
+      "tarantula",
+      "jaccard",
+      "dstar2",
+      "kulczynski2"
+    ]
+  }
+}
