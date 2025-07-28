@@ -543,6 +543,11 @@ def display_overview_tab(scores: List[Dict], formula: str, top_n: int, common_ro
             score_values = [s['score'] for s in top_scores]
             colors = ['#FF4444' if s > 0.8 else '#FF8844' if s > 0.5 else '#FFBB44' for s in score_values]
             
+            # Reverse the order of elements and scores for inverted bars
+            elements = elements[::-1]
+            score_values = score_values[::-1]
+            colors = colors[::-1]
+
             fig = go.Figure(data=[
                 go.Bar(
                     y=elements,  # Horizontal bar
