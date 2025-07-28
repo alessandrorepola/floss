@@ -143,12 +143,10 @@ def main():
                 help="Show only elements with score above this threshold"
             )
             
-            # File type filter
-            file_extensions = st.multiselect(
-                "File Extensions",
-                ['.py', '.js', '.java', '.cpp', '.c'],
-                default=['.py'],
-                help="Filter by file extensions"
+            exclude_zero_scores = st.checkbox(
+                "Exclude Zero Scores from Histogram", 
+                value=False,
+                help="Hide elements with score = 0 from the histogram (they will still appear in other views)"
             )
             
             # Store config in session state for main area
@@ -156,7 +154,7 @@ def main():
                 'selected_formula': selected_formula,
                 'top_n': top_n,
                 'min_score': min_score,
-                'file_extensions': file_extensions
+                'exclude_zero_scores': exclude_zero_scores
             }
     
     # Main content area
@@ -171,7 +169,7 @@ def main():
                 config['selected_formula'],
                 config['top_n'],
                 config['min_score'],
-                config['file_extensions']
+                config.get('exclude_zero_scores', False)
             )
         else:
             st.info("⚙️ Please configure the settings in the sidebar.")
@@ -421,7 +419,7 @@ def display_welcome():
 
 
 def display_results(data: Dict[str, Any], formula: str, top_n: int, 
-                   min_score: float, file_extensions: List[str]):
+                   min_score: float, exclude_zero_scores: bool = False):
     """Display fault localization results."""
     
     # Extract data
@@ -445,8 +443,7 @@ def display_results(data: Dict[str, Any], formula: str, top_n: int,
     # Filter scores
     filtered_scores = [
         s for s in scores 
-        if s['score'] >= min_score and 
-        any(s['element']['file'].endswith(ext) for ext in file_extensions)
+        if s['score'] >= min_score
     ]
     
     # Main metrics
@@ -481,7 +478,7 @@ def display_results(data: Dict[str, Any], formula: str, top_n: int,
     tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "🎯 Ranking", "📁 Files", "🔍 Source"])
     
     with tab1:
-        display_overview_tab(filtered_scores, formula, top_n, common_root)
+        display_overview_tab(filtered_scores, formula, top_n, common_root, exclude_zero_scores)
     
     with tab2:
         display_ranking_tab(filtered_scores, formula, top_n, common_root)
@@ -493,21 +490,27 @@ def display_results(data: Dict[str, Any], formula: str, top_n: int,
         display_source_tab(filtered_scores, common_root)
 
 
-def display_overview_tab(scores: List[Dict], formula: str, top_n: int, common_root: Optional[str]):
+def display_overview_tab(scores: List[Dict], formula: str, top_n: int, common_root: Optional[str], exclude_zero_scores: bool = False):
     """Display overview visualizations."""
     col1, col2 = st.columns(2)
     
     with col1:
         st.subheader("📈 Suspiciousness Distribution")
         
-        # Extract scores for histogram
-        score_values = [s['score'] for s in scores[:top_n * 2]]  # More data for better distribution
+        # Extract ALL scores for histogram (not limited by top_n for better distribution)
+        all_score_values = [s['score'] for s in scores]
         
-        if score_values:
+        # Apply zero score filter if requested for histogram
+        if exclude_zero_scores:
+            histogram_scores = [s for s in all_score_values if s > 0]
+        else:
+            histogram_scores = all_score_values
+        
+        if histogram_scores:
             fig = px.histogram(
-                x=score_values,
+                x=histogram_scores,
                 nbins=20,
-                title=f"Score Distribution ({formula.title()})",
+                title=f"Score Distribution ({formula.title()})" + (" - Excluding Zeros" if exclude_zero_scores else ""),
                 labels={'x': 'Suspiciousness Score', 'y': 'Count'},
                 color_discrete_sequence=['#FF6B6B']
             )
@@ -516,8 +519,15 @@ def display_overview_tab(scores: List[Dict], formula: str, top_n: int, common_ro
                 height=400
             )
             st.plotly_chart(fig, use_container_width=True)
+            
+            # Show statistics
+            if exclude_zero_scores and len(all_score_values) != len(histogram_scores):
+                st.info(f"Showing {len(histogram_scores)} elements (excluded {len(all_score_values) - len(histogram_scores)} zero scores)")
         else:
-            st.info("No data available for distribution")
+            if exclude_zero_scores:
+                st.info("No non-zero scores available for distribution")
+            else:
+                st.info("No data available for distribution")
     
     with col2:
         st.subheader("🏆 Top Suspicious Elements")
