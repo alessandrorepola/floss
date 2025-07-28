@@ -160,6 +160,7 @@ class CoverageCollector:
                 else:
                     # Get line coverage for this file
                     lines = data.lines(filename) or []
+                    print(f"File: {filename}, righe coperte: {lines}")
                     
                     for line_number in lines:
                         element = CodeElement(
@@ -191,32 +192,3 @@ class CoverageCollector:
         """Clear all collected coverage data."""
         with self._lock:
             self.coverage_data.clear()
-
-
-class SimpleCoverageCollector:
-    """
-    A simplified coverage collector for testing purposes.
-    
-    This collector doesn't use real instrumentation but allows manual
-    registration of coverage data.
-    """
-    
-    def __init__(self):
-        """Initialize the simple collector."""
-        self.coverage_data: Dict[str, Set[CodeElement]] = defaultdict(set)
-    
-    def add_coverage(self, test_name: str, elements: Set[CodeElement]) -> None:
-        """Manually add coverage data for a test."""
-        self.coverage_data[test_name] = elements
-    
-    def get_coverage_for_test(self, test_name: str) -> Set[CodeElement]:
-        """Get coverage data for a test."""
-        return self.coverage_data.get(test_name, set())
-    
-    def start(self) -> None:
-        """No-op for compatibility."""
-        pass
-    
-    def stop(self) -> None:
-        """No-op for compatibility.""" 
-        pass

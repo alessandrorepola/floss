@@ -9,76 +9,10 @@ import pytest
 import tempfile
 import shutil
 from pathlib import Path
-from typing import Set
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch, MagicMock
 
-from src.pyfault.coverage.collector import CoverageCollector, SimpleCoverageCollector
+from src.pyfault.coverage.collector import CoverageCollector
 from src.pyfault.core.models import CodeElement
-
-
-class TestSimpleCoverageCollector:
-    """Test cases for SimpleCoverageCollector (black-box approach)."""
-    
-    def setup_method(self):
-        """Setup for each test method."""
-        self.collector = SimpleCoverageCollector()
-    
-    def test_empty_collector_initialization(self):
-        """Test that collector initializes with empty state."""
-        assert len(self.collector.coverage_data) == 0
-        assert self.collector.get_coverage_for_test("nonexistent") == set()
-    
-    def test_add_single_coverage_entry(self):
-        """Test adding coverage for a single test."""
-        element = CodeElement(Path("test.py"), 10, "line")
-        test_elements = {element}
-        
-        self.collector.add_coverage("test_func", test_elements)
-        
-        retrieved = self.collector.get_coverage_for_test("test_func")
-        assert retrieved == test_elements
-        assert element in retrieved
-    
-    def test_add_multiple_coverage_entries(self):
-        """Test adding coverage for multiple tests."""
-        element1 = CodeElement(Path("file1.py"), 5, "line")
-        element2 = CodeElement(Path("file2.py"), 15, "line")
-        element3 = CodeElement(Path("file1.py"), 20, "branch", "if_branch")
-        
-        self.collector.add_coverage("test_a", {element1, element2})
-        self.collector.add_coverage("test_b", {element1, element3})
-        self.collector.add_coverage("test_c", {element3})
-        
-        # Verify each test's coverage
-        assert self.collector.get_coverage_for_test("test_a") == {element1, element2}
-        assert self.collector.get_coverage_for_test("test_b") == {element1, element3}
-        assert self.collector.get_coverage_for_test("test_c") == {element3}
-    
-    def test_overwrite_coverage_entry(self):
-        """Test that adding coverage for the same test overwrites previous data."""
-        element1 = CodeElement(Path("test.py"), 10, "line")
-        element2 = CodeElement(Path("test.py"), 20, "line")
-        
-        # First entry
-        self.collector.add_coverage("test_func", {element1})
-        assert self.collector.get_coverage_for_test("test_func") == {element1}
-        
-        # Overwrite
-        self.collector.add_coverage("test_func", {element2})
-        assert self.collector.get_coverage_for_test("test_func") == {element2}
-        assert element1 not in self.collector.get_coverage_for_test("test_func")
-    
-    def test_start_stop_compatibility(self):
-        """Test that start/stop methods work for compatibility."""
-        # These should not raise exceptions
-        self.collector.start()
-        self.collector.stop()
-        
-        # Should still be able to add coverage after start/stop
-        element = CodeElement(Path("test.py"), 5, "line")
-        self.collector.add_coverage("test", {element})
-        assert self.collector.get_coverage_for_test("test") == {element}
-
 
 class TestCoverageCollector:
     """Test cases for CoverageCollector (functional + integration)."""
