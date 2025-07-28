@@ -755,10 +755,33 @@ def display_source_tab(scores: List[Dict], common_root: Optional[str]):
             return os.path.relpath(path, common_root)
         return Path(path).name
     
+    # Find the file with the highest score (and in case of a tie, the one with more elements)
+    file_stats = {}
+    for score in scores:
+        file_path = score['element']['file']
+        if file_path not in file_stats:
+            file_stats[file_path] = {
+                'max_score': score['score'],
+                'count': 1
+            }
+        else:
+            file_stats[file_path]['max_score'] = max(file_stats[file_path]['max_score'], score['score'])
+            file_stats[file_path]['count'] += 1
+
+    # Sort files by max score and then by count
+    default_file = None
+    if file_stats:
+        default_file = sorted(
+            file_stats.items(),
+            key=lambda x: (x[1]['max_score'], x[1]['count']),
+            reverse=True
+        )[0][0]
+
     selected_file = st.selectbox(
         "Select File",
         unique_files,
-        format_func=format_path
+        format_func=format_path,
+        index=unique_files.index(default_file) if default_file in unique_files else 0
     )
     
     if selected_file:
@@ -852,7 +875,7 @@ def display_source_tab(scores: List[Dict], common_root: Optional[str]):
                     
                     if score is not None:
                         if score > 0.8:
-                            bg_color = "rgba(255, 75, 75, 0.3)"  # Red
+                            bg_color = "rgba(255, 75, 75, 0.3)" # Red
                         elif score > 0.5:
                             bg_color = "rgba(255, 165, 0, 0.3)" # Orange
                         elif score > 0.2:
