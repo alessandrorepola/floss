@@ -11,17 +11,13 @@ import shutil
 import numpy as np
 import random
 from pathlib import Path
-from typing import List
-from unittest.mock import Mock, patch
 
 from src.pyfault.core.fault_localizer import FaultLocalizer
 from src.pyfault.core.models import (
-    CodeElement, TestResult, TestOutcome, CoverageMatrix,
+    CodeElement, TestOutcome, CoverageMatrix,
     SuspiciousnessScore, FaultLocalizationResult
 )
 from src.pyfault.formulas import OchiaiFormula, TarantulaFormula
-from src.pyfault.coverage.collector import SimpleCoverageCollector
-from src.pyfault.test_runner.pytest_runner import SimpleTestRunner
 
 
 class TestFaultLocalizerIntegration:

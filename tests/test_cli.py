@@ -109,6 +109,8 @@ math_ops.py:8,math_ops.py,8,line,,0,1,0
         assert "--source-dir" in result.output
         assert "--test-dir" in result.output
         assert "--formula" in result.output
+        # Verify that source-dir and test-dir show as optional with defaults
+        assert "default: current directory" in result.output or "default:" in result.output
     
     def test_fl_command_help(self):
         """Test fl command help output."""
@@ -124,6 +126,8 @@ math_ops.py:8,math_ops.py,8,line,,0,1,0
         assert "--source-dir" in result.output
         assert "--test-dir" in result.output
         assert "--branch-coverage" in result.output
+        # Verify that source-dir and test-dir show as optional with defaults
+        assert "default: current directory" in result.output or "default:" in result.output
 
 
 class TestCLIRunCommand:
@@ -173,11 +177,112 @@ def test_multiply():
     assert simple_multiply(2, 3) == 6
 """)
     
-    def test_run_command_missing_required_args(self):
-        """Test run command with missing required arguments."""
-        result = self.runner.invoke(main, ['run'])
-        assert result.exit_code != 0
-        assert "Missing option" in result.output or "required" in result.output.lower()
+    def test_run_command_with_default_directories(self):
+        """Test run command with default directories (current directory)."""
+        # Change to temp directory for this test
+        import os
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(str(self.temp_dir))
+            
+            # Create test files in current directory
+            (self.temp_dir / "test_default.py").write_text("""
+def test_example():
+    assert True
+""")
+            
+            with patch('src.pyfault.cli.main.FaultLocalizer') as mock_localizer_class:
+                mock_localizer = Mock()
+                mock_result = Mock()
+                mock_result.scores = {'Ochiai': []}
+                mock_result.coverage_matrix = Mock()
+                mock_result.coverage_matrix.test_names = []
+                mock_result.coverage_matrix.code_elements = []
+                mock_result.execution_time = 1.0
+                mock_result.get_ranking.return_value = []
+                
+                mock_localizer.run.return_value = mock_result
+                mock_localizer_class.return_value = mock_localizer
+                
+                result = self.runner.invoke(main, ['run'])
+                
+                # Should work with default directories
+                assert result.exit_code == 0
+                mock_localizer_class.assert_called_once()
+                
+        finally:
+            os.chdir(original_cwd)
+
+    def test_run_command_default_output_directory(self):
+        """Test run command uses default output directory when not specified."""
+        import os
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(str(self.temp_dir))
+            
+            # Create minimal test structure
+            (self.temp_dir / "test_simple.py").write_text("def test_pass(): assert True")
+            
+            with patch('src.pyfault.cli.main.FaultLocalizer') as mock_localizer_class:
+                mock_localizer = Mock()
+                mock_result = Mock()
+                mock_result.scores = {'Ochiai': []}
+                mock_result.coverage_matrix = Mock()
+                mock_result.coverage_matrix.test_names = []
+                mock_result.coverage_matrix.code_elements = []
+                mock_result.execution_time = 1.0
+                mock_result.get_ranking.return_value = []
+                
+                mock_localizer.run.return_value = mock_result
+                mock_localizer_class.return_value = mock_localizer
+                
+                result = self.runner.invoke(main, ['run'])
+                
+                assert result.exit_code == 0
+                
+                # Verify that default output directory was used
+                call_args = mock_localizer_class.call_args
+                output_dir = call_args[1]['output_dir']
+                assert 'pyfault_output' in str(output_dir)
+                
+        finally:
+            os.chdir(original_cwd)
+
+    def test_run_command_multiple_source_directories(self):
+        """Test run command with multiple source directories."""
+        # Create additional source directory
+        source_dir2 = self.temp_dir / "src2"
+        source_dir2.mkdir()
+        (source_dir2 / "another_module.py").write_text("def another_func(): return 42")
+        
+        with patch('src.pyfault.cli.main.FaultLocalizer') as mock_localizer_class:
+            mock_localizer = Mock()
+            mock_result = Mock()
+            mock_result.scores = {'Ochiai': []}
+            mock_result.coverage_matrix = Mock()
+            mock_result.coverage_matrix.test_names = []
+            mock_result.coverage_matrix.code_elements = []
+            mock_result.execution_time = 1.0
+            mock_result.get_ranking.return_value = []
+            
+            mock_localizer.run.return_value = mock_result
+            mock_localizer_class.return_value = mock_localizer
+            
+            result = self.runner.invoke(main, [
+                'run',
+                '--source-dir', str(self.source_dir),
+                '--source-dir', str(source_dir2),
+                '--test-dir', str(self.test_dir)
+            ])
+            
+            assert result.exit_code == 0
+            
+            # Verify both source directories were passed
+            call_args = mock_localizer_class.call_args
+            source_dirs = call_args[1]['source_dirs']
+            assert len(source_dirs) == 2
+            assert any(str(self.source_dir) in str(d) for d in source_dirs)
+            assert any(str(source_dir2) in str(d) for d in source_dirs)
     
     def test_run_command_invalid_directory(self):
         """Test run command with invalid directories."""
@@ -190,8 +295,8 @@ def test_multiply():
         assert "not found" in result.output.lower() or "error" in result.output.lower()
     
     @patch('src.pyfault.cli.main.FaultLocalizer')
-    def test_run_command_basic_execution(self, mock_localizer_class):
-        """Test basic execution of run command."""
+    def test_run_command_with_explicit_directories(self, mock_localizer_class):
+        """Test run command with explicitly specified directories."""
         # Mock the fault localizer
         mock_localizer = Mock()
         mock_result = Mock()
@@ -459,10 +564,129 @@ def test_add():
     assert add(1, 1) == 2
 """)
     
-    def test_test_command_missing_args(self):
-        """Test test command with missing required arguments."""
-        result = self.runner.invoke(main, ['test'])
-        assert result.exit_code != 0
+    def test_test_command_with_default_directories(self):
+        """Test test command with default directories (current directory)."""
+        import os
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(str(self.temp_dir))
+            
+            # Create test file in current directory
+            (self.temp_dir / "test_default.py").write_text("""
+def test_simple():
+    assert 1 + 1 == 2
+""")
+            
+            with patch('src.pyfault.cli.main.CoverageCollector') as mock_coverage_collector:
+                with patch('src.pyfault.cli.main.PytestRunner') as mock_pytest_runner:
+                    with patch('src.pyfault.cli.main.CoverageMatrix') as mock_coverage_matrix:
+                        with patch('src.pyfault.cli.main.CSVReporter') as mock_csv_reporter:
+                            # Setup mocks
+                            mock_collector = Mock()
+                            mock_coverage_collector.return_value = mock_collector
+                            
+                            mock_runner = Mock()
+                            mock_test_results = [Mock()]
+                            mock_test_results[0].is_failed = False
+                            mock_runner.run_tests.return_value = mock_test_results
+                            mock_pytest_runner.return_value = mock_runner
+                            
+                            mock_matrix = Mock()
+                            mock_matrix.code_elements = []
+                            mock_coverage_matrix.from_test_results.return_value = mock_matrix
+                            
+                            mock_reporter = Mock()
+                            mock_csv_reporter.return_value = mock_reporter
+                            
+                            result = self.runner.invoke(main, ['test'])
+                            
+                            # Should work with default directories
+                            assert result.exit_code == 0
+                            mock_runner.run_tests.assert_called_once()
+        finally:
+            os.chdir(original_cwd)
+
+    def test_test_command_default_output_directory(self):
+        """Test test command uses default output directory when not specified."""
+        import os
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(str(self.temp_dir))
+            
+            # Create test file in current directory
+            (self.temp_dir / "test_default.py").write_text("def test_pass(): assert True")
+            
+            with patch('src.pyfault.cli.main.CoverageCollector') as mock_coverage_collector:
+                with patch('src.pyfault.cli.main.PytestRunner') as mock_pytest_runner:
+                    with patch('src.pyfault.cli.main.CoverageMatrix') as mock_coverage_matrix:
+                        with patch('src.pyfault.cli.main.CSVReporter') as mock_csv_reporter:
+                            # Setup mocks
+                            mock_collector = Mock()
+                            mock_coverage_collector.return_value = mock_collector
+                            
+                            mock_runner = Mock()
+                            mock_test_results = [Mock()]
+                            mock_test_results[0].is_failed = False
+                            mock_runner.run_tests.return_value = mock_test_results
+                            mock_pytest_runner.return_value = mock_runner
+                            
+                            mock_matrix = Mock()
+                            mock_matrix.code_elements = []
+                            mock_coverage_matrix.from_test_results.return_value = mock_matrix
+                            
+                            mock_reporter = Mock()
+                            mock_csv_reporter.return_value = mock_reporter
+                            
+                            result = self.runner.invoke(main, ['test'])
+                            
+                            # Should work with default output directory
+                            assert result.exit_code == 0
+                            
+        finally:
+            os.chdir(original_cwd)
+
+    def test_test_command_multiple_test_directories(self):
+        """Test test command with multiple test directories."""
+        # Create additional test directory
+        test_dir2 = self.temp_dir / "tests2"
+        test_dir2.mkdir()
+        (test_dir2 / "test_another.py").write_text("def test_another(): assert True")
+        
+        with patch('src.pyfault.cli.main.CoverageCollector') as mock_coverage_collector:
+            with patch('src.pyfault.cli.main.PytestRunner') as mock_pytest_runner:
+                with patch('src.pyfault.cli.main.CoverageMatrix') as mock_coverage_matrix:
+                    with patch('src.pyfault.cli.main.CSVReporter') as mock_csv_reporter:
+                        # Setup mocks
+                        mock_collector = Mock()
+                        mock_coverage_collector.return_value = mock_collector
+                        
+                        mock_runner = Mock()
+                        mock_test_results = [Mock()]
+                        mock_test_results[0].is_failed = False
+                        mock_runner.run_tests.return_value = mock_test_results
+                        mock_pytest_runner.return_value = mock_runner
+                        
+                        mock_matrix = Mock()
+                        mock_matrix.code_elements = []
+                        mock_coverage_matrix.from_test_results.return_value = mock_matrix
+                        
+                        mock_reporter = Mock()
+                        mock_csv_reporter.return_value = mock_reporter
+                        
+                        result = self.runner.invoke(main, [
+                            'test',
+                            '--test-dir', str(self.test_dir),
+                            '--test-dir', str(test_dir2)
+                        ])
+                        
+                        assert result.exit_code == 0
+                        
+                        # Verify both test directories were passed to PytestRunner
+                        call_args = mock_pytest_runner.call_args
+                        test_dirs = call_args[0][0]  # First positional argument
+                        assert len(test_dirs) == 2
+                        assert any(str(self.test_dir) in str(d) for d in test_dirs)
+                        assert any(str(test_dir2) in str(d) for d in test_dirs)
     
     @patch('src.pyfault.cli.main.CoverageCollector')
     @patch('src.pyfault.cli.main.PytestRunner')

@@ -17,7 +17,6 @@ from src.pyfault.test_runner.pytest_runner import (
     PytestRunner, SimpleTestRunner, PytestResultCollector
 )
 from src.pyfault.core.models import TestResult, TestOutcome
-from src.pyfault.coverage.collector import CoverageCollector
 
 
 class TestSimpleTestRunner:
