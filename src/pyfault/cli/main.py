@@ -59,10 +59,10 @@ def main(ctx: click.Context, verbose: bool) -> None:
 
 
 @main.command()
-@click.option('--source-dir', '-s', multiple=True, required=True,
-              help='Source code directories to analyze')
-@click.option('--test-dir', '-t', multiple=True, required=True,
-              help='Test directories')
+@click.option('--source-dir', '-s', multiple=True, required=False,
+              help='Source code directories to analyze (default: current directory)')
+@click.option('--test-dir', '-t', multiple=True, required=False,
+              help='Test directories (default: current directory)')
 @click.option('--output-dir', '-o', default='./pyfault_output',
               help='Output directory for results')
 @click.option('--formula', '-f', multiple=True,
@@ -88,9 +88,9 @@ def run(ctx: click.Context, source_dir: List[str], test_dir: List[str],
     4. Generate reports
     """
     try:
-        # Convert to Path objects
-        source_dirs = [Path(d) for d in source_dir]
-        test_dirs = [Path(d) for d in test_dir]
+        # Convert to Path objects with default to current directory
+        source_dirs = [Path(d) for d in source_dir] if source_dir else [Path('.')]
+        test_dirs = [Path(d) for d in test_dir] if test_dir else [Path('.')]
         output_path = Path(output_dir)
         
         # Validate directories
@@ -221,10 +221,10 @@ def fl(ctx: click.Context, coverage_file: str, output_dir: str,
 
 
 @main.command()
-@click.option('--source-dir', '-s', multiple=True, required=True,
-              help='Source code directories')
-@click.option('--test-dir', '-t', multiple=True, required=True,
-              help='Test directories')
+@click.option('--source-dir', '-s', multiple=True, required=False,
+              help='Source code directories (default: current directory)')
+@click.option('--test-dir', '-t', multiple=True, required=False,
+              help='Test directories (default: current directory)')
 @click.option('--output-dir', '-o', default='./pyfault_output',
               help='Output directory for coverage data')
 @click.option('--test-filter', '-k',
@@ -245,8 +245,8 @@ def test(ctx: click.Context, source_dir: List[str], test_dir: List[str],
     saved for later analysis using the 'fl' command.
     """
     try:
-        source_dirs = [Path(d) for d in source_dir]
-        test_dirs = [Path(d) for d in test_dir]
+        source_dirs = [Path(d) for d in source_dir] if source_dir else [Path('.')]
+        test_dirs = [Path(d) for d in test_dir] if test_dir else [Path('.')]
         output_path = Path(output_dir)
         
         # Validate directories
