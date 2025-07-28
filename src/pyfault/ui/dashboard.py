@@ -2,6 +2,7 @@
 Streamlit-based dashboard for PyFault results visualization.
 """
 
+import os
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
@@ -59,7 +60,6 @@ def main():
     st.markdown("**Spectrum-Based Fault Localization Results Visualization**")
     
     # Check for pre-loaded data file
-    import os
     preloaded_file = os.environ.get('PYFAULT_DATA_FILE')
     
     # Initialize session state for data persistence
@@ -427,6 +427,14 @@ def display_results(data: Dict[str, Any], formula: str, top_n: int,
     # Extract data
     stats = data.get('stats', {})
     formulas = data.get('formulas', {})
+    all_files = list(set(
+        score['element']['file']
+        for scores_list in formulas.values()
+        for score in scores_list
+        if 'element' in score and 'file' in score['element']
+    ))    
+    # Find common root directory for file paths
+    common_root = os.path.commonpath(all_files) if all_files else None
     
     if formula not in formulas:
         st.error(f"Formula '{formula}' not found in data")
@@ -473,19 +481,19 @@ def display_results(data: Dict[str, Any], formula: str, top_n: int,
     tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "🎯 Ranking", "📁 Files", "🔍 Source"])
     
     with tab1:
-        display_overview_tab(filtered_scores, formula, top_n)
+        display_overview_tab(filtered_scores, formula, top_n, common_root)
     
     with tab2:
-        display_ranking_tab(filtered_scores, formula, top_n)
+        display_ranking_tab(filtered_scores, formula, top_n, common_root)
     
     with tab3:
-        display_files_tab(filtered_scores)
+        display_files_tab(filtered_scores, common_root)
     
     with tab4:
-        display_source_tab(filtered_scores)
+        display_source_tab(filtered_scores, common_root)
 
 
-def display_overview_tab(scores: List[Dict], formula: str, top_n: int):
+def display_overview_tab(scores: List[Dict], formula: str, top_n: int, common_root: Optional[str]):
     """Display overview visualizations."""
     col1, col2 = st.columns(2)
     
@@ -518,7 +526,10 @@ def display_overview_tab(scores: List[Dict], formula: str, top_n: int):
         top_scores = scores[:min(top_n, 10)]  # Limit for readability
         
         if top_scores:
-            elements = [f"{Path(s['element']['file']).name}:{s['element']['line']}" for s in top_scores]
+            elements = [
+                f"{os.path.relpath(s['element']['file'], common_root) if common_root else Path(s['element']['file']).name}:{s['element']['line']}" 
+                for s in top_scores
+            ]
             score_values = [s['score'] for s in top_scores]
             colors = ['#FF4444' if s > 0.8 else '#FF8844' if s > 0.5 else '#FFBB44' for s in score_values]
             
@@ -544,7 +555,7 @@ def display_overview_tab(scores: List[Dict], formula: str, top_n: int):
             st.info("No data available for ranking")
 
 
-def display_ranking_tab(scores: List[Dict], formula: str, top_n: int):
+def display_ranking_tab(scores: List[Dict], formula: str, top_n: int, common_root: Optional[str]):
     """Display detailed ranking table."""
     st.subheader(f"📋 Detailed Ranking - {formula.title()}")
     
@@ -558,14 +569,14 @@ def display_ranking_tab(scores: List[Dict], formula: str, top_n: int):
     table_data = []
     for score in top_scores:
         element = score['element']
+        file_display_path = os.path.relpath(element['file'], common_root) if common_root else Path(element['file']).name
         table_data.append({
             'Rank': score['rank'],
-            'File': Path(element['file']).name,
+            'File': file_display_path,
             'Line': element['line'],
             'Type': element['element_type'],
             'Element': element.get('element_name', f"line_{element['line']}"),
-            'Suspiciousness': score['score'],
-            'Full Path': element['file']
+            'Suspiciousness': score['score']
         })
     
     df = pd.DataFrame(table_data)
@@ -607,7 +618,7 @@ def display_ranking_tab(scores: List[Dict], formula: str, top_n: int):
         st.metric("Affected Files", unique_files)
 
 
-def display_files_tab(scores: List[Dict]):
+def display_files_tab(scores: List[Dict], common_root: Optional[str]):
     """Display file-level analysis."""
     st.subheader("📁 File-Level Analysis")
     
@@ -638,18 +649,28 @@ def display_files_tab(scores: List[Dict]):
     avg_scores = []
     
     for file_path, stats in file_stats.items():
-        files.append(Path(file_path).name)
+        display_path = os.path.relpath(file_path, common_root) if common_root else Path(file_path).name
+        files.append(display_path)
         counts.append(stats['count'])
         avg_scores.append(stats['total_score'] / stats['count'])
-    
+
     if files:
+        # Create a DataFrame for Plotly
+        df_treemap = pd.DataFrame({
+            'file': files,
+            'count': counts,
+            'avg_score': avg_scores
+        })
+
         # Treemap for file overview
         fig = px.treemap(
-            names=files,
-            values=counts,
-            color=avg_scores,
+            df_treemap,
+            path=[px.Constant("all"), 'file'], # Use path for hierarchy
+            values='count',
+            color='avg_score',
             color_continuous_scale='Reds',
-            title="Files by Number of Suspicious Elements (Color = Avg Score)"
+            title="Files by Number of Suspicious Elements (Color = Avg Score)",
+            hover_data={'avg_score': ':.3f'} # Custom hover format
         )
         fig.update_traces(textinfo="label+value")
         fig.update_layout(height=500)
@@ -660,13 +681,13 @@ def display_files_tab(scores: List[Dict]):
         
         file_table_data = []
         for file_path, stats in sorted(file_stats.items(), key=lambda x: x[1]['max_score'], reverse=True):
+            display_path = os.path.relpath(file_path, common_root) if common_root else Path(file_path).name
             file_table_data.append({
-                'File': Path(file_path).name,
+                'File': display_path,
                 'Elements': stats['count'],
                 'Max Score': stats['max_score'],
                 'Avg Score': stats['total_score'] / stats['count'],
-                'Score Sum': stats['total_score'],
-                'Full Path': file_path
+                'Score Sum': stats['total_score']
             })
         
         df = pd.DataFrame(file_table_data)
@@ -691,7 +712,7 @@ def display_files_tab(scores: List[Dict]):
         )
 
 
-def display_source_tab(scores: List[Dict]):
+def display_source_tab(scores: List[Dict], common_root: Optional[str]):
     """Display source code viewer with highlighting."""
     st.subheader("🔍 Source Code Viewer")
     
@@ -713,10 +734,16 @@ def display_source_tab(scores: List[Dict]):
         
     # File selector
     unique_files = list(set(s['element']['file'] for s in scores))
+
+    def format_path(path):
+        if common_root:
+            return os.path.relpath(path, common_root)
+        return Path(path).name
+    
     selected_file = st.selectbox(
         "Select File",
         unique_files,
-        format_func=lambda x: Path(x).name
+        format_func=format_path
     )
     
     if selected_file:
