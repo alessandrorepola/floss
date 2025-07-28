@@ -257,22 +257,6 @@ pytest tests/test_formulas.py -v
 pytest tests/test_integration.py::test_full_pipeline -v
 ```
 
-### 📏 Quality Assurance
-
-```bash
-# Formattazione codice
-black src tests examples
-
-# Linting
-flake8 src tests examples
-
-# Type checking
-mypy src
-
-# Controllo completo
-black src tests && flake8 src tests && mypy src && pytest
-```
-
 ### 🏗️ Struttura del Progetto
 
 ```
