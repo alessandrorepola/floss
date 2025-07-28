@@ -776,16 +776,20 @@ def display_source_tab(scores: List[Dict]):
                     import html
 
                     lexer = get_lexer_by_name("python", stripall=True)
-                    # Use a formatter that fits the dark theme and doesn't output a background
                     formatter = HtmlFormatter(style='monokai', nobackground=True)
                     
-                    # Get the CSS for the theme
                     css = f"<style>{formatter.get_style_defs('.highlight')}</style>"
                     st.markdown(css, unsafe_allow_html=True)
 
-                    # Highlight the entire code block
                     highlighted_code = highlight(code_content, lexer, formatter)
-                    highlighted_lines = highlighted_code.split('\n')
+                    
+                    cleaned_code = highlighted_code.strip()
+                    if cleaned_code.startswith('<div class="highlight"><pre>'):
+                        cleaned_code = cleaned_code[len('<div class="highlight"><pre>'):]
+                    if cleaned_code.endswith('</pre></div>'):
+                        cleaned_code = cleaned_code[:-len('</pre></div>')]
+                    
+                    highlighted_lines = cleaned_code.strip().split('\n')
 
                 except ImportError:
                     st.warning("Pygments not installed. Falling back to plain text. `pip install Pygments`")
