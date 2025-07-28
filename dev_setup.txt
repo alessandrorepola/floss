@@ -6,12 +6,5 @@ pip install -e ".[dev]"
 # Run tests
 python -m pytest tests/ -v
 
-# Run example
-python examples/basic_example.py
-
-# Check code style
-black src tests examples
-flake8 src tests examples
-
 # Type checking
 mypy src
