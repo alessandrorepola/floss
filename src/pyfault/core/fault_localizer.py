@@ -220,8 +220,8 @@ class FaultLocalizer:
         json_reporter.generate_report(result)
         
         # HTML reports  
-        html_reporter = HTMLReporter(self.output_dir)
-        html_reporter.generate_report(result)
+        # html_reporter = HTMLReporter(self.output_dir)
+        # html_reporter.generate_report(result)
         
         logger.info(f"Reports generated in {self.output_dir}")
     

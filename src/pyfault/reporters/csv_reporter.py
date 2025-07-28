@@ -51,9 +51,6 @@ class CSVReporter:
         for formula_name, scores in result.scores.items():
             self._write_formula_ranking(formula_name, scores)
         
-        # Generate summary report
-        self._write_summary_report(result)
-        
         # Generate coverage matrix
         self.write_coverage_matrix(result.coverage_matrix)
         
@@ -87,44 +84,6 @@ class CSVReporter:
                     f"{score.score:.6f}",
                     score.formula_name
                 ])
-    
-    def _write_summary_report(self, result: FaultLocalizationResult) -> None:
-        """Write summary report with statistics."""
-        filename = self.output_dir / "summary.csv"
-        
-        with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
-            
-            # Write metadata
-            writer.writerow(['Metric', 'Value'])
-            writer.writerow(['Total Tests', result.metadata.get('total_tests', 0)])
-            writer.writerow(['Failed Tests', result.metadata.get('failed_tests', 0)])
-            writer.writerow(['Total Elements', result.metadata.get('total_elements', 0)])
-            writer.writerow(['Execution Time (s)', f"{result.execution_time:.3f}"])
-            formulas_used = result.metadata.get('formulas_used', [])
-            if isinstance(formulas_used, list):
-                formulas_str = ', '.join(str(f) for f in formulas_used)
-            else:
-                formulas_str = str(formulas_used)
-            writer.writerow(['Formulas Used', formulas_str])
-            
-            # Write empty row
-            writer.writerow([])
-            
-            # Write top elements for each formula
-            writer.writerow(['Formula', 'Top Element', 'File', 'Line', 'Score'])
-            
-            for formula_name in result.scores:
-                if result.scores[formula_name]:
-                    top_score = result.scores[formula_name][0]
-                    writer.writerow([
-                        formula_name,
-                        str(top_score.element),
-                        str(top_score.element.file_path),
-                        top_score.element.line_number,
-                        f"{top_score.score:.6f}"
-                    ])
-            self.console.print(f"Summary report saved to: [blue]{filename}[/blue]")
     
     def write_coverage_matrix(self, matrix: CoverageMatrix, output_file: Path | None = None) -> None:
         """
