@@ -15,7 +15,6 @@ import numpy as np
 from ..coverage.collector import CoverageCollector
 from ..test_runner.pytest_runner import PytestRunner
 from ..formulas.base import SBFLFormula
-from ..reporters.html_reporter import HTMLReporter
 from ..reporters.csv_reporter import CSVReporter
 from ..reporters.json_reporter import JSONReporter
 from ..formulas import (

@@ -1,2 +1,0 @@
-Element,File,Line,ElementType,ElementName,tests/test_equilateral.py::test_ea_fail,tests/test_equilateral.py::test_ea_pass,tests/test_isosceles.py::test_ia_crash,tests/test_isosceles.py::test_ia_pass
-OUTCOME,,,,,failed,passed,failed,passed

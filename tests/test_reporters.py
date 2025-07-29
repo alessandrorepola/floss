@@ -15,7 +15,6 @@ from pathlib import Path
 
 from src.pyfault.formulas.sbfl_formulas import JaccardFormula, OchiaiFormula, TarantulaFormula
 from src.pyfault.reporters.csv_reporter import CSVReporter
-from src.pyfault.reporters.html_reporter import HTMLReporter
 from src.pyfault.reporters.json_reporter import JSONReporter
 from src.pyfault.core.models import (
     CodeElement, TestOutcome, CoverageMatrix, SuspiciousnessScore,
@@ -508,12 +507,10 @@ class TestReporterIntegration:
         # Initialize all reporters
         csv_reporter = CSVReporter(output_dir=self.temp_dir / "csv")
         json_reporter = JSONReporter(output_dir=self.temp_dir / "json")
-        html_reporter = HTMLReporter(output_dir=self.temp_dir / "html")
 
         # Generate reports
         csv_reporter.generate_report(self.sample_result)
         json_reporter.generate_report(self.sample_result)
-        html_reporter.generate_report(self.sample_result)
 
         # Verify CSV outputs
         csv_dir = self.temp_dir / "csv"
