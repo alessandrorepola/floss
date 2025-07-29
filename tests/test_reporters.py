@@ -1,7 +1,7 @@
 """
 Test suite for reporter modules.
 
-This module tests all reporter classes (CSV, HTML, JSON) with focus on
+This module tests all reporter classes (CSV, JSON) with focus on
 functional correctness and output format validation.
 """
 
@@ -518,11 +518,6 @@ class TestReporterIntegration:
         assert (csv_dir / f"ranking_{TarantulaFormula().name}.csv").exists()
         assert (csv_dir / f"ranking_{JaccardFormula().name}.csv").exists()
         assert (csv_dir / "test_results.csv").exists()
-
-        # Verify HTML outputs
-        html_dir = self.temp_dir / "html"
-        assert (html_dir / "index.html").exists()
-        assert (html_dir / "ochiai_ranking.html").exists()
 
         # Verify JSON output
         json_dir = self.temp_dir / "json"
