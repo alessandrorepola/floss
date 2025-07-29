@@ -63,7 +63,7 @@ def main(ctx: click.Context, verbose: bool) -> None:
               help='Source code directories to analyze (default: current directory)')
 @click.option('--test-dir', '-t', multiple=True, required=False,
               help='Test directories (default: current directory)')
-@click.option('--output-dir', '-o', default='./pyfault_output',
+@click.option('--output-dir', '-o', default='./pyfault_report',
               help='Output directory for results')
 @click.option('--formula', '-f', multiple=True,
               type=click.Choice(['ochiai', 'tarantula', 'jaccard', 'dstar', 'kulczynski2']),
@@ -148,7 +148,7 @@ def run(ctx: click.Context, source_dir: List[str], test_dir: List[str],
 @main.command()
 @click.option('--coverage-file', '-c', required=True,
               help='Coverage matrix file (CSV format)')
-@click.option('--output-dir', '-o', default='./pyfault_output',
+@click.option('--output-dir', '-o', default='./pyfault_report',
               help='Output directory for results')
 @click.option('--formula', '-f', multiple=True,
               type=click.Choice(['ochiai', 'tarantula', 'jaccard', 'dstar', 'kulczynski2']),
@@ -186,10 +186,7 @@ def fl(ctx: click.Context, coverage_file: str, output_dir: str,
         console.print(f"[bold green]Loading coverage data from:[/bold green] {coverage_file}")
         
         # Load coverage matrix from CSV
-        console.print("Loading coverage data...")
         coverage_matrix = CSVReporter(Path()).load_coverage_matrix(coverage_file)
-        
-        console.print(f"Loaded {len(coverage_matrix.test_names)} tests and {len(coverage_matrix.code_elements)} elements")
         
         # Initialize fault localizer for analysis only
         output_path = Path(output_dir)
@@ -225,7 +222,7 @@ def fl(ctx: click.Context, coverage_file: str, output_dir: str,
               help='Source code directories (default: current directory)')
 @click.option('--test-dir', '-t', multiple=True, required=False,
               help='Test directories (default: current directory)')
-@click.option('--output-dir', '-o', default='./pyfault_output',
+@click.option('--output-dir', '-o', default='./pyfault_report',
               help='Output directory for coverage data')
 @click.option('--test-filter', '-k',
               help='Filter tests using pytest -k pattern')
@@ -309,28 +306,31 @@ def test(ctx: click.Context, source_dir: List[str], test_dir: List[str],
 
 
 @main.command()
-@click.option('--data-file', '-d', 
-              help='Load existing results (JSON/CSV)')
+@click.option('--data', '-d', 
+              help='Load existing results (JSON file or directory containing CSV files)')
 @click.option('--port', '-p', default=8501,
               help='Port for web interface')
 @click.option('--auto-open', is_flag=True,
               help='Automatically open browser')
 @click.pass_context
-def ui(ctx: click.Context, data_file: Optional[str], port: int, auto_open: bool) -> None:
+def ui(ctx: click.Context, data: Optional[str], port: int, auto_open: bool) -> None:
     """
     Launch interactive web UI for fault localization results.
     
     Opens a Streamlit-based dashboard for visualizing and analyzing
-    fault localization results. Can load existing data or allow upload.
+    fault localization results. Can load existing JSON data or CSV directory.
     """
     try:
-        # Validate data file if provided
-        if data_file:
-            data_path = Path(data_file)
+        # Validate data path if provided
+        if data:
+            data_path = Path(data)
             if not data_path.exists():
-                raise click.ClickException(f"Data file not found: {data_file}")
+                raise click.ClickException(f"Data path not found: {data}")
             
-            console.print(f"[bold green]Loading data from:[/bold green] {data_file}")
+            if data_path.is_file():
+                console.print(f"[bold green]Loading data file:[/bold green] {data}")
+            else:
+                console.print(f"[bold green]Loading data directory:[/bold green] {data}")
         
         console.print(f"[bold green]Starting PyFault Dashboard...[/bold green]")
         console.print(f"Port: [blue]{port}[/blue]")
@@ -339,7 +339,7 @@ def ui(ctx: click.Context, data_file: Optional[str], port: int, auto_open: bool)
         # Import and launch dashboard
         from ..ui.dashboard import launch_dashboard
         
-        launch_dashboard(data_file, port, auto_open)
+        launch_dashboard(data, port, auto_open)
         
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {e}")

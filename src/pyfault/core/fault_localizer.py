@@ -80,12 +80,12 @@ class FaultLocalizer:
             formulas: SBFL formulas to use (default: Ochiai, Tarantula, Jaccard)
             test_runner: An instance of a test runner (e.g., PytestRunner).
             coverage_collector: Custom coverage collector (uses default if None)
-            output_dir: Directory for output files (default: './pyfault_output')
+            output_dir: Directory for output files (default: './pyfault_report')
             branch_coverage: Use branch coverage instead of line coverage (default: False)
         """
         self.source_dirs = [Path(d) for d in source_dirs]
         self.test_dirs = [Path(d) for d in test_dirs]
-        self.output_dir = Path(output_dir or './pyfault_output')
+        self.output_dir = Path(output_dir or './pyfault_report')
         self.branch_coverage = branch_coverage
         
         # Default formulas if none specified

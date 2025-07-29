@@ -18,7 +18,7 @@ from pyfault.reporters.json_reporter import JSONReporter
 from pyfault.formulas import OchiaiFormula, TarantulaFormula, JaccardFormula, DStarFormula, Kulczynski2Formula
 
 
-def launch_dashboard(data_file: Optional[str] = None, 
+def launch_dashboard(data_source: Optional[str] = None, 
                     port: int = 8501, 
                     auto_open: bool = False) -> None:
     """Launch the Streamlit dashboard."""
@@ -26,9 +26,9 @@ def launch_dashboard(data_file: Optional[str] = None,
     import sys
     import os
     
-    # Set environment variable for data file
-    if data_file:
-        os.environ['PYFAULT_DATA_FILE'] = str(data_file)
+    # Set environment variable for data source
+    if data_source:
+        os.environ['PYFAULT_DATA_SOURCE'] = str(data_source)
     
     # Prepare streamlit command
     cmd = [
@@ -42,7 +42,7 @@ def launch_dashboard(data_file: Optional[str] = None,
         cmd.extend(["--browser.serverAddress", "localhost"])
     
     print(f"🚀 Starting PyFault Dashboard on port {port}")
-    print(f"📂 Data file: {data_file or 'None (upload required)'}")
+    print(f"📂 Data source: {data_source or 'None (upload required)'}")
     
     subprocess.run(cmd)
 
@@ -59,57 +59,69 @@ def main():
     st.title("🔍 PyFault - Fault Localization Dashboard")
     st.markdown("**Spectrum-Based Fault Localization Results Visualization**")
     
-    # Check for pre-loaded data file
-    preloaded_file = os.environ.get('PYFAULT_DATA_FILE')
+    # Check for pre-loaded data source
+    preloaded_source = os.environ.get('PYFAULT_DATA_SOURCE')
     
     # Initialize session state for data persistence
     if 'loaded_data' not in st.session_state:
         st.session_state.loaded_data = None
     if 'data_source' not in st.session_state:
         st.session_state.data_source = None
+    if 'csv_data' not in st.session_state:
+        st.session_state.csv_data = None
     
     # Sidebar for controls
     with st.sidebar:
         st.header("🔧 Configuration")
         
         # File upload or use preloaded
-        if preloaded_file and st.session_state.data_source != preloaded_file:
-            st.success(f"📁 Loaded: {Path(preloaded_file).name}")
-            st.session_state.data_source = preloaded_file
+        if preloaded_source and st.session_state.data_source != preloaded_source:
+            source_path = Path(preloaded_source)
+            if source_path.is_file():
+                st.success(f"📁 Loaded file: {source_path.name}")
+            else:
+                st.success(f"📁 Loaded directory: {source_path.name}")
+            st.session_state.data_source = preloaded_source
             # Load data
             try:
-                st.session_state.loaded_data = load_data(preloaded_file)
+                st.session_state.loaded_data, st.session_state.csv_data = load_data(preloaded_source)
             except Exception as e:
                 st.error(f"❌ Error loading preloaded data: {str(e)}")
                 st.session_state.loaded_data = None
+                st.session_state.csv_data = None
         else:
-            uploaded_file = st.file_uploader(
-                "Upload Results File", 
+            uploaded_files = st.file_uploader(
+                "Upload Results", 
                 type=['json', 'csv'],
-                help="Upload PyFault JSON results or coverage CSV"
+                accept_multiple_files=True,
+                help="Upload PyFault JSON results or multiple CSV files"
             )
             
-            if uploaded_file is not None:
-                # Check if it's a new file
-                if st.session_state.data_source != uploaded_file.name:
-                    st.session_state.data_source = uploaded_file.name
+            if uploaded_files:
+                # Check if it's a new set of files
+                file_names = [f.name for f in uploaded_files]
+                if st.session_state.data_source != str(file_names):
+                    st.session_state.data_source = str(file_names)
                     
                     # Load data with progress indicator
                     with st.spinner("Loading and processing data..."):
                         try:
-                            st.session_state.loaded_data = load_data(uploaded_file)
+                            st.session_state.loaded_data, st.session_state.csv_data = load_data(uploaded_files)
                         except Exception as e:
                             st.error(f"❌ Error loading data: {str(e)}")
                             st.session_state.loaded_data = None
+                            st.session_state.csv_data = None
         
         # Configuration controls (only show if data is loaded)
         if st.session_state.loaded_data is not None:
             data = st.session_state.loaded_data
+            csv_data = st.session_state.csv_data
             
             # Validate data structure
             if not validate_dashboard_data(data):
                 st.error("❌ Invalid data structure. Please check your input file.")
                 st.session_state.loaded_data = None
+                st.session_state.csv_data = None
                 return
             
             st.success("✅ Data loaded successfully!")
@@ -156,6 +168,13 @@ def main():
                 'min_score': min_score,
                 'exclude_zero_scores': exclude_zero_scores
             }
+            
+            # Show CSV data info if available
+            if csv_data:
+                st.divider()
+                st.subheader("📊 Additional Data")
+                available_csv = list(csv_data.keys())
+                st.write(f"Available CSV files: {', '.join(available_csv)}")
     
     # Main content area
     if st.session_state.loaded_data is None:
@@ -166,6 +185,7 @@ def main():
         if config:
             display_results(
                 st.session_state.loaded_data,
+                st.session_state.csv_data,
                 config['selected_formula'],
                 config['top_n'],
                 config['min_score'],
@@ -192,25 +212,38 @@ def display_error_details(error: Exception):
         st.code(traceback.format_exc())
 
 
-def load_data(data_source) -> Optional[Dict[str, Any]]:
-    """Load data from file or uploaded content."""
+def load_data(data_source) -> tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+    """Load data from file, directory, or uploaded content.
+    
+    Returns:
+        Tuple of (json_data, csv_data) where:
+        - json_data: Traditional JSON dashboard data
+        - csv_data: Additional CSV data (coverage matrix, test results, etc.)
+    """
     try:
         if isinstance(data_source, str):
-            # File path
+            # File path or directory path
             path = Path(data_source)
-            if path.suffix.lower() == '.json':
-                return JSONReporter.load_from_json(path)
-            elif path.suffix.lower() == '.csv':
-                # For CSV, perform fault localization analysis on-the-fly
-                return analyze_csv_data(path)
+            if path.is_file():
+                if path.suffix.lower() == '.json':
+                    return JSONReporter.load_from_json(path), None
+                elif path.suffix.lower() == '.csv':
+                    # For single CSV, perform fault localization analysis on-the-fly
+                    return analyze_csv_data(path), None
+            elif path.is_dir():
+                # Directory with CSV files
+                return load_csv_directory(path)
+        elif isinstance(data_source, list):
+            # Multiple uploaded files
+            return load_uploaded_files(data_source)
         else:
-            # Uploaded file
+            # Single uploaded file
             if data_source.name.endswith('.json'):
                 content = data_source.read()
                 if isinstance(content, bytes):
                     content = content.decode('utf-8')
                 data = json.loads(content)
-                return data
+                return data, None
             elif data_source.name.endswith('.csv'):
                 df = pd.read_csv(data_source)
                 # Save temporarily and analyze
@@ -219,14 +252,77 @@ def load_data(data_source) -> Optional[Dict[str, Any]]:
                 try:
                     result = analyze_csv_data(temp_path)
                     temp_path.unlink()  # Clean up
-                    return result
+                    return result, None
                 except Exception as e:
                     if temp_path.exists():
                         temp_path.unlink()
                     raise e
+        return None, None
     except Exception as e:
         st.error(f"Error loading data: {e}")
-        return None
+        return None, None
+
+
+def load_csv_directory(directory: Path) -> tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+    """Load data from a directory containing CSV files."""
+    csv_files = {}
+    json_data = None
+    
+    # Check for summary.json first
+    json_file = directory / "summary.json"
+    if json_file.exists():
+        json_data = JSONReporter.load_from_json(json_file)
+    
+    # Load CSV files
+    for file_pattern in ["coverage_matrix.csv", "test_results.csv", "ranking_*.csv"]:
+        if "*" in file_pattern:
+            # Handle wildcard patterns
+            for csv_file in directory.glob(file_pattern):
+                csv_files[csv_file.stem] = pd.read_csv(csv_file)
+        else:
+            csv_file = directory / file_pattern
+            if csv_file.exists():
+                csv_files[csv_file.stem] = pd.read_csv(csv_file)
+    
+    # If no JSON but we have coverage matrix, create JSON data
+    if json_data is None and "coverage_matrix" in csv_files:
+        json_data = analyze_csv_data(directory / "coverage_matrix.csv")
+    
+    csv_data = csv_files if csv_files else None
+    return json_data, csv_data
+
+
+def load_uploaded_files(uploaded_files) -> tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+    """Load data from multiple uploaded files."""
+    csv_files = {}
+    json_data = None
+    
+    for uploaded_file in uploaded_files:
+        if uploaded_file.name.endswith('.json'):
+            content = uploaded_file.read()
+            if isinstance(content, bytes):
+                content = content.decode('utf-8')
+            json_data = json.loads(content)
+        elif uploaded_file.name.endswith('.csv'):
+            df = pd.read_csv(uploaded_file)
+            file_stem = Path(uploaded_file.name).stem
+            csv_files[file_stem] = df
+    
+    # If no JSON but we have coverage matrix, create JSON data
+    if json_data is None and "coverage_matrix" in csv_files:
+        # Save coverage matrix temporarily and analyze
+        temp_path = Path.cwd() / "temp_coverage.csv"
+        csv_files["coverage_matrix"].to_csv(temp_path, index=False)
+        try:
+            json_data = analyze_csv_data(temp_path)
+            temp_path.unlink()
+        except Exception as e:
+            if temp_path.exists():
+                temp_path.unlink()
+            raise e
+    
+    csv_data = csv_files if csv_files else None
+    return json_data, csv_data
 
 
 def analyze_csv_data(csv_path: Path) -> Dict[str, Any]:
@@ -418,9 +514,9 @@ def display_welcome():
         """)
 
 
-def display_results(data: Dict[str, Any], formula: str, top_n: int, 
-                   min_score: float, exclude_zero_scores: bool = False):
-    """Display fault localization results."""
+def display_results(data: Dict[str, Any], csv_data: Optional[Dict[str, Any]], 
+                   formula: str, top_n: int, min_score: float, exclude_zero_scores: bool = False):
+    """Display fault localization results with enhanced CSV data support."""
     
     # Extract data
     stats = data.get('stats', {})
@@ -475,19 +571,48 @@ def display_results(data: Dict[str, Any], formula: str, top_n: int,
         )
     
     # Tabs for different visualizations
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "🎯 Ranking", "📁 Files", "🔍 Source"])
-    
-    with tab1:
-        display_overview_tab(filtered_scores, formula, top_n, common_root, exclude_zero_scores)
-    
-    with tab2:
-        display_ranking_tab(filtered_scores, formula, top_n, common_root)
-    
-    with tab3:
-        display_files_tab(filtered_scores, common_root)
-    
-    with tab4:
-        display_source_tab(filtered_scores, common_root)
+    if csv_data:
+        tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+            "📊 Overview", "🎯 Ranking", "📁 Files", "🔍 Source", 
+            "🧪 Test Analysis", "📈 Coverage Matrix", "🏆 Formula Comparison"
+        ])
+        
+        # Standard tabs
+        with tab1:
+            display_overview_tab(filtered_scores, formula, top_n, common_root, exclude_zero_scores)
+        
+        with tab2:
+            display_ranking_tab(filtered_scores, formula, top_n, common_root)
+        
+        with tab3:
+            display_files_tab(filtered_scores, common_root)
+        
+        with tab4:
+            display_source_tab(filtered_scores, common_root)
+        
+        # New CSV-based tabs
+        with tab5:
+            display_test_analysis_tab(csv_data)
+        
+        with tab6:
+            display_coverage_matrix_tab(csv_data)
+        
+        with tab7:
+            display_formula_comparison_tab(csv_data, data)
+    else:
+        tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "🎯 Ranking", "📁 Files", "🔍 Source"])
+        
+        with tab1:
+            display_overview_tab(filtered_scores, formula, top_n, common_root, exclude_zero_scores)
+        
+        with tab2:
+            display_ranking_tab(filtered_scores, formula, top_n, common_root)
+        
+        with tab3:
+            display_files_tab(filtered_scores, common_root)
+        
+        with tab4:
+            display_source_tab(filtered_scores, common_root)
 
 
 def display_overview_tab(scores: List[Dict], formula: str, top_n: int, common_root: Optional[str], exclude_zero_scores: bool = False):
@@ -963,6 +1088,331 @@ def display_source_tab(scores: List[Dict], common_root: Optional[str]):
                 st.metric("Max Score", f"{max(scores_values):.2f}")
                 st.metric("Avg Score", f"{np.mean(scores_values):.2f}")
                 st.metric("High Risk Lines", len([s for s in scores_values if s > 0.8]))
+
+
+def display_test_analysis_tab(csv_data: Dict[str, pd.DataFrame]):
+    """Display test analysis from CSV data."""
+    st.subheader("🧪 Test Analysis")
+    
+    if "test_results" not in csv_data:
+        st.warning("Test results data not available")
+        return
+    
+    test_df = csv_data["test_results"]
+    
+    # Test overview metrics
+    col1, col2, col3, col4 = st.columns(4)
+    
+    total_tests = len(test_df)
+    failed_tests = len(test_df[test_df['Outcome'] == 'failed'])
+    passed_tests = len(test_df[test_df['Outcome'] == 'passed'])
+    
+    with col1:
+        st.metric("Total Tests", total_tests)
+    with col2:
+        st.metric("Failed Tests", failed_tests, delta=f"-{failed_tests}")
+    with col3:
+        st.metric("Passed Tests", passed_tests, delta=f"+{passed_tests}")
+    with col4:
+        avg_coverage = test_df['Coverage Percentage'].str.rstrip('%').astype(float).mean()
+        st.metric("Avg Coverage", f"{avg_coverage:.1f}%")
+    
+    # Test results table
+    st.subheader("📋 Test Results Details")
+    
+    # Add outcome filtering
+    outcome_filter = st.selectbox("Filter by outcome:", ["All", "failed", "passed"])
+    
+    if outcome_filter != "All":
+        filtered_test_df = test_df[test_df['Outcome'] == outcome_filter]
+    else:
+        filtered_test_df = test_df
+    
+    st.dataframe(filtered_test_df, use_container_width=True)
+    
+    # Coverage vs Outcome analysis
+    st.subheader("📊 Coverage vs Test Outcome")
+    
+    # Box plot of coverage by outcome
+    fig = px.box(test_df, x='Outcome', y='Coverage Percentage',
+                 title="Coverage Distribution by Test Outcome",
+                 labels={'Coverage Percentage': 'Coverage %'})
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Scatter plot of elements covered vs coverage percentage
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        fig2 = px.scatter(test_df, x='Elements Covered', y='Coverage Percentage',
+                         color='Outcome', title="Elements Covered vs Coverage %",
+                         labels={'Coverage Percentage': 'Coverage %'})
+        st.plotly_chart(fig2, use_container_width=True)
+    
+    with col2:
+        # Test outcome distribution
+        outcome_counts = test_df['Outcome'].value_counts()
+        fig3 = px.pie(values=outcome_counts.values, names=outcome_counts.index,
+                     title="Test Outcome Distribution")
+        st.plotly_chart(fig3, use_container_width=True)
+
+
+def display_coverage_matrix_tab(csv_data: Dict[str, pd.DataFrame]):
+    """Display coverage matrix visualization."""
+    st.subheader("📈 Coverage Matrix Analysis")
+    
+    if "coverage_matrix" not in csv_data:
+        st.warning("Coverage matrix data not available")
+        return
+    
+    coverage_df = csv_data["coverage_matrix"]
+    
+    # Extract metadata columns and test columns
+    metadata_cols = ['Element', 'File', 'Line', 'ElementType', 'ElementName']
+    test_cols = [col for col in coverage_df.columns if col not in metadata_cols]
+    
+    if not test_cols:
+        st.error("No test columns found in coverage matrix")
+        return
+    
+    # Get test outcomes from the OUTCOME row
+    outcome_row = coverage_df[coverage_df['Element'] == 'OUTCOME']
+    if not outcome_row.empty:
+        test_outcomes = outcome_row[test_cols].iloc[0].to_dict()
+        # Remove OUTCOME row for analysis
+        element_df = coverage_df[coverage_df['Element'] != 'OUTCOME'].copy()
+    else:
+        test_outcomes = {}
+        element_df = coverage_df.copy()
+    
+    # Convert test columns to numeric for analysis
+    for col in test_cols:
+        element_df[col] = pd.to_numeric(element_df[col], errors='coerce')
+    
+    # Create coverage matrix for visualization
+    coverage_matrix = element_df[test_cols].values
+    element_labels = element_df['Element'].tolist()
+    
+    # Limit to reasonable size for visualization
+    max_elements = 50
+    if len(element_labels) > max_elements:
+        st.info(f"Showing top {max_elements} elements for visualization. Total elements: {len(element_labels)}")
+        coverage_matrix = coverage_matrix[:max_elements, :]
+        element_labels = element_labels[:max_elements]
+    
+    # Create heatmap
+    fig = go.Figure(data=go.Heatmap(
+        z=coverage_matrix,
+        x=test_cols,
+        y=element_labels,
+        colorscale='RdYlBu_r',
+        showscale=False,
+        hoverongaps=False
+    ))
+    
+    fig.update_layout(
+        title="Coverage Matrix: Elements vs Tests",
+        xaxis_title="Tests",
+        yaxis_title="Code Elements",
+        height=1000,
+        xaxis_tickangle=-45
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Add an interactive table view of the matrix
+    st.subheader("📄 Coverage Matrix Table")
+    st.info("Click on column headers to sort by test coverage.")
+    
+    # Prepare dataframe for display
+    display_df = element_df[['Element', 'File', 'Line'] + test_cols].copy()
+    st.dataframe(display_df, use_container_width=True, height=400)
+    
+    # Coverage statistics
+    
+    st.subheader("📊 Element Coverage Statistics")
+    # Calculate coverage per element
+    element_df['Total_Coverage'] = element_df[test_cols].sum(axis=1)
+    element_df['Coverage_Percentage'] = (element_df['Total_Coverage'] / len(test_cols)) * 100
+    # Coverage distribution
+    fig4 = px.histogram(element_df, x='Coverage_Percentage', 
+                        title="Element Coverage Distribution",
+                        labels={'Coverage_Percentage': 'Coverage %'})
+    st.plotly_chart(fig4, use_container_width=True)
+
+
+def display_formula_comparison_tab(csv_data: Dict[str, pd.DataFrame], json_data: Dict[str, Any]):
+    """Display comparison between different SBFL formulas."""
+    st.subheader("🏆 Formula Comparison Analysis")
+    
+    # Get all ranking files
+    ranking_files = {k: v for k, v in csv_data.items() if k.startswith('ranking_')}
+    
+    if not ranking_files:
+        st.warning("No ranking data available for comparison")
+        return
+    
+    # Extract formula names
+    formula_names = [k.replace('ranking_', '') for k in ranking_files.keys()]
+    
+    st.write(f"**Available formulas:** {', '.join(formula_names)}")
+    
+    # Debug: Show the structure of ranking files
+    with st.expander("🔍 Debug - Ranking Data Structure"):
+        for formula in formula_names:
+            ranking_key = f"ranking_{formula}"
+            if ranking_key in csv_data:
+                df = csv_data[ranking_key]
+                st.write(f"**{formula}** - Columns: {list(df.columns)}")
+                st.write(f"Shape: {df.shape}")
+                if len(df) > 0:
+                    st.write("First few rows:")
+                    st.dataframe(df.head())
+    
+    # Top-N comparison
+    st.subheader("🎯 Top-N Element Comparison")
+    
+    top_n = st.slider("Select N for Top-N comparison:", 5, 50, 10)
+    
+        # Create comparison table with better error handling
+    comparison_data = {}
+    
+    for formula in formula_names:
+        ranking_key = f"ranking_{formula}"
+        if ranking_key in csv_data:
+            df = csv_data[ranking_key]
+            
+            # Always construct element identifier from File and Line since Element column contains "None"
+            if 'File' in df.columns and 'Line' in df.columns:
+                # Create a proper element identifier
+                df['Element_Display'] = df['File'].astype(str) + ':' + df['Line'].astype(str)
+                element_col = 'Element_Display'
+            else:
+                st.warning(f"Could not find File and Line columns in {ranking_key}")
+                continue
+            
+            # Get top elements, handle empty DataFrames
+            if len(df) > 0:
+                top_elements = df.head(top_n)[element_col].fillna('Unknown').tolist()
+                # Clean up the file paths to show just filename:line
+                top_elements = [
+                    f"{Path(elem.split(':')[0]).name}:{elem.split(':')[1]}" if ':' in elem 
+                    else elem 
+                    for elem in top_elements
+                ]
+            else:
+                top_elements = ['No data'] * top_n
+                
+            comparison_data[formula] = top_elements
+    
+    # Show top elements side by side
+    if comparison_data:
+        # Ensure all lists have the same length
+        max_len = max(len(v) for v in comparison_data.values())
+        for formula in comparison_data:
+            while len(comparison_data[formula]) < max_len:
+                comparison_data[formula].append('N/A')
+        
+        comparison_df = pd.DataFrame.from_dict(comparison_data, orient='index').T
+        comparison_df.index = pd.Index([f"Rank {i+1}" for i in range(len(comparison_df))])
+        
+        st.dataframe(comparison_df, use_container_width=True)
+        
+        # Only calculate agreement if we have valid data
+        valid_data = {k: v for k, v in comparison_data.items() 
+                     if not all(x in ['No data', 'N/A', 'Unknown'] for x in v)}
+        
+        if len(valid_data) > 1:
+            # Calculate agreement between formulas
+            st.subheader("🤝 Formula Agreement Analysis")
+            
+            # Jaccard similarity between top-N lists
+            valid_formulas = list(valid_data.keys())
+            jaccard_matrix = np.zeros((len(valid_formulas), len(valid_formulas)))
+            
+            for i, formula1 in enumerate(valid_formulas):
+                for j, formula2 in enumerate(valid_formulas):
+                    set1 = set(valid_data[formula1])
+                    set2 = set(valid_data[formula2])
+                    # Remove placeholder values from sets
+                    set1 = {x for x in set1 if x not in ['No data', 'N/A', 'Unknown']}
+                    set2 = {x for x in set2 if x not in ['No data', 'N/A', 'Unknown']}
+                    
+                    jaccard = len(set1 & set2) / len(set1 | set2) if len(set1 | set2) > 0 else 0
+                    jaccard_matrix[i, j] = jaccard
+            
+            # Heatmap of agreement
+            fig = go.Figure(data=go.Heatmap(
+                z=jaccard_matrix,
+                x=valid_formulas,
+                y=valid_formulas,
+                colorscale='Blues',
+                text=np.round(jaccard_matrix, 3),
+                texttemplate="%{text}",
+                showscale=True
+            ))
+            
+            fig.update_layout(
+                title=f"Jaccard Similarity between Formulas (Top-{top_n})",
+                xaxis_title="Formula",
+                yaxis_title="Formula"
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.warning("Not enough valid data to calculate formula agreement")
+    else:
+        st.error("No valid ranking data found for comparison")
+    
+    # Score distribution comparison with better error handling
+    st.subheader("📊 Score Distribution Comparison")
+    
+    # Combine all ranking data
+    all_rankings = []
+    for formula in formula_names:
+        ranking_key = f"ranking_{formula}"
+        if ranking_key in csv_data:
+            df = csv_data[ranking_key].copy()
+            
+            # Check if we have a suspiciousness column
+            sus_col = None
+            possible_sus_cols = ['Suspiciousness', 'suspiciousness', 'Score', 'score']
+            
+            for col in possible_sus_cols:
+                if col in df.columns:
+                    sus_col = col
+                    break
+            
+            if sus_col is not None and len(df) > 0:
+                df['Formula'] = formula
+                df['Suspiciousness'] = pd.to_numeric(df[sus_col], errors='coerce')
+                all_rankings.append(df[['Formula', 'Suspiciousness']].dropna())
+    
+    if all_rankings:
+        combined_df = pd.concat(all_rankings, ignore_index=True)
+        
+        if len(combined_df) > 0:
+            # Box plot of suspiciousness scores by formula
+            fig = px.box(combined_df, x='Formula', y='Suspiciousness',
+                         title="Suspiciousness Score Distribution by Formula")
+            st.plotly_chart(fig, use_container_width=True)
+            
+            # Violin plot for more detailed distribution
+            fig2 = px.violin(combined_df, x='Formula', y='Suspiciousness',
+                            title="Detailed Score Distribution by Formula")
+            st.plotly_chart(fig2, use_container_width=True)
+            
+            # Statistical summary
+            st.subheader("📈 Statistical Summary")
+            
+            stats_summary = combined_df.groupby('Formula')['Suspiciousness'].agg([
+                'count', 'mean', 'std', 'min', 'max'
+            ]).round(4)
+            
+            st.dataframe(stats_summary)
+        else:
+            st.warning("No valid suspiciousness scores found for analysis")
+    else:
+        st.warning("No ranking data available for score distribution analysis")
 
 
 if __name__ == "__main__":

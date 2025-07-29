@@ -117,7 +117,7 @@ class JSONReporter:
                 json.dump(output_dict, f, cls=CustomEncoder, indent=2, ensure_ascii=False)
             
             self.console.print(f"JSON report saved to: [blue]{output_path}[/blue]")
-            self.console.print(f"Use the dashboard to visualize: [cyan]pyfault ui --data {output_path}[/cyan]")
+            self.console.print(f"Use the dashboard to visualize: [cyan]pyfault ui -d {self.output_dir}[/cyan]")
             
         except Exception as e:
             raise RuntimeError(f"Error saving JSON report to {output_path}: {e}")
