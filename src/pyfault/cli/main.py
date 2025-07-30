@@ -1,32 +1,20 @@
 """
 Command-line interface for PyFault.
 
-This module provides a CLI similar to GZoltar's command-line interface,
-allowing batch execution of fault localization tasks.
+This module provides a CLI for fault localization tasks.
 """
 
 import sys
 import logging
-from pathlib import Path
+import json
 from typing import List, Optional
 
 import click
 from rich.console import Console
-from rich.table import Table
-from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.logging import RichHandler
 
-from pyfault.reporters.csv_reporter import CSVReporter
-
-from ..core.fault_localizer import FaultLocalizer
-from ..core.models import FaultLocalizationResult
-from ..coverage.collector import CoverageCollector
-from ..test_runner.pytest_runner import PytestRunner
-from ..core.models import CoverageMatrix
-from ..formulas import (
-    OchiaiFormula, TarantulaFormula, JaccardFormula,
-    DStarFormula, Kulczynski2Formula
-)
+from ..test.runner import TestRunner
+from ..test.config import TestConfig
 
 console = Console()
 
@@ -50,8 +38,7 @@ def main(ctx: click.Context, verbose: bool) -> None:
     """
     PyFault: Spectrum-Based Fault Localization for Python
     
-    A tool for automated fault localization using SBFL techniques,
-    inspired by GZoltar.
+    A tool for automated fault localization using SBFL techniques.
     """
     ctx.ensure_object(dict)
     ctx.obj['verbose'] = verbose
@@ -59,322 +46,84 @@ def main(ctx: click.Context, verbose: bool) -> None:
 
 
 @main.command()
-@click.option('--source-dir', '-s', multiple=True, required=False,
-              help='Source code directories to analyze (default: current directory)')
-@click.option('--test-dir', '-t', multiple=True, required=False,
-              help='Test directories (default: current directory)')
-@click.option('--output-dir', '-o', default='./pyfault_report',
-              help='Output directory for results')
-@click.option('--formula', '-f', multiple=True,
-              type=click.Choice(['ochiai', 'tarantula', 'jaccard', 'dstar', 'kulczynski2']),
-              help='SBFL formulas to use (default: ochiai, tarantula, jaccard)')
+@click.option('--source-dir', '-s', default='.',
+              help='Source code directory to analyze (default: .)')
+@click.option('--test-dir', '-t', 
+              help='Test directory (default: auto-detected by pytest)')
+@click.option('--output', '-o', default='coverage.json',
+              help='Output file for coverage data (default: coverage.json)')
 @click.option('--test-filter', '-k',
               help='Filter tests using pytest -k pattern')
-@click.option('--top', '-n', type=int, default=20,
-              help='Number of top suspicious elements to display')
-@click.option('--branch-coverage', '-b', is_flag=True, default=False,
-              help='Use branch coverage instead of line coverage')
+@click.option('--ignore', multiple=True,
+              help='Additional file patterns to ignore for test discovery (besides */__init__.py)')
+@click.option('--omit', multiple=True,
+              help='Additional file patterns to omit from coverage (besides */__init__.py)')
+@click.option('--config', '-c', default='pyfault.conf',
+              help='Configuration file (default: pyfault.conf)')
 @click.pass_context
-def run(ctx: click.Context, source_dir: List[str], test_dir: List[str], 
-        output_dir: str, formula: List[str], test_filter: Optional[str], 
-        top: int, branch_coverage: bool) -> None:
+def test(ctx: click.Context, source_dir: str, test_dir: Optional[str], 
+         output: str, test_filter: Optional[str], ignore: List[str],
+         omit: List[str], config: str) -> None:
     """
-    Run complete fault localization analysis.
+    Run tests with coverage collection.
     
-    This command performs the full SBFL pipeline:
-    1. Instrument source code
-    2. Execute tests with coverage collection
-    3. Apply SBFL formulas
-    4. Generate reports
+    Executes tests using pytest with coverage context collection and produces
+    an enhanced coverage JSON file with test outcome information.
     """
     try:
-        # Convert to Path objects with default to current directory
-        source_dirs = [Path(d) for d in source_dir] if source_dir else [Path('.')]
-        test_dirs = [Path(d) for d in test_dir] if test_dir else [Path('.')]
-        output_path = Path(output_dir)
+        # Load configuration
+        test_config = TestConfig.from_file(config)
         
-        # Validate directories
-        for d in source_dirs + test_dirs:
-            if not d.exists():
-                raise click.ClickException(f"Directory not found: {d}")
+        # Override with command line arguments
+        if source_dir != '.':  # Only override if different from default
+            test_config.source_dir = source_dir
+        if test_dir:
+            test_config.test_dir = test_dir
+        if output != 'coverage.json':
+            test_config.output_file = output
         
-        # Setup formulas
-        if not formula:
-            formulas = [OchiaiFormula(), TarantulaFormula(), JaccardFormula(), DStarFormula(), Kulczynski2Formula()]
-        else:
-            formula_map = {
-                'ochiai': OchiaiFormula(),
-                'tarantula': TarantulaFormula(),
-                'jaccard': JaccardFormula(),
-                'dstar': DStarFormula(),
-                'kulczynski2': Kulczynski2Formula()
-            }
-            formulas = [formula_map[f] for f in formula]
-        
-        coverage_type = "branch" if branch_coverage else "line"
-        console.print(f"[bold green]Starting PyFault Analysis[/bold green]")
-        console.print(f"Source dirs: {[str(d) for d in source_dirs]}")
-        console.print(f"Test dirs: {[str(d) for d in test_dirs]}")
-        console.print(f"Output dir: {output_path}")
-        console.print(f"Coverage type: [cyan]{coverage_type}[/cyan]")
-        console.print(f"Formulas: {[f.name for f in formulas]}")
-        
-        # Initialize fault localizer with coverage type
-        localizer = FaultLocalizer(
-            source_dirs=source_dirs,
-            test_dirs=test_dirs,
-            formulas=formulas,
-            output_dir=output_path,
-            branch_coverage=branch_coverage
-        )
-        
-        # Run analysis
-        console.print("Running fault localization...")
-        result = localizer.run(test_filter=test_filter)
-        
-        # Display results
-        _display_results(result, top)
-        
-        console.print(f"\n[bold green]✓[/bold green] Analysis complete!")
-        console.print(f"Reports generated in: [blue]{output_path}[/blue]")
-        
-    except Exception as e:
-        console.print(f"[bold red]Error:[/bold red] {e}")
-        if ctx.obj.get('verbose'):
-            console.print_exception()
-        sys.exit(1)
+        # Merge ignore patterns
+        if ignore:
+            test_config.ignore_patterns = (test_config.ignore_patterns or []) + list(ignore)
 
+        # Merge omit patterns
+        if omit:
+            test_config.omit_patterns = (test_config.omit_patterns or []) + list(omit)
 
-@main.command()
-@click.option('--coverage-file', '-c', required=True,
-              help='Coverage matrix file (CSV format)')
-@click.option('--output-dir', '-o', default='./pyfault_report',
-              help='Output directory for results')
-@click.option('--formula', '-f', multiple=True,
-              type=click.Choice(['ochiai', 'tarantula', 'jaccard', 'dstar', 'kulczynski2']),
-              help='SBFL formulas to use')
-@click.option('--top', '-n', type=int, default=20,
-              help='Number of top suspicious elements to display')
-@click.pass_context
-def fl(ctx: click.Context, coverage_file: str, output_dir: str, 
-       formula: List[str], top: int) -> None:
-    """
-    Perform fault localization on existing coverage data.
-    
-    This command applies SBFL formulas to pre-collected coverage data,
-    useful when you want to skip test execution.
-    """
-    try:
-        # Validate input file
-        coverage_path = Path(coverage_file)
-        if not coverage_path.exists():
-            raise click.ClickException(f"Coverage file not found: {coverage_file}")
-        
-        # Setup formulas
-        if not formula:
-            formulas = [OchiaiFormula(), TarantulaFormula(), JaccardFormula(), DStarFormula(), Kulczynski2Formula()]
-        else:
-            formula_map = {
-                'ochiai': OchiaiFormula(),
-                'tarantula': TarantulaFormula(),
-                'jaccard': JaccardFormula(),
-                'dstar': DStarFormula(),
-                'kulczynski2': Kulczynski2Formula()
-            }
-            formulas = [formula_map[f] for f in formula]
-        
-        console.print(f"[bold green]Loading coverage data from:[/bold green] {coverage_file}")
-        
-        # Load coverage matrix from CSV
-        coverage_matrix = CSVReporter(Path()).load_coverage_matrix(coverage_file)
-        
-        # Initialize fault localizer for analysis only
-        output_path = Path(output_dir)
-        localizer = FaultLocalizer(
-            source_dirs=[],  # Not needed when analyzing from data
-            test_dirs=[],    # Not needed when analyzing from data
-            formulas=formulas,
-            output_dir=output_path
-        )
-        
-        console.print(f"[bold green]Running fault localization analysis...[/bold green]")
-        console.print(f"Formulas: {[f.name for f in formulas]}")
-        
-        # Run analysis on loaded data
-        console.print("Analyzing coverage data...")
-        result = localizer.analyze_from_data(coverage_matrix)
-        
-        # Display results
-        _display_results(result, top)
-        
-        console.print(f"\n[bold green]✓[/bold green] Analysis complete!")
-        console.print(f"Reports generated in: [blue]{output_path}[/blue]")
-        
-    except Exception as e:
-        console.print(f"[bold red]Error:[/bold red] {e}")
-        if ctx.obj.get('verbose'):
-            console.print_exception()
-        sys.exit(1)
-
-
-@main.command()
-@click.option('--source-dir', '-s', multiple=True, required=False,
-              help='Source code directories (default: current directory)')
-@click.option('--test-dir', '-t', multiple=True, required=False,
-              help='Test directories (default: current directory)')
-@click.option('--output-dir', '-o', default='./pyfault_report',
-              help='Output directory for coverage data')
-@click.option('--test-filter', '-k',
-              help='Filter tests using pytest -k pattern')
-@click.option('--save-coverage', is_flag=True, default=True,
-              help='Save coverage matrix to CSV file')
-@click.option('--branch-coverage', '-b', is_flag=True, default=False,
-              help='Use branch coverage instead of line coverage')
-@click.pass_context
-def test(ctx: click.Context, source_dir: List[str], test_dir: List[str], 
-         output_dir: str, test_filter: Optional[str], save_coverage: bool,
-         branch_coverage: bool) -> None:
-    """
-    Run tests with coverage collection only.
-    
-    This command executes tests and collects coverage data without
-    performing fault localization analysis. The coverage data can be
-    saved for later analysis using the 'fl' command.
-    """
-    try:
-        source_dirs = [Path(d) for d in source_dir] if source_dir else [Path('.')]
-        test_dirs = [Path(d) for d in test_dir] if test_dir else [Path('.')]
-        output_path = Path(output_dir)
-        
-        # Validate directories
-        for d in source_dirs + test_dirs:
-            if not d.exists():
-                raise click.ClickException(f"Directory not found: {d}")
-        
-        # Create output directory
-        output_path.mkdir(parents=True, exist_ok=True)
-        
-        coverage_type = "branch" if branch_coverage else "line"
         console.print("[bold green]Running tests with coverage collection...[/bold green]")
-        console.print(f"Source dirs: {[str(d) for d in source_dirs]}")
-        console.print(f"Test dirs: {[str(d) for d in test_dirs]}")
-        console.print(f"Output dir: {output_path}")
-        console.print(f"Coverage type: [cyan]{coverage_type}[/cyan]")
+        console.print(f"Source dir: [cyan]{test_config.source_dir}[/cyan]")
+        if test_config.test_dir:
+            console.print(f"Test dir: [cyan]{test_config.test_dir}[/cyan]")
+        console.print(f"Output file: [cyan]{test_config.output_file}[/cyan]")
         
-        # Initialize components with coverage type
-        coverage_collector = CoverageCollector(source_dirs, branch_coverage=branch_coverage)
-        test_runner = PytestRunner(test_dirs, coverage_collector)
+        # Execute tests
+        runner = TestRunner(test_config)
+        result = runner.run_tests(test_filter)
         
-        console.print("Executing tests and collecting coverage...")
-        # Run tests and get results
-        test_results = test_runner.run_tests(test_filter)
+        # Write coverage matrix code_lines-tests
+        with open(test_config.output_file, 'w') as f:
+            json.dump(result.coverage_data, f, indent=2)
         
-        if not test_results:
-            raise RuntimeError("No test results collected")
-        
-        # Build coverage matrix
-        coverage_matrix = CoverageMatrix.from_test_results(test_results)
-        
-        # Display test statistics
-        failed_tests = [r for r in test_results if r.is_failed]
-        failed_count = len(failed_tests)
-        passed_count = len(test_results) - failed_count
-        
+        # Display results
+        total_tests = len(result.passed_tests) + len(result.failed_tests) + len(result.skipped_tests)
         console.print(f"\n[bold green]✓[/bold green] Test execution completed!")
-        console.print(f"Total tests: {len(test_results)}")
-        console.print(f"Passed: [green]{passed_count}[/green]")
-        console.print(f"Failed: [red]{failed_count}[/red]")
+        console.print(f"Total tests: {total_tests}")
+        console.print(f"Passed: [green]{len(result.passed_tests)}[/green]")
+        console.print(f"Failed: [red]{len(result.failed_tests)}[/red]")
+        console.print(f"Skipped: [yellow]{len(result.skipped_tests)}[/yellow]")
 
-        if failed_tests:
-            console.print("\n[bold red]Failed tests:[/bold red]")
-            for test in failed_tests:
-                console.print(f"- {test.test_name}")
+        if result.failed_tests:
+            console.print(f"\n[bold red]Failed tests:[/bold red]")
+            for test in result.failed_tests:
+                console.print(f"  - {test}")
         
-        console.print(f"Coverage collected for: {len(coverage_matrix.code_elements)} code elements")
-        
-        # Save coverage data if requested
-        if save_coverage:            
-            console.print("Saving coverage data...")
-            reporter = CSVReporter(output_dir=output_path)
-            reporter.write_coverage_matrix(coverage_matrix)
+        console.print(f"\n[bold green]Coverage data saved to:[/bold green] {test_config.output_file}")
         
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {e}")
         if ctx.obj.get('verbose'):
             console.print_exception()
         sys.exit(1)
-
-
-@main.command()
-@click.option('--data', '-d', 
-              help='Load existing results (JSON file or directory containing CSV files)')
-@click.option('--port', '-p', default=8501,
-              help='Port for web interface')
-@click.option('--auto-open', is_flag=True,
-              help='Automatically open browser')
-@click.pass_context
-def ui(ctx: click.Context, data: Optional[str], port: int, auto_open: bool) -> None:
-    """
-    Launch interactive web UI for fault localization results.
-    
-    Opens a Streamlit-based dashboard for visualizing and analyzing
-    fault localization results. Can load existing JSON data or CSV directory.
-    """
-    try:
-        # Validate data path if provided
-        if data:
-            data_path = Path(data)
-            if not data_path.exists():
-                raise click.ClickException(f"Data path not found: {data}")
-            
-            if data_path.is_file():
-                console.print(f"[bold green]Loading data file:[/bold green] {data}")
-            else:
-                console.print(f"[bold green]Loading data directory:[/bold green] {data}")
-        
-        console.print(f"[bold green]Starting PyFault Dashboard...[/bold green]")
-        console.print(f"Port: [blue]{port}[/blue]")
-        console.print(f"Auto-open browser: [blue]{auto_open}[/blue]")
-        
-        # Import and launch dashboard
-        from ..ui.dashboard import launch_dashboard
-        
-        launch_dashboard(data, port, auto_open)
-        
-    except Exception as e:
-        console.print(f"[bold red]Error:[/bold red] {e}")
-        if ctx.obj.get('verbose'):
-            console.print_exception()
-        sys.exit(1)
-
-
-def _display_results(result: FaultLocalizationResult, top: int) -> None:
-    """Display fault localization results in a nice table."""
-    console.print(f"\n[bold]Top {top} Suspicious Elements[/bold]")
-    
-    for formula_name in result.scores:
-        ranking = result.get_ranking(formula_name, limit=top)
-        
-        if not ranking:
-            continue
-        
-        table = Table(title=f"{formula_name.title()} Formula")
-        table.add_column("Rank", style="cyan", width=6)
-        table.add_column("File", style="magenta")
-        table.add_column("Element", style="green", max_width=50)
-        table.add_column("Score", style="yellow", width=10)
-        
-        for score in ranking: # ranking is a list of SuspiciousnessScore
-            element = score.element
-            table.add_row(
-                str(score.rank),
-                str(element.file_path.name),
-                f"L{element.line_number} ({element.element_type}: {element.element_name or 'line'})",
-                f"{score.score:.4f}"
-            )
-        
-        console.print(table)
-        console.print()
 
 
 if __name__ == '__main__':
