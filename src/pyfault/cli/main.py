@@ -294,5 +294,47 @@ def run(ctx: click.Context, source_dir: str, test_dir: Optional[str],
         sys.exit(1)
 
 
+@main.command()
+@click.option('--report', '-r', default='report.json',
+              help='Report file to visualize (default: report.json)')
+@click.option('--port', '-p', default=8501,
+              help='Port for the dashboard (default: 8501)')
+@click.option('--no-open', is_flag=True,
+              help='Do not auto-open browser')
+@click.pass_context
+def ui(ctx: click.Context, report: str, port: int, no_open: bool) -> None:
+    """
+    Launch PyFault dashboard for result visualization.
+    
+    Opens an interactive web dashboard to visualize fault localization
+    results with treemaps, source code highlighting, coverage matrices,
+    and sunburst charts.
+    """
+    try:
+        from ..ui.dashboard import launch_dashboard
+        
+        console.print("[bold green]Starting PyFault Dashboard...[/bold green]")
+        console.print(f"Report file: [cyan]{report}[/cyan]")
+        console.print(f"Port: [cyan]{port}[/cyan]")
+        
+        launch_dashboard(
+            report_file=report,
+            port=port,
+            auto_open=not no_open
+        )
+        
+    except ImportError as e:
+        console.print("[bold red]Error:[/bold red] Dashboard dependencies not available.")
+        console.print("Install dashboard dependencies: pip install streamlit plotly")
+        if ctx.obj.get('verbose'):
+            console.print_exception()
+        sys.exit(1)
+    except Exception as e:
+        console.print(f"[bold red]Error:[/bold red] {e}")
+        if ctx.obj.get('verbose'):
+            console.print_exception()
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     main()

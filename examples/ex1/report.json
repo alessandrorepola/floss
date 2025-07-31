@@ -2,7 +2,7 @@
   "meta": {
     "format": 3,
     "version": "7.9.2",
-    "timestamp": "2025-07-31T16:55:03.273090",
+    "timestamp": "2025-07-31T21:26:25.013246",
     "branch_coverage": true,
     "show_contexts": true
   },
@@ -40,12 +40,12 @@
           ""
         ],
         "5": [
-          "examples/ex1/tests/test_equilateral.py::test_ea_fail|run",
-          "examples/ex1/tests/test_equilateral.py::test_ea_pass|run"
+          "examples/ex1/tests/test_equilateral.py::test_ea_pass|run",
+          "examples/ex1/tests/test_equilateral.py::test_ea_fail|run"
         ],
         "7": [
-          "examples/ex1/tests/test_equilateral.py::test_ea_fail|run",
-          "examples/ex1/tests/test_equilateral.py::test_ea_pass|run"
+          "examples/ex1/tests/test_equilateral.py::test_ea_pass|run",
+          "examples/ex1/tests/test_equilateral.py::test_ea_fail|run"
         ],
         "10": [
           "examples/ex1/tests/test_equilateral.py::test_ea_fail|run"
@@ -103,12 +103,12 @@
               ""
             ],
             "5": [
-              "examples/ex1/tests/test_equilateral.py::test_ea_fail|run",
-              "examples/ex1/tests/test_equilateral.py::test_ea_pass|run"
+              "examples/ex1/tests/test_equilateral.py::test_ea_pass|run",
+              "examples/ex1/tests/test_equilateral.py::test_ea_fail|run"
             ],
             "7": [
-              "examples/ex1/tests/test_equilateral.py::test_ea_fail|run",
-              "examples/ex1/tests/test_equilateral.py::test_ea_pass|run"
+              "examples/ex1/tests/test_equilateral.py::test_ea_pass|run",
+              "examples/ex1/tests/test_equilateral.py::test_ea_fail|run"
             ],
             "10": [
               "examples/ex1/tests/test_equilateral.py::test_ea_fail|run"
@@ -162,12 +162,12 @@
               ""
             ],
             "5": [
-              "examples/ex1/tests/test_equilateral.py::test_ea_fail|run",
-              "examples/ex1/tests/test_equilateral.py::test_ea_pass|run"
+              "examples/ex1/tests/test_equilateral.py::test_ea_pass|run",
+              "examples/ex1/tests/test_equilateral.py::test_ea_fail|run"
             ],
             "7": [
-              "examples/ex1/tests/test_equilateral.py::test_ea_fail|run",
-              "examples/ex1/tests/test_equilateral.py::test_ea_pass|run"
+              "examples/ex1/tests/test_equilateral.py::test_ea_pass|run",
+              "examples/ex1/tests/test_equilateral.py::test_ea_fail|run"
             ],
             "10": [
               "examples/ex1/tests/test_equilateral.py::test_ea_fail|run"
@@ -220,12 +220,12 @@
               ""
             ],
             "5": [
-              "examples/ex1/tests/test_equilateral.py::test_ea_fail|run",
-              "examples/ex1/tests/test_equilateral.py::test_ea_pass|run"
+              "examples/ex1/tests/test_equilateral.py::test_ea_pass|run",
+              "examples/ex1/tests/test_equilateral.py::test_ea_fail|run"
             ],
             "7": [
-              "examples/ex1/tests/test_equilateral.py::test_ea_fail|run",
-              "examples/ex1/tests/test_equilateral.py::test_ea_pass|run"
+              "examples/ex1/tests/test_equilateral.py::test_ea_pass|run",
+              "examples/ex1/tests/test_equilateral.py::test_ea_fail|run"
             ],
             "10": [
               "examples/ex1/tests/test_equilateral.py::test_ea_fail|run"
@@ -256,27 +256,39 @@
       "suspiciousness": {
         "5": {
           "ochiai": 0.5,
-          "tarantula": 0.5
+          "tarantula": 0.5,
+          "jaccard": 0.3333333333333333,
+          "dstar2": 0.5
         },
         "7": {
           "ochiai": 0.5,
-          "tarantula": 0.5
+          "tarantula": 0.5,
+          "jaccard": 0.3333333333333333,
+          "dstar2": 0.5
         },
         "10": {
           "ochiai": 0.7071067811865475,
-          "tarantula": 1.0
+          "tarantula": 1.0,
+          "jaccard": 0.5,
+          "dstar2": 1.0
         },
         "11": {
           "ochiai": 0.7071067811865475,
-          "tarantula": 1.0
+          "tarantula": 1.0,
+          "jaccard": 0.5,
+          "dstar2": 1.0
         },
         "13": {
           "ochiai": 0.7071067811865475,
-          "tarantula": 1.0
+          "tarantula": 1.0,
+          "jaccard": 0.5,
+          "dstar2": 1.0
         },
         "8": {
           "ochiai": 0.0,
-          "tarantula": 0.0
+          "tarantula": 0.0,
+          "jaccard": 0.0,
+          "dstar2": 0.0
         }
       }
     },
@@ -542,23 +554,33 @@
       "suspiciousness": {
         "6": {
           "ochiai": 0.5,
-          "tarantula": 0.5
+          "tarantula": 0.5,
+          "jaccard": 0.3333333333333333,
+          "dstar2": 0.5
         },
         "5": {
           "ochiai": 0.5,
-          "tarantula": 0.5
+          "tarantula": 0.5,
+          "jaccard": 0.3333333333333333,
+          "dstar2": 0.5
         },
         "10": {
           "ochiai": 0.5,
-          "tarantula": 0.5
+          "tarantula": 0.5,
+          "jaccard": 0.3333333333333333,
+          "dstar2": 0.5
         },
         "8": {
           "ochiai": 0.5,
-          "tarantula": 0.5
+          "tarantula": 0.5,
+          "jaccard": 0.3333333333333333,
+          "dstar2": 0.5
         },
         "11": {
           "ochiai": 0.0,
-          "tarantula": 0.0
+          "tarantula": 0.0,
+          "jaccard": 0.0,
+          "dstar2": 0.0
         }
       }
     }
@@ -589,7 +611,9 @@
   "fl_metadata": {
     "formulas_used": [
       "ochiai",
-      "tarantula"
+      "tarantula",
+      "jaccard",
+      "dstar2"
     ],
     "total_lines_analyzed": 11
   }
