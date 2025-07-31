@@ -41,7 +41,7 @@ class TestRunner:
             self.config.write_coveragerc(coveragerc_file)
             
             # Build pytest command
-            cmd = self._build_pytest_command(xml_path, test_filter)
+            cmd = self._build_pytest_command(xml_path, test_filter, coveragerc_file)
             
             # Execute pytest
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=".")
@@ -71,7 +71,7 @@ class TestRunner:
             if os.path.exists(coveragerc_file):
                 os.unlink(coveragerc_file)
 
-    def _build_pytest_command(self, xml_path: str, test_filter: Optional[str] = None) -> List[str]:
+    def _build_pytest_command(self, xml_path: str, test_filter: Optional[str] = None, coveragerc_file: Optional[str] = None) -> List[str]:
         """Build the pytest command with all required options."""
         cmd = ["pytest"]
         
@@ -87,6 +87,10 @@ class TestRunner:
             "--cov-branch",
             "-v"
         ])
+        
+        # Add coverage config file if specified
+        if coveragerc_file:
+            cmd.extend([f"--cov-config={coveragerc_file}"])
         
         # Add ignore patterns
         for pattern in (self.config.ignore_patterns or []):
