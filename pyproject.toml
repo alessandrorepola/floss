@@ -48,7 +48,7 @@ dev = [
 ]
 
 [project.scripts]
-pyfault = "pyfault.cli:main"
+pyfault = "pyfault.cli.main:main"
 
 [project.urls]
 Homepage = "https://github.com/example/pyfault"

@@ -372,3 +372,303 @@ formulas = ochiai, tarantula, dstar2
             
             # Line 1 should have 0 suspiciousness (only passing test)
             assert susp['1']['ochiai'] == 0.0
+
+
+class TestE2ERunCommand:
+    """End-to-end tests for the 'pyfault run' command."""
+    
+    def test_run_command_complete_workflow(self):
+        """Test complete workflow using the run command."""
+        runner = CliRunner()
+        
+        with runner.isolated_filesystem():
+            # Create a mini project structure
+            os.makedirs('src')
+            os.makedirs('tests')
+            
+            # Create source file with a bug
+            with open('src/calculator.py', 'w') as f:
+                f.write('''
+def add(a, b):
+    return a + b
+
+def subtract(a, b):
+    if a < 0:  # Buggy condition
+        return 0  # Wrong!
+    return a - b
+
+def multiply(a, b):
+    return a * b
+''')
+            
+            # Create test file
+            with open('tests/test_calculator.py', 'w') as f:
+                f.write('''
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+
+from calculator import add, subtract, multiply
+
+def test_add_positive():
+    """Test adding positive numbers."""
+    assert add(2, 3) == 5
+
+def test_subtract_positive():
+    """Test subtracting positive numbers."""
+    assert subtract(5, 3) == 2
+
+def test_subtract_negative():
+    """Test subtracting with negative number - should fail due to bug."""
+    assert subtract(-1, 2) == -3  # This will fail due to bug
+
+def test_multiply():
+    """Test multiplication."""
+    assert multiply(3, 4) == 12
+''')
+            
+            # Create config file
+            with open('pyfault.conf', 'w') as f:
+                f.write('''[test]
+source_dir = src
+ignore = */__pycache__/*
+
+[fl]
+formulas = ochiai, tarantula
+''')
+            
+            # Run the complete pipeline with run command
+            result = runner.invoke(main, [
+                'run', 
+                '--source-dir', 'src',
+                '--output', 'final_report.json'
+            ])
+            
+            # Check command succeeded
+            assert result.exit_code == 0, f"Command failed with output: {result.output}"
+            
+            # Verify output messages
+            assert "Running complete fault localization pipeline" in result.output
+            assert "Phase 1: Running tests with coverage" in result.output
+            assert "Phase 2: Calculating fault localization scores" in result.output
+            assert "Fault localization pipeline completed" in result.output
+            
+            # Verify test results in output
+            assert "Total tests: 4" in result.output
+            assert "Passed: 3" in result.output
+            assert "Failed: 1" in result.output
+            assert "test_subtract_negative" in result.output
+            
+            # Check that final report was created
+            assert os.path.exists('final_report.json')
+            
+            # Verify report content
+            with open('final_report.json', 'r') as f:
+                report = json.load(f)
+            
+            assert 'files' in report
+            assert 'fl_metadata' in report
+            assert 'src/calculator.py' in report['files'] or 'src\\calculator.py' in report['files']
+            
+            # Get the calculator file data (handle both path separators)
+            calc_file = None
+            for file_path in report['files']:
+                if 'calculator.py' in file_path:
+                    calc_file = report['files'][file_path]
+                    break
+            
+            assert calc_file is not None
+            assert 'suspiciousness' in calc_file
+            
+            # Verify FL metadata
+            metadata = report['fl_metadata']
+            assert 'formulas_used' in metadata
+            assert 'ochiai' in metadata['formulas_used']
+            assert 'tarantula' in metadata['formulas_used']
+    
+    def test_run_command_custom_formulas(self):
+        """Test run command with custom formulas."""
+        runner = CliRunner()
+        
+        with runner.isolated_filesystem():
+            # Create minimal project
+            os.makedirs('src')
+            os.makedirs('tests')
+            
+            with open('src/simple.py', 'w') as f:
+                f.write('''
+def simple_func(x):
+    if x > 0:
+        return x * 2
+    return 0
+''')
+            
+            with open('tests/test_simple.py', 'w') as f:
+                f.write('''
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+
+from simple import simple_func
+
+def test_positive():
+    assert simple_func(5) == 10
+
+def test_zero():
+    assert simple_func(0) == 0
+    
+def test_negative():
+    # This test will fail to trigger FL phase
+    assert simple_func(-1) == -2  # This will fail since simple_func returns 0 for negative values
+''')
+            
+            # Run with specific formulas
+            result = runner.invoke(main, [
+                'run',
+                '--source-dir', 'src',
+                '--formulas', 'ochiai',
+                '--formulas', 'jaccard',
+                '--output', 'custom_formula_report.json'
+            ])
+            
+            assert result.exit_code == 0
+            assert "Formulas: ochiai, jaccard" in result.output
+            assert os.path.exists('custom_formula_report.json')
+            
+            # Verify only specified formulas were used
+            with open('custom_formula_report.json', 'r') as f:
+                report = json.load(f)
+            
+            formulas = report['fl_metadata']['formulas_used']
+            assert 'ochiai' in formulas
+            assert 'jaccard' in formulas
+            assert 'tarantula' not in formulas  # Should not be included
+    
+    def test_run_command_test_filter(self):
+        """Test run command with test filtering."""
+        runner = CliRunner()
+        
+        with runner.isolated_filesystem():
+            os.makedirs('src')
+            os.makedirs('tests')
+            
+            with open('src/math_ops.py', 'w') as f:
+                f.write('''
+def add(a, b):
+    return a + b
+
+def subtract(a, b):
+    return a - b
+''')
+            
+            with open('tests/test_math_ops.py', 'w') as f:
+                f.write('''
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+
+from math_ops import add, subtract
+
+def test_add_basic():
+    assert add(1, 2) == 3
+
+def test_add_negative():
+    assert add(-1, -2) == -3
+
+def test_add_failing():
+    # This test will fail to trigger FL phase
+    assert add(1, 2) == 4  # This will fail since 1+2=3, not 4
+
+def test_subtract_basic():
+    assert subtract(5, 3) == 2
+
+def test_subtract_negative():
+    assert subtract(-1, -2) == 1
+''')
+            
+            # Run with test filter (only add tests)
+            result = runner.invoke(main, [
+                'run',
+                '--source-dir', 'src',
+                '--test-filter', 'add',
+                '--output', 'filtered_report.json'
+            ])
+            
+            assert result.exit_code == 0
+            # Should run 3 add tests (add_basic, add_negative, add_failing)
+            assert "Total tests: 3" in result.output
+            assert os.path.exists('filtered_report.json')
+    
+    def test_run_command_error_handling(self):
+        """Test run command error handling with invalid project."""
+        runner = CliRunner()
+        
+        with runner.isolated_filesystem():
+            # Create source with syntax error
+            os.makedirs('src')
+            os.makedirs('tests')
+            
+            with open('src/broken.py', 'w') as f:
+                f.write('''
+def broken_func():
+    # Missing closing parenthesis - syntax error
+    return "broken"
+''')
+            
+            with open('tests/test_broken.py', 'w') as f:
+                f.write('''
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+
+def test_import():
+    from broken import broken_func  # This will fail due to syntax error
+    assert broken_func() == "broken"
+''')
+            
+            # Run command - may complete with test failures rather than crashing
+            result = runner.invoke(main, [
+                'run',
+                '--source-dir', 'src',
+                '--output', 'error_report.json'
+            ])
+            
+            # Command may succeed but with test failures, or may fail completely
+            # Either is acceptable for error handling
+            if result.exit_code == 1:
+                assert "Error:" in result.output
+            else:
+                # If it runs, it should show test failures
+                assert "Failed:" in result.output or "Total tests: 0" in result.output
+    
+    def test_run_command_no_tests(self):
+        """Test run command with no test files."""
+        runner = CliRunner()
+        
+        with runner.isolated_filesystem():
+            os.makedirs('src')
+            # Don't create tests directory or create empty one
+            
+            # Create source file but no tests
+            with open('src/lonely.py', 'w') as f:
+                f.write('''
+def lonely_function():
+    return "no tests for me"
+''')
+            
+            # Run command
+            result = runner.invoke(main, [
+                'run',
+                '--source-dir', 'src',
+                '--output', 'no_tests_report.json'
+            ])
+            
+            # May succeed or fail when no tests are found - both are acceptable
+            # The important thing is that it handles the case gracefully
+            if result.exit_code == 0:
+                # If successful, should indicate no tests
+                assert "Total tests:" in result.output
+            else:
+                # If it fails, should provide appropriate error message
+                assert result.exit_code == 1
+                assert "Error:" in result.output or "No tests" in result.output

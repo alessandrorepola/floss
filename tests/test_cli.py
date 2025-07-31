@@ -414,3 +414,330 @@ omit = */__init__.py, */config_omit/*
                 assert result.exit_code == 0
                 assert "Source dir: cli_src" in result.output  # CLI override
                 assert "Output file: config.json" in result.output  # From config file
+
+
+class TestCLIRunCommand:
+    """Test cases for the 'pyfault run' command."""
+    
+    def setup_method(self):
+        """Setup test environment."""
+        self.runner = CliRunner()
+        self.temp_dir = Path(tempfile.mkdtemp())
+        
+        # Create test directory structure
+        self.source_dir = self.temp_dir / "src"
+        self.test_dir = self.temp_dir / "tests"
+        self.source_dir.mkdir()
+        self.test_dir.mkdir()
+        
+        # Create sample files
+        self.create_sample_files()
+    
+    def teardown_method(self):
+        """Cleanup."""
+        if self.temp_dir.exists():
+            shutil.rmtree(self.temp_dir)
+    
+    def create_sample_files(self):
+        """Create sample source and test files."""
+        # Sample source file
+        (self.source_dir / "calculator.py").write_text("""
+def add(a, b):
+    return a + b
+
+def subtract(a, b):
+    return a - b
+""")
+        
+        # Sample test file
+        (self.test_dir / "test_calculator.py").write_text("""
+import sys
+sys.path.insert(0, 'src')
+from calculator import add, subtract
+
+def test_add():
+    assert add(2, 3) == 5
+
+def test_subtract():
+    assert subtract(5, 3) == 2
+""")
+        
+        # Sample config file
+        (self.temp_dir / "pyfault.conf").write_text("""[test]
+source_dir = src
+output_file = coverage.json
+
+[fl]
+input_file = coverage.json
+output_file = report.json
+formulas = ochiai, tarantula
+""")
+    
+    def test_run_command_help(self):
+        """Test that run command help works."""
+        result = self.runner.invoke(main, ['run', '--help'])
+        assert result.exit_code == 0
+        assert "Run complete fault localization pipeline" in result.output
+        assert "--source-dir" in result.output
+        assert "--output" in result.output
+        assert "--formulas" in result.output
+    
+    @patch('src.pyfault.test.runner.TestRunner.run_tests')
+    @patch('src.pyfault.fl.engine.FLEngine.calculate_suspiciousness')
+    def test_run_command_basic(self, mock_calculate, mock_run_tests):
+        """Test basic run command execution with failed tests."""
+        # Mock the test runner with some failed tests to trigger FL
+        mock_result = TestResult(
+            coverage_data={"meta": {}, "files": {}, "tests": {"failed": ["test_fail"], "passed": ["test1"], "skipped": []}},
+            failed_tests=["test_fail"],
+            passed_tests=["test1"],
+            skipped_tests=[]
+        )
+        mock_run_tests.return_value = mock_result
+        
+        with self.runner.isolated_filesystem():
+            os.makedirs("src")
+            result = self.runner.invoke(main, ['run', '--source-dir', 'src'])
+            
+            assert result.exit_code == 0
+            assert "Running complete fault localization pipeline" in result.output
+            assert "Phase 1: Running tests with coverage" in result.output
+            assert "Phase 2: Calculating fault localization scores" in result.output
+            assert "Fault localization pipeline completed" in result.output
+            assert "Total tests: 2" in result.output
+            assert "Passed: 1" in result.output
+            assert "Failed: 1" in result.output
+            
+            # Verify both phases were called
+            mock_run_tests.assert_called_once()
+            mock_calculate.assert_called_once()
+    
+    @patch('src.pyfault.test.runner.TestRunner.run_tests')
+    @patch('src.pyfault.fl.engine.FLEngine.calculate_suspiciousness')
+    def test_run_command_with_failures(self, mock_calculate, mock_run_tests):
+        """Test run command with failed tests."""
+        mock_result = TestResult(
+            coverage_data={"meta": {}, "files": {}, "tests": {"failed": ["test_fail"], "passed": ["test_pass"], "skipped": []}},
+            failed_tests=["tests/test_calc.py::test_fail"],
+            passed_tests=["tests/test_calc.py::test_pass"],
+            skipped_tests=[]
+        )
+        mock_run_tests.return_value = mock_result
+        
+        with self.runner.isolated_filesystem():
+            os.makedirs("src")
+            result = self.runner.invoke(main, ['run', '--source-dir', 'src'])
+            
+            assert result.exit_code == 0
+            assert "Failed: 1" in result.output
+            assert "Failed tests: tests/test_calc.py::test_fail" in result.output
+    
+    @patch('src.pyfault.test.runner.TestRunner.run_tests')
+    @patch('src.pyfault.fl.engine.FLEngine.calculate_suspiciousness')
+    def test_run_command_custom_output(self, mock_calculate, mock_run_tests):
+        """Test run command with custom output file."""
+        mock_result = TestResult(
+            coverage_data={"tests": {"failed": ["test_fail"], "passed": [], "skipped": []}},
+            failed_tests=["test_fail"],
+            passed_tests=[],
+            skipped_tests=[]
+        )
+        mock_run_tests.return_value = mock_result
+        
+        with self.runner.isolated_filesystem():
+            os.makedirs("src")
+            result = self.runner.invoke(main, ['run', '--source-dir', 'src', '--output', 'custom_report.json'])
+            
+            assert result.exit_code == 0
+            assert "Final output: custom_report.json" in result.output
+            assert "Report saved to: custom_report.json" in result.output
+    
+    @patch('src.pyfault.test.runner.TestRunner.run_tests')
+    @patch('src.pyfault.fl.engine.FLEngine.calculate_suspiciousness')
+    def test_run_command_custom_formulas(self, mock_calculate, mock_run_tests):
+        """Test run command with custom formulas."""
+        mock_result = TestResult(
+            coverage_data={"tests": {"failed": [], "passed": [], "skipped": []}},
+            failed_tests=[],
+            passed_tests=[],
+            skipped_tests=[]
+        )
+        mock_run_tests.return_value = mock_result
+        
+        with self.runner.isolated_filesystem():
+            os.makedirs("src")
+            result = self.runner.invoke(main, [
+                'run', '--source-dir', 'src', 
+                '--formulas', 'ochiai', '--formulas', 'tarantula'
+            ])
+            
+            assert result.exit_code == 0
+            assert "Formulas: ochiai, tarantula" in result.output
+    
+    @patch('src.pyfault.test.runner.TestRunner.run_tests')
+    @patch('src.pyfault.fl.engine.FLEngine.calculate_suspiciousness')
+    def test_run_command_with_test_filter(self, mock_calculate, mock_run_tests):
+        """Test run command with test filter."""
+        mock_result = TestResult(
+            coverage_data={"tests": {"failed": [], "passed": ["test_add"], "skipped": []}},
+            failed_tests=[],
+            passed_tests=["test_add"],
+            skipped_tests=[]
+        )
+        mock_run_tests.return_value = mock_result
+        
+        with self.runner.isolated_filesystem():
+            os.makedirs("src")
+            result = self.runner.invoke(main, [
+                'run', '--source-dir', 'src', 
+                '--test-filter', 'add'
+            ])
+            
+            assert result.exit_code == 0
+            # Verify the test filter was passed through
+            mock_run_tests.assert_called_once_with('add')
+    
+    @patch('src.pyfault.test.runner.TestRunner.run_tests')
+    @patch('src.pyfault.fl.engine.FLEngine.calculate_suspiciousness')
+    def test_run_command_ignore_and_omit_patterns(self, mock_calculate, mock_run_tests):
+        """Test run command with ignore and omit patterns."""
+        mock_result = TestResult(
+            coverage_data={"tests": {"failed": [], "passed": [], "skipped": []}},
+            failed_tests=[],
+            passed_tests=[],
+            skipped_tests=[]
+        )
+        mock_run_tests.return_value = mock_result
+        
+        with self.runner.isolated_filesystem():
+            os.makedirs("src")
+            result = self.runner.invoke(main, [
+                'run', '--source-dir', 'src',
+                '--ignore', '*/temp/*',
+                '--omit', '*/build/*'
+            ])
+            
+            assert result.exit_code == 0
+            # Verify patterns were added to configuration
+            mock_run_tests.assert_called_once()
+    
+    @patch('src.pyfault.test.runner.TestRunner.run_tests')
+    @patch('src.pyfault.fl.engine.FLEngine.calculate_suspiciousness')
+    @patch('os.remove')
+    def test_run_command_intermediate_file_cleanup(self, mock_remove, mock_calculate, mock_run_tests):
+        """Test that intermediate files are cleaned up."""
+        mock_result = TestResult(
+            coverage_data={"tests": {"failed": [], "passed": [], "skipped": []}},
+            failed_tests=[],
+            passed_tests=[],
+            skipped_tests=[]
+        )
+        mock_run_tests.return_value = mock_result
+        
+        with self.runner.isolated_filesystem():
+            os.makedirs("src")
+            
+            # Mock os.path.exists to return True for intermediate file
+            with patch('os.path.exists', return_value=True):
+                result = self.runner.invoke(main, [
+                    'run', '--source-dir', 'src', 
+                    '--output', 'final_report.json'
+                ])
+            
+            assert result.exit_code == 0
+            # Verify intermediate file was cleaned up
+            mock_remove.assert_called_once_with('final_report_coverage.json')
+    
+    @patch('src.pyfault.test.runner.TestRunner.run_tests')
+    def test_run_command_test_phase_error(self, mock_run_tests):
+        """Test run command handles test phase errors gracefully."""
+        mock_run_tests.side_effect = Exception("Test execution failed")
+        
+        with self.runner.isolated_filesystem():
+            os.makedirs("src")
+            result = self.runner.invoke(main, ['run', '--source-dir', 'src'])
+            
+            assert result.exit_code == 1
+            assert "Error: Test execution failed" in result.output
+    
+    @patch('src.pyfault.test.runner.TestRunner.run_tests')
+    @patch('src.pyfault.fl.engine.FLEngine.calculate_suspiciousness')
+    def test_run_command_fl_phase_error(self, mock_calculate, mock_run_tests):
+        """Test run command handles FL phase errors gracefully."""
+        mock_result = TestResult(
+            coverage_data={"tests": {"failed": ["test_fail"], "passed": [], "skipped": []}},
+            failed_tests=["test_fail"],
+            passed_tests=[],
+            skipped_tests=[]
+        )
+        mock_run_tests.return_value = mock_result
+        mock_calculate.side_effect = Exception("FL calculation failed")
+        
+        with self.runner.isolated_filesystem():
+            os.makedirs("src")
+            result = self.runner.invoke(main, ['run', '--source-dir', 'src'])
+            
+            assert result.exit_code == 1
+            assert "Error: FL calculation failed" in result.output
+    
+    @patch('src.pyfault.test.runner.TestRunner.run_tests')
+    @patch('src.pyfault.fl.engine.FLEngine.calculate_suspiciousness')
+    def test_run_command_config_file_integration(self, mock_calculate, mock_run_tests):
+        """Test run command loads and merges configurations correctly."""
+        mock_result = TestResult(
+            coverage_data={"tests": {"failed": [], "passed": [], "skipped": []}},
+            failed_tests=[],
+            passed_tests=[],
+            skipped_tests=[]
+        )
+        mock_run_tests.return_value = mock_result
+        
+        with self.runner.isolated_filesystem():
+            os.makedirs("src")
+            os.makedirs("custom_tests")
+            
+            # Create config file
+            with open('custom.conf', 'w') as f:
+                f.write("""[test]
+source_dir = config_src
+test_dir = config_tests
+ignore = */config_ignore/*
+
+[fl]
+formulas = ochiai, jaccard
+""")
+            
+            result = self.runner.invoke(main, [
+                'run', 
+                '--config', 'custom.conf',
+                '--source-dir', 'src',  # Override config
+                '--formulas', 'tarantula'  # Override config
+            ])
+            
+            assert result.exit_code == 0
+            assert "Source dir: src" in result.output  # CLI override
+            assert "Formulas: tarantula" in result.output  # CLI override
+    
+    @patch('src.pyfault.test.runner.TestRunner.run_tests')
+    @patch('src.pyfault.fl.engine.FLEngine.calculate_suspiciousness')
+    def test_run_command_skips_fl_when_all_tests_pass(self, mock_calculate, mock_run_tests):
+        """Test that FL is skipped when all tests pass."""
+        mock_result = TestResult(
+            coverage_data={"tests": {"failed": [], "passed": ["test1", "test2"], "skipped": []}},
+            failed_tests=[],  # No failed tests
+            passed_tests=["test1", "test2"],
+            skipped_tests=[]
+        )
+        mock_run_tests.return_value = mock_result
+        
+        with self.runner.isolated_filesystem():
+            os.makedirs("src")
+            result = self.runner.invoke(main, ['run', '--source-dir', 'src'])
+            
+            assert result.exit_code == 0
+            assert "All tests passed - fault localization not needed" in result.output
+            assert "Pipeline completed successfully" in result.output
+            
+            # Verify FL was NOT called
+            mock_run_tests.assert_called_once()
+            mock_calculate.assert_not_called()
