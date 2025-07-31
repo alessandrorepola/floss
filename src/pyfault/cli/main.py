@@ -15,6 +15,8 @@ from rich.logging import RichHandler
 
 from ..test.runner import TestRunner
 from ..test.config import TestConfig
+from ..fl.engine import FLEngine
+from ..fl.config import FLConfig
 
 console = Console()
 
@@ -118,6 +120,54 @@ def test(ctx: click.Context, source_dir: str, test_dir: Optional[str],
                 console.print(f"  - {test}")
         
         console.print(f"\n[bold green]Coverage data saved to:[/bold green] {test_config.output_file}")
+        
+    except Exception as e:
+        console.print(f"[bold red]Error:[/bold red] {e}")
+        if ctx.obj.get('verbose'):
+            console.print_exception()
+        sys.exit(1)
+
+
+@main.command()
+@click.option('--input', '-i', default='coverage.json',
+              help='Input coverage file (default: coverage.json)')
+@click.option('--output', '-o', default='report.json',
+              help='Output report file (default: report.json)')
+@click.option('--formulas', '-f', multiple=True,
+              help='SBFL formulas to use (default: all available)')
+@click.option('--config', '-c', default='pyfault.conf',
+              help='Configuration file (default: pyfault.conf)')
+@click.pass_context
+def fl(ctx: click.Context, input: str, output: str, formulas: List[str], config: str) -> None:
+    """
+    Calculate fault localization suspiciousness scores.
+    
+    Takes a coverage.json file as input and produces a report.json file
+    with suspiciousness scores calculated using SBFL formulas.
+    """
+    try:
+        # Load configuration
+        fl_config = FLConfig.from_file(config)
+        
+        # Override with command line arguments
+        if input != 'coverage.json':
+            fl_config.input_file = input
+        if output != 'report.json':
+            fl_config.output_file = output
+        if formulas:
+            fl_config.formulas = list(formulas)
+        
+        console.print("[bold green]Calculating fault localization scores...[/bold green]")
+        console.print(f"Input file: [cyan]{fl_config.input_file}[/cyan]")
+        console.print(f"Output file: [cyan]{fl_config.output_file}[/cyan]")
+        console.print(f"Formulas: [cyan]{', '.join(fl_config.formulas or [])}[/cyan]")
+        
+        # Create FL engine and calculate
+        engine = FLEngine(fl_config)
+        engine.calculate_suspiciousness(fl_config.input_file, fl_config.output_file)
+        
+        console.print(f"\n[bold green]✓[/bold green] Fault localization completed!")
+        console.print(f"Report saved to: [cyan]{fl_config.output_file}[/cyan]")
         
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {e}")
