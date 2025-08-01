@@ -255,7 +255,8 @@ def show_file_with_highlighting(file_data: Dict, file_path: str, formula: str):
         leading_spaces = len(line_content) - len(line_content.lstrip(' '))
         leading_tabs = len(line_content) - len(line_content.lstrip('\t'))
         indent = '&nbsp;' * leading_spaces + ('&nbsp;&nbsp;&nbsp;&nbsp;' * leading_tabs)
-        code_html = f"{indent}{safe_content.lstrip(' \t')}"
+        stripped_content = safe_content.lstrip(' \t')
+        code_html = f"{indent}{stripped_content}"
         if line_str in suspiciousness:
             score = suspiciousness[line_str].get(formula, 0)
             # Color intensity based on suspiciousness
