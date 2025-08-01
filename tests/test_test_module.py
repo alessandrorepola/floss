@@ -247,9 +247,17 @@ def test_subtract_normal():
         """Test conversion from JUnit format to pytest format."""
         runner = TestRunner(self.config)
         
-        # Test normal test case
+        # Test normal test case (function-based)
         result = runner._convert_to_pytest_format("tests.test_calculator", "test_add_positive")
         assert result == "tests/test_calculator.py::test_add_positive"
+        
+        # Test class-based test case
+        result = runner._convert_to_pytest_format("tests.test_calculator.TestCalculator", "test_add_positive")
+        assert result == "tests/test_calculator.py::TestCalculator::test_add_positive"
+        
+        # Test nested class-based test case
+        result = runner._convert_to_pytest_format("tests.test_math.TestAdvanced", "test_complex_operations")
+        assert result == "tests/test_math.py::TestAdvanced::test_complex_operations"
         
         # Test ruff case
         result = runner._convert_to_pytest_format("tests.test_calculator.ruff", "format")
@@ -351,14 +359,15 @@ def test_subtract_normal():
         # Create sample JUnit XML
         xml_content = """<?xml version="1.0" encoding="utf-8"?>
 <testsuites name="pytest tests">
-    <testsuite name="pytest" errors="0" failures="1" skipped="1" tests="3">
+    <testsuite name="pytest" errors="0" failures="1" skipped="1" tests="4">
         <testcase classname="tests.test_calculator" name="test_add_positive" time="0.001"/>
-        <testcase classname="tests.test_calculator" name="test_add_negative" time="0.002">
+        <testcase classname="tests.test_calculator.TestCalculator" name="test_add_negative" time="0.002">
             <failure message="assert False">Failure message</failure>
         </testcase>
-        <testcase classname="tests.test_calculator" name="test_skip_this" time="0.000">
+        <testcase classname="tests.test_calculator.TestCalculator" name="test_skip_this" time="0.000">
             <skipped message="skipped">Skip message</skipped>
         </testcase>
+        <testcase classname="tests.test_calculator.TestAdvanced" name="test_complex_math" time="0.003"/>
     </testsuite>
 </testsuites>"""
         
@@ -367,14 +376,15 @@ def test_subtract_normal():
         
         outcomes = runner._parse_junit_xml(str(xml_file))
         
-        assert len(outcomes["passed"]) == 1
+        assert len(outcomes["passed"]) == 2
         assert "tests/test_calculator.py::test_add_positive" in outcomes["passed"]
+        assert "tests/test_calculator.py::TestAdvanced::test_complex_math" in outcomes["passed"]
         
         assert len(outcomes["failed"]) == 1
-        assert "tests/test_calculator.py::test_add_negative" in outcomes["failed"]
+        assert "tests/test_calculator.py::TestCalculator::test_add_negative" in outcomes["failed"]
         
         assert len(outcomes["skipped"]) == 1
-        assert "tests/test_calculator.py::test_skip_this" in outcomes["skipped"]
+        assert "tests/test_calculator.py::TestCalculator::test_skip_this" in outcomes["skipped"]
 
 
 class TestTestResult:

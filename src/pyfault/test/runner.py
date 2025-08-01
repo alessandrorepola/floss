@@ -152,7 +152,7 @@ class TestRunner:
     def _convert_to_pytest_format(self, classname: str, name: str) -> str:
         """Convert JUnit format to pytest context format."""
         # JUnit classname is like "tests.test_file" or "tests.test_file.ClassName"
-        # pytest context format is like "tests/test_file.py::test_function"
+        # pytest context format is like "tests/test_file.py::test_function" or "tests/test_file.py::ClassName::test_method"
         
         # Handle ruff and other non-test cases
         if name in ["ruff", "format"] or "ruff" in classname:
@@ -161,9 +161,16 @@ class TestRunner:
         # Convert dots to slashes and add .py extension
         parts = classname.split('.')
         if len(parts) >= 2:
-            # Assume first part is directory, second is file
-            file_path = '/'.join(parts[:-1]) + '/' + parts[-1] + '.py'
-            return f"{file_path}::{name}"
+            # Check if last part is likely a class name (starts with uppercase)
+            if len(parts) >= 3 and parts[-1][0].isupper():
+                # Format: tests.test_file.ClassName -> tests/test_file.py::ClassName::test_method
+                file_path = '/'.join(parts[:-2]) + '/' + parts[-2] + '.py'
+                class_name = parts[-1]
+                return f"{file_path}::{class_name}::{name}"
+            else:
+                # Format: tests.test_file -> tests/test_file.py::test_function
+                file_path = '/'.join(parts[:-1]) + '/' + parts[-1] + '.py'
+                return f"{file_path}::{name}"
         else:
             # Fallback format
             return f"{classname}::{name}"
