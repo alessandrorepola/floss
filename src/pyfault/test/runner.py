@@ -54,6 +54,15 @@ class TestRunner:
             coverage_data = self._load_coverage_data()
             test_outcomes = self._parse_junit_xml(xml_path)
             
+            # Remove redundant contexts from functions and classes
+            coverage_data = self._remove_redundant_contexts(coverage_data)
+            
+            # Add PyFault metadata to the meta section
+            coverage_data = self._add_pyfault_metadata(coverage_data, test_outcomes)
+            
+            # Add summary info in the totals section and reorganize JSON structure
+            coverage_data = self._add_test_summary_info(coverage_data, test_outcomes)
+            
             # Merge test outcomes into coverage data
             coverage_data = self._merge_test_outcomes(coverage_data, test_outcomes)
 
@@ -185,3 +194,108 @@ class TestRunner:
         }
         
         return coverage_data
+    
+    def _remove_redundant_contexts(self, coverage_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Remove redundant context information from functions and classes.
+        
+        Problem: When pytest-cov is used with dynamic contexts enabled (--cov-context=test),
+        the generated JSON report (format:3, version: 7.9.2) contains the same context information at three levels:
+        1. File level: files[filename].contexts
+        2. Function level: files[filename].functions[function_name].contexts  
+        3. Class level: files[filename].classes[class_name].contexts
+        
+        The contexts at function and class levels are identical to the file level contexts,
+        making them completely redundant. This duplication significantly increases file size
+        (observed ~97% reduction after cleanup: from 239970254 to 7927854 bytes in the test case) and processing overhead without adding value.
+        
+        Solution: This function removes the redundant 'contexts' sections from all functions
+        and classes while preserving the file-level contexts, which contain all the necessary
+        information for fault localization analysis. The file-level contexts provide complete
+        mapping of which tests executed each line, which is sufficient for SBFL calculations.
+        
+        Args:
+            coverage_data: The coverage data dictionary from pytest-cov JSON output
+            
+        Returns:
+            Coverage data with redundant contexts removed from functions and classes
+        """
+        if "files" not in coverage_data:
+            return coverage_data
+        
+        for _, file_data in coverage_data["files"].items():
+            # Remove contexts from functions
+            if "functions" in file_data:
+                for _, func_data in file_data["functions"].items():
+                    if "contexts" in func_data:
+                        del func_data["contexts"]
+            
+            # Remove contexts from classes
+            if "classes" in file_data:
+                for _, class_data in file_data["classes"].items():
+                    if "contexts" in class_data:
+                        del class_data["contexts"]
+        
+        return coverage_data
+    
+    def _add_pyfault_metadata(self, coverage_data: Dict[str, Any], test_outcomes: Dict[str, List[str]]) -> Dict[str, Any]:
+        """Add PyFault-specific metadata to the coverage data meta section.
+        
+        Enhances the original pytest-cov meta section with PyFault information
+        including version and processing flags. Statistics are moved to totals section.
+        """
+        if "meta" not in coverage_data:
+            coverage_data["meta"] = {}
+        
+        # Add PyFault-specific metadata (without statistics - they go to totals)
+        pyfault_meta = {
+            "pyfault_version": "0.1.0",
+            "tool": "PyFault",
+            "phase": "test_execution",
+            "source_dir": self.config.source_dir,
+            "test_dir": self.config.test_dir
+        }
+        
+        # Merge with existing meta, preserving original pytest-cov information
+        coverage_data["meta"].update(pyfault_meta)
+        
+        return coverage_data
+    
+    def _add_test_summary_info(self, coverage_data: Dict[str, Any], test_outcomes: Dict[str, List[str]]) -> Dict[str, Any]:
+        """Enhance totals section with PyFault statistics and reorganize JSON structure.
+        
+        Moves test statistics to totals section and reorganizes JSON so totals
+        appears right after meta section.
+        """
+        # Enhance existing totals section with PyFault statistics
+        if "totals" not in coverage_data:
+            coverage_data["totals"] = {}
+        
+        # Add test statistics to totals
+        coverage_data["totals"]["test_statistics"] = {
+            "total_tests": len(test_outcomes["passed"]) + len(test_outcomes["failed"]) + len(test_outcomes["skipped"]),
+            "passed_tests": len(test_outcomes["passed"]),
+            "failed_tests": len(test_outcomes["failed"]),
+            "skipped_tests": len(test_outcomes["skipped"])
+        }
+        
+        # Reorganize JSON structure: meta -> totals -> files -> tests -> fl_metadata
+        reorganized = {}
+        
+        # 1. Meta section first
+        if "meta" in coverage_data:
+            reorganized["meta"] = coverage_data["meta"]
+        
+        # 2. Totals section second
+        if "totals" in coverage_data:
+            reorganized["totals"] = coverage_data["totals"]
+        
+        # 3. Files section third
+        if "files" in coverage_data:
+            reorganized["files"] = coverage_data["files"]
+        
+        # 4. Add any other sections that might exist
+        for key, value in coverage_data.items():
+            if key not in ["meta", "totals", "files"]:
+                reorganized[key] = value
+        
+        return reorganized

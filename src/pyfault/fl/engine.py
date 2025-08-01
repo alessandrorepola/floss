@@ -69,12 +69,79 @@ class FLEngine:
                 if line_key in suspiciousness_scores:
                     file_data["suspiciousness"][line_num] = suspiciousness_scores[line_key]
         
-        # Add metadata about FL calculation
-        report["fl_metadata"] = {
-            "formulas_used": list(self.formulas.keys()),
-            "total_lines_analyzed": len(suspiciousness_scores)
-        }
+        # Enhance meta section with PyFault FL information
+        self._add_pyfault_fl_metadata(report, coverage_data)
+        
+        # Add fl summary in the totals section and reorganize JSON structure
+        self._add_fl_summary_info_and_reorganize(report, coverage_data)
         
         # Save report
         with open(output_file, 'w') as f:
             json.dump(report, f, indent=2)
+    
+    def _add_pyfault_fl_metadata(self, report: dict, coverage_data: CoverageData) -> None:
+        """Add PyFault-specific metadata to the FL report meta section.
+        
+        Enhances the meta section with fault localization specific information
+        including phase update. Statistics are moved to totals section.
+        """
+        if "meta" not in report:
+            report["meta"] = {}
+
+        failed_tests = [test for test, passed in coverage_data.test_outcomes.items() if not passed]
+        
+        # Add PyFault FL-specific metadata (without statistics - they go to totals)
+        fl_meta = {
+            "phase": "fault_localization",
+            "fl_ready": len(failed_tests) > 0
+        }
+        
+        # Update existing meta while preserving test execution info
+        report["meta"].update(fl_meta)
+    
+    def _add_fl_summary_info_and_reorganize(self, report: dict, coverage_data: CoverageData) -> None:
+        """Enhance totals section with FL statistics and reorganize JSON structure.
+        
+        Moves SBFL formulas and analysis statistics to totals section and reorganizes
+        JSON so totals appears right after meta section.
+        """
+        if "totals" not in report:
+            report["totals"] = {}
+        
+        # Get test statistics from coverage data
+        failed_tests = [test for test, passed in coverage_data.test_outcomes.items() if not passed]
+        passed_tests = [test for test, passed in coverage_data.test_outcomes.items() if passed]
+        
+        # Add FL-specific information to totals
+        report["totals"]["sbfl_formulas"] = list(self.formulas.keys())
+        report["totals"]["analysis_statistics"] = {
+            "total_failed_tests": len(failed_tests),
+            "total_passed_tests": len(passed_tests),
+            "total_lines_with_scores": len([line for file_data in report.get("files", {}).values() 
+                                          for line in file_data.get("suspiciousness", {})]),
+            "files_analyzed": len(report.get("files", {}))
+        }
+        
+        # Reorganize JSON structure: meta -> totals -> files -> tests -> fl_metadata
+        reorganized = {}
+        
+        # 1. Meta section first
+        if "meta" in report:
+            reorganized["meta"] = report["meta"]
+        
+        # 2. Totals section second
+        if "totals" in report:
+            reorganized["totals"] = report["totals"]
+        
+        # 3. Files section third
+        if "files" in report:
+            reorganized["files"] = report["files"]
+        
+        # 4. Add any other sections in order
+        for key, value in report.items():
+            if key not in ["meta", "totals", "files"]:
+                reorganized[key] = value
+        
+        # Update the report with reorganized structure
+        report.clear()
+        report.update(reorganized)
