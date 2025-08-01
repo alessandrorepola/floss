@@ -73,7 +73,7 @@ def main():
     data = st.session_state.data
     
     # Formula selection
-    formulas = data.get('fl_metadata', {}).get('formulas_used', [])
+    formulas = data.get('totals', {}).get('sbfl_formulas', [])
     if not formulas:
         st.error("No formulas found in report")
         return
@@ -81,8 +81,8 @@ def main():
     selected_formula = st.selectbox("SBFL Formula", formulas)
     
     # Main dashboard tabs
-    tab1, tab2, tab3, tab4 = st.tabs([
-        "Overview", "Source Code", "Coverage Matrix", "Sunburst"
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "Overview", "Source Code", "Coverage Matrix", "Treemap", "Sunburst"
     ])
     
     with tab1:
@@ -95,6 +95,9 @@ def main():
         show_coverage_matrix(data)
     
     with tab4:
+        show_treemap_tab(data, selected_formula)
+    
+    with tab5:
         show_sunburst(data, selected_formula)
 
 
@@ -113,67 +116,279 @@ def show_overview(data: Dict[str, Any], formula: str):
     
     with col1:
         st.subheader("Suspiciousness Treemap")
-        show_treemap(susp_data)
+        show_treemap(data, formula)
     
     with col2:
         st.subheader("Top Suspicious Lines")
         show_ranking_table(susp_data[:20])  # Top 20
 
 
-def show_treemap(susp_data: List[Dict]):
-    """Create treemap visualization."""
-    if not susp_data:
+def build_hierarchical_data(data: Dict[str, Any], formula: str, min_score: float = 0.0) -> Dict[str, List]:
+    """Build hierarchical data structure for treemap and sunburst visualizations."""
+    files_data = data.get('files', {})
+    
+    labels = []
+    parents = []
+    values = []
+    colors = []
+    
+    # Root node
+    labels.append("Project")
+    parents.append("")
+    values.append(1)
+    colors.append(0.0)
+    
+    # Simplified approach: Project -> Files -> Classes/Functions
+    # Use labels as references for parent-child relationships
+    
+    for file_path, file_data in files_data.items():
+        # Skip files without significant suspiciousness data
+        file_suspiciousness = file_data.get('suspiciousness', {})
+        if not file_suspiciousness:
+            continue
+            
+        # Check if file has any scores above threshold
+        file_scores = []
+        for line_scores in file_suspiciousness.values():
+            if formula in line_scores and line_scores[formula] >= min_score:
+                file_scores.append(line_scores[formula])
+        
+        if not file_scores:
+            continue  # Skip files with no significant scores
+        
+        # Get just the filename for display (ensure it's unique)
+        file_name = Path(file_path).name
+        
+        # Make file name unique if necessary
+        counter = 1
+        original_file_name = file_name
+        while file_name in labels:
+            file_name = f"{original_file_name} ({counter})"
+            counter += 1
+        
+        # Add file
+        avg_file_score = sum(file_scores) / len(file_scores)
+        file_lines_count = len(file_scores)
+        
+        labels.append(file_name)
+        parents.append("Project")  # All files directly under project
+        values.append(max(file_lines_count, 1))
+        colors.append(avg_file_score)
+        
+        # Add classes and functions within the file (only if they have significant scores)
+        classes_data = file_data.get('classes', {})
+        functions_data = file_data.get('functions', {})
+        
+        # Process classes
+        for class_name, class_info in classes_data.items():
+            if class_name == "" or len(class_name) == 0:
+                continue  # Skip global code
+            
+            # Get class suspiciousness from executed lines
+            executed_lines = class_info.get('executed_lines', [])
+            class_scores = []
+            for line_num in executed_lines:
+                line_str = str(line_num)
+                if line_str in file_suspiciousness:
+                    line_score = file_suspiciousness[line_str].get(formula, 0.0)
+                    if line_score >= min_score:
+                        class_scores.append(line_score)
+            
+            if not class_scores:
+                continue  # Skip classes with no significant scores
+            
+            avg_class_score = sum(class_scores) / len(class_scores)
+            class_lines_count = len(class_scores)
+            
+            # Make class label unique
+            class_label = f"class {class_name}"
+            counter = 1
+            original_class_label = class_label
+            while class_label in labels:
+                class_label = f"{original_class_label} ({counter})"
+                counter += 1
+            
+            labels.append(class_label)
+            parents.append(file_name)  # Class parent is the file
+            values.append(max(class_lines_count, 1))
+            colors.append(avg_class_score)
+            
+            # Add methods for this class (only with significant scores)
+            for func_name, func_info in functions_data.items():
+                if func_name.startswith(f"{class_name}."):
+                    method_name = func_name.split('.')[-1]
+                    
+                    method_executed_lines = func_info.get('executed_lines', [])
+                    method_scores = []
+                    for line_num in method_executed_lines:
+                        line_str = str(line_num)
+                        if line_str in file_suspiciousness:
+                            line_score = file_suspiciousness[line_str].get(formula, 0.0)
+                            if line_score >= min_score:
+                                method_scores.append(line_score)
+                    
+                    if not method_scores:
+                        continue  # Skip methods with no significant scores
+                    
+                    avg_method_score = sum(method_scores) / len(method_scores)
+                    method_lines_count = len(method_scores)
+                    
+                    # Make method label unique
+                    method_label = f"def {method_name}()"
+                    counter = 1
+                    original_method_label = method_label
+                    while method_label in labels:
+                        method_label = f"{original_method_label} ({counter})"
+                        counter += 1
+                    
+                    labels.append(method_label)
+                    parents.append(class_label)  # Method parent is the class
+                    values.append(max(method_lines_count, 1))
+                    colors.append(avg_method_score)
+        
+        # Process standalone functions (not methods, only with significant scores)
+        for func_name, func_info in functions_data.items():
+            if '.' in func_name or func_name == "" or len(func_name) == 0:
+                continue  # Skip methods and global code
+            
+            func_executed_lines = func_info.get('executed_lines', [])
+            func_scores = []
+            for line_num in func_executed_lines:
+                line_str = str(line_num)
+                if line_str in file_suspiciousness:
+                    line_score = file_suspiciousness[line_str].get(formula, 0.0)
+                    if line_score >= min_score:
+                        func_scores.append(line_score)
+            
+            if not func_scores:
+                continue  # Skip functions with no significant scores
+            
+            avg_func_score = sum(func_scores) / len(func_scores)
+            func_lines_count = len(func_scores)
+            
+            # Make function label unique
+            func_label = f"def {func_name}()"
+            counter = 1
+            original_func_label = func_label
+            while func_label in labels:
+                func_label = f"{original_func_label} ({counter})"
+                counter += 1
+            
+            labels.append(func_label)
+            parents.append(file_name)  # Function parent is the file
+            values.append(max(func_lines_count, 1))
+            colors.append(avg_func_score)
+    
+    return {
+        'labels': labels,
+        'parents': parents,
+        'values': values,
+        'colors': colors
+    }
+
+
+def show_treemap_tab(data: Dict[str, Any], formula: str):
+    """Show dedicated treemap tab with detailed hierarchical view."""
+    st.header("Hierarchical Treemap")
+    
+    # Add threshold control
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        min_score = st.slider(
+            "Minimum Suspiciousness Score",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.0,
+            step=0.05,
+            help="Filter out elements with suspiciousness score below this threshold"
+        )
+    
+    hierarchy_data = build_hierarchical_data(data, formula, min_score)
+    
+    if not hierarchy_data or len(hierarchy_data['labels']) <= 1:
+        st.warning(f"No hierarchical data available with minimum score {min_score:.2f}")
         return
     
-    # Prepare data for treemap
-    df_data = []
-    for item in susp_data:
-        file_name = Path(item['file']).name
-        df_data.append({
-            'file': file_name,
-            'line': item['line'],
-            'score': item['score'],
-            'label': f"{file_name}:{item['line']}",
-            'parent': file_name,
-            'size': max(item['score'], 0.01)  # Minimum size for visibility
-        })
-    
-    # Add file level entries
-    files = set(item['file'] for item in df_data)
-    for file_path in files:
-        file_name = Path(file_path).name
-        file_items = [item for item in df_data if item['file'] == file_name]
-        avg_score = np.mean([item['score'] for item in file_items])
-        df_data.append({
-            'file': file_name,
-            'line': None,
-            'score': avg_score,
-            'label': file_name,
-            'parent': '',
-            'size': sum(item['size'] for item in file_items)
-        })
-    
-    df = pd.DataFrame(df_data)
-    
-    # Create treemap with colors based on scores
+    # Create treemap with hierarchical structure
     fig = go.Figure(go.Treemap(
-        labels=df['label'],
-        parents=df['parent'],
-        values=df['size'],
+        labels=hierarchy_data['labels'],
+        parents=hierarchy_data['parents'],
+        values=hierarchy_data['values'],
         textinfo="label+value",
         marker=dict(
-            colors=df['score'],
-            colorscale='Reds',
-            colorbar=dict(title="Suspiciousness"),
-            line=dict(width=2),
+            colors=hierarchy_data['colors'],
+            colorscale='RdYlBu_r',
+            colorbar=dict(title="Suspiciousness Score"),
+            line=dict(width=1),
             cmid=0.5
         ),
-        hovertemplate="<b>%{label}</b><br>Score: %{color:.3f}<extra></extra>"
+        hovertemplate="<b>%{label}</b><br>Score: %{color:.3f}<br>Lines: %{value}<extra></extra>",
+        maxdepth=5  # Allow deeper nesting in dedicated view
     ))
     
     fig.update_layout(
-        height=500,
-        margin=dict(t=0, l=0, r=0, b=0)
+        height=700,
+        title=f"Project Structure - Hierarchical Treemap ({formula.title()})",
+        margin=dict(t=50, l=0, r=0, b=0)
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Add statistics
+    with col2:
+        st.markdown(f"""
+        **Statistics:**
+        - Total elements shown: {len(hierarchy_data['labels']) - 1}
+        - Average suspiciousness: {np.mean(hierarchy_data['colors']):.3f}
+        - Max suspiciousness: {max(hierarchy_data['colors']):.3f}
+        """)
+    
+    # Add explanation
+    st.markdown("""
+    **Hierarchical Structure:**
+    - **Packages/Directories**: Top-level containers organizing related files
+    - **Python Files (.py)**: Individual source code files
+    - **Classes**: Object-oriented code structures within files
+    - **Functions/Methods**: Individual code functions and class methods
+    
+    **Visualization:**
+    - **Size**: Proportional to number of lines with coverage data
+    - **Color**: Suspiciousness score (blue = low, red = high)
+    - **Nesting**: Shows the containment relationship (package → file → class → method)
+    
+    **Interaction**: Click on any section to drill down into that part of the hierarchy.
+    """)
+
+
+def show_treemap(data: Dict[str, Any], formula: str):
+    """Create hierarchical treemap visualization based on Python project structure."""
+    hierarchy_data = build_hierarchical_data(data, formula, min_score=0.05)  # Small threshold for overview
+    
+    if not hierarchy_data or len(hierarchy_data['labels']) <= 1:
+        st.warning("No hierarchical data available")
+        return
+    
+    # Create treemap with hierarchical structure
+    fig = go.Figure(go.Treemap(
+        labels=hierarchy_data['labels'],
+        parents=hierarchy_data['parents'],
+        values=hierarchy_data['values'],
+        textinfo="label+value",
+        marker=dict(
+            colors=hierarchy_data['colors'],
+            colorscale='RdYlBu_r',
+            colorbar=dict(title="Suspiciousness Score"),
+            line=dict(width=1),
+            cmid=0.5
+        ),
+        hovertemplate="<b>%{label}</b><br>Score: %{color:.3f}<br>Lines: %{value}<extra></extra>",
+        maxdepth=4  # Package -> File -> Class -> Function/Method
+    ))
+    
+    fig.update_layout(
+        height=600,
+        title="Project Structure - Hierarchical View",
+        margin=dict(t=50, l=0, r=0, b=0)
     )
     
     st.plotly_chart(fig, use_container_width=True)
@@ -375,78 +590,93 @@ def show_coverage_matrix(data: Dict[str, Any]):
 
 
 def show_sunburst(data: Dict[str, Any], formula: str):
-    """Show sunburst visualization."""
+    """Show sunburst visualization with hierarchical Python project structure."""
     st.header("Sunburst View")
     
-    susp_data = extract_suspiciousness_data(data, formula)
+    # Add threshold control
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        min_score = st.slider(
+            "Min Suspiciousness Score",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.05,
+            step=0.05,
+            key="sunburst_threshold",
+            help="Filter out elements with suspiciousness score below this threshold"
+        )
     
-    if not susp_data:
-        st.warning("No suspiciousness data available")
+    hierarchy_data = build_hierarchical_data(data, formula, min_score)
+    
+    if not hierarchy_data or len(hierarchy_data['labels']) <= 1:
+        st.warning(f"No hierarchical data available with minimum score {min_score:.2f}")
+        st.info("Try lowering the minimum score threshold")
+        
+        # Show fallback with very low threshold
+        fallback_data = build_hierarchical_data(data, formula, 0.0)
+        if fallback_data and len(fallback_data['labels']) > 1:
+            st.info(f"Available elements with threshold 0.0: {len(fallback_data['labels'])}")
         return
     
-    # Create hierarchical sunburst with files and lines
+    # Fix small values that cause rendering issues
+    fixed_values = [max(v, 5) for v in hierarchy_data['values']]
+    
+    # Create hierarchical sunburst
     try:
-        # Group by files first for better hierarchy
-        files_dict = {}
-        for item in susp_data:
-            file_name = Path(item['file']).name
-            if file_name not in files_dict:
-                files_dict[file_name] = []
-            files_dict[file_name].append(item)
-        
-        labels = []
-        parents = []
-        values = []
-        colors = []
-        
-        # Root level
-        labels.append("Project")
-        parents.append("")
-        values.append(len(susp_data))
-        colors.append(np.mean([item['score'] for item in susp_data]))
-        
-        # File level
-        for file_name, items in files_dict.items():
-            labels.append(file_name)
-            parents.append("Project")
-            values.append(len(items))
-            colors.append(np.mean([item['score'] for item in items]))
-            
-            # Line level
-            for item in items:
-                line_label = f"Line {item['line']}"
-                labels.append(line_label)
-                parents.append(file_name)
-                values.append(1)
-                colors.append(item['score'])
-        
         fig = go.Figure(go.Sunburst(
-            labels=labels,
-            parents=parents,
-            values=values,
-            branchvalues="total",
+            labels=hierarchy_data['labels'],
+            parents=hierarchy_data['parents'],
+            values=fixed_values,
             marker=dict(
-                colors=colors,
-                colorscale='Reds',
-                colorbar=dict(title="Suspiciousness"),
-                line=dict(width=1)
+                colors=hierarchy_data['colors'],
+                colorscale='RdYlBu_r',
+                colorbar=dict(title="Suspiciousness Score"),
+                line=dict(width=2, color="white")
             ),
-            hovertemplate="<b>%{label}</b><br>Score: %{color:.3f}<extra></extra>",
-            maxdepth=3
+            hovertemplate="<b>%{label}</b><br>Score: %{color:.3f}<br>Size: %{value}<extra></extra>"
         ))
         
         fig.update_layout(
-            height=600,
+            height=700,
             title=f"Code Hierarchy - {formula.title()}",
-            font_size=11
+            font_size=11,
+            margin=dict(t=50, l=0, r=0, b=0)
         )
         
         st.plotly_chart(fig, use_container_width=True)
         
+        # Add statistics
+        with col2:
+            if hierarchy_data['colors']:
+                st.markdown(f"""
+                **Statistics:**
+                - Total elements shown: {len(hierarchy_data['labels']) - 1}
+                - Average suspiciousness: {np.mean(hierarchy_data['colors']):.3f}
+                - Max suspiciousness: {max(hierarchy_data['colors']):.3f}
+                - Min suspiciousness: {min(hierarchy_data['colors']):.3f}
+                """)
+        
+        # Add explanation
+        st.markdown("""
+        **Hierarchy Levels:**
+        - **Center**: Project root
+        - **Level 1**: Python files (.py)
+        - **Level 2**: Classes within files
+        - **Level 3**: Functions/Methods within classes
+        
+        **Color**: Indicates suspiciousness score (red = more suspicious)  
+        **Size**: Proportional to number of lines with coverage data
+        
+        **Tip**: If the sunburst appears empty, try lowering the minimum score threshold.
+        """)
+        
     except Exception as e:
         st.error(f"Error creating sunburst: {e}")
-        # Fallback to simple bar chart
+        
+        # Fallback to simple visualization
         st.subheader("Alternative View")
+        susp_data = extract_suspiciousness_data(data, formula)
+        
         df_data = []
         for item in susp_data[:15]:  # Top 15
             df_data.append({
