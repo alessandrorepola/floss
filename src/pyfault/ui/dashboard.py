@@ -9,8 +9,442 @@ import pandas as pd
 import json
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, NamedTuple
 import os
+
+# Data structures for cached computations
+class FormulaStats(NamedTuple):
+    """Statistics for a specific formula."""
+    min_score: float
+    max_score: float
+    range_score: float
+    all_scores: List[float]
+
+
+class FileStats(NamedTuple):
+    """Statistics for a file's suspiciousness."""
+    file_path: str
+    max_score: float
+    avg_score: float
+    suspicious_statements: int
+    suspicious_statements_pct: float
+    suspicious_branches: int
+    suspicious_branches_pct: float
+    total_statements_with_coverage: int
+    total_branches_with_coverage: int
+
+
+@st.cache_data
+def calculate_formula_statistics(data: Dict[str, Any], formula: str) -> FormulaStats:
+    """Calculate and cache min/max/range statistics for a specific formula.
+    
+    This is the core optimization - all normalization calculations depend on these values.
+    """
+    files_data = data.get('files', {})
+    all_scores = []
+    
+    for _, file_data in files_data.items():
+        suspiciousness = file_data.get('suspiciousness', {})
+        for line_scores in suspiciousness.values():
+            if formula in line_scores:
+                all_scores.append(float(line_scores[formula]))
+    
+    if not all_scores:
+        return FormulaStats(0.0, 0.0, 1.0, [])
+    
+    min_score = min(all_scores)
+    max_score = max(all_scores)
+    range_score = max_score - min_score if max_score > min_score else 1.0
+    
+    return FormulaStats(min_score, max_score, range_score, all_scores)
+
+
+@st.cache_data
+def calculate_file_suspiciousness_stats(data: Dict[str, Any], formula: str, 
+                                       formula_stats: FormulaStats) -> List[FileStats]:
+    """Calculate and cache file-level suspiciousness statistics.
+    
+    Uses pre-calculated formula statistics to avoid redundant computations.
+    """
+    files_data = data.get('files', {})
+    file_suspiciousness = []
+    
+    for file_path, file_data in files_data.items():
+        file_scores = []
+        normalized_scores = []
+        suspicious_statements_count = 0
+        total_statements_with_test_coverage = 0
+        suspicious_branches_count = 0
+        total_branches_with_test_coverage = 0
+        
+        # Get executed lines (actual statements)
+        executed_lines = file_data.get('executed_lines', [])
+        contexts = file_data.get('contexts', {})
+        suspiciousness = file_data.get('suspiciousness', {})
+        
+        # Get executed branches
+        executed_branches = file_data.get('executed_branches', [])
+        
+        # Process only executed statements that have test coverage
+        for line_num in executed_lines:
+            line_str = str(line_num)
+            
+            # Check if this line has test coverage (non-empty contexts)
+            line_contexts = contexts.get(line_str, [])
+            has_test_coverage = any(context.strip() for context in line_contexts)
+            
+            # Check if this line has suspiciousness score
+            if line_str in suspiciousness and formula in suspiciousness[line_str] and has_test_coverage:
+                score = float(suspiciousness[line_str][formula])
+                # Normalize score to 0-1 range using cached stats
+                normalized_score = (score - formula_stats.min_score) / formula_stats.range_score
+                file_scores.append(score)
+                normalized_scores.append(normalized_score)
+                total_statements_with_test_coverage += 1
+        
+        # Process executed branches that have test coverage
+        for branch in executed_branches:
+            if len(branch) >= 2:
+                source_line = branch[0]
+                source_line_str = str(source_line)
+                
+                # Check if the source line of the branch has test coverage
+                line_contexts = contexts.get(source_line_str, [])
+                has_test_coverage = any(context.strip() for context in line_contexts)
+                
+                # Check if the source line has suspiciousness score
+                if source_line_str in suspiciousness and formula in suspiciousness[source_line_str] and has_test_coverage:
+                    total_branches_with_test_coverage += 1
+        
+        if file_scores:
+            avg_score = sum(normalized_scores) / len(normalized_scores)
+            max_score = max(normalized_scores)
+            
+            # Only include files with max suspiciousness > 0 (normalized)
+            if max_score > 0:
+                file_suspiciousness.append(FileStats(
+                    file_path=file_path,
+                    max_score=max_score,
+                    avg_score=avg_score,
+                    suspicious_statements=suspicious_statements_count,
+                    suspicious_statements_pct=0.0,  # Will be calculated later when threshold is known
+                    suspicious_branches=suspicious_branches_count,
+                    suspicious_branches_pct=0.0,  # Will be calculated later when threshold is known
+                    total_statements_with_coverage=total_statements_with_test_coverage,
+                    total_branches_with_coverage=total_branches_with_test_coverage
+                ))
+    
+    return file_suspiciousness
+
+
+@st.cache_data
+def get_most_suspicious_file_cached(data: Dict[str, Any], formula: str, 
+                                   formula_stats: FormulaStats) -> Optional[str]:
+    """Get the most suspicious file using cached statistics."""
+    file_stats = calculate_file_suspiciousness_stats(data, formula, formula_stats)
+    
+    if not file_stats:
+        return None
+    
+    # Sort by max score (priority), then by number of statements with coverage
+    sorted_files = sorted(file_stats, 
+                         key=lambda x: (x.max_score, x.total_statements_with_coverage), 
+                         reverse=True)
+    return sorted_files[0].file_path
+
+
+@st.cache_data
+def build_hierarchical_data_cached(data: Dict[str, Any], formula: str, 
+                                  formula_stats: FormulaStats, 
+                                  min_score: float = 0.0) -> Dict[str, List]:
+    """Build hierarchical data structure using cached formula statistics."""
+    files_data = data.get('files', {})
+    
+    if not formula_stats.all_scores:
+        return {'labels': [], 'parents': [], 'values': [], 'colors': [], 'hover_info': []}
+    
+    # Convert normalized min_score to actual threshold using cached stats
+    actual_min_score = formula_stats.min_score + (min_score * formula_stats.range_score)
+    
+    labels = []
+    parents = []
+    values = []
+    colors = []
+    hover_info = []
+    
+    # Root node
+    labels.append("Project")
+    parents.append("")
+    values.append(1)
+    colors.append(0.0)
+    
+    # Get overall project coverage from totals
+    totals = data.get('totals', {})
+    project_coverage = totals.get('percent_covered', 0.0)
+    total_files = totals.get('analysis_statistics', {}).get('files_analyzed', 0)
+    hover_info.append(f"Project<br>Coverage: {project_coverage:.1f}%<br>Files: {total_files}")
+    
+    # Process files with cached normalization
+    for file_path, file_data in files_data.items():
+        file_suspiciousness = file_data.get('suspiciousness', {})
+        if not file_suspiciousness:
+            continue
+            
+        # Check if file has any scores above threshold (using actual threshold)
+        file_scores = []
+        for line_scores in file_suspiciousness.values():
+            if formula in line_scores:
+                raw_score = float(line_scores[formula])
+                if raw_score >= actual_min_score:
+                    # Normalize score to 0-1 range using cached stats
+                    normalized_score = (raw_score - formula_stats.min_score) / formula_stats.range_score
+                    file_scores.append(normalized_score)
+        
+        if not file_scores:
+            continue  # Skip files with no significant scores
+        
+        # Get just the filename for display (ensure it's unique)
+        file_name = file_path
+        
+        # Make file name unique if necessary
+        counter = 1
+        original_file_name = file_name
+        while file_name in labels:
+            file_name = f"{original_file_name} ({counter})"
+            counter += 1
+        
+        # Get file coverage summary
+        file_summary = file_data.get('summary', {})
+        file_coverage = file_summary.get('percent_covered', 0.0)
+        file_statements = file_summary.get('num_statements', 0)
+        file_covered_lines = file_summary.get('covered_lines', 0)
+        
+        # Add file
+        avg_file_score = sum(file_scores) / len(file_scores)
+        file_lines_count = len(file_scores)
+        
+        labels.append(file_name)
+        parents.append("Project")  # All files directly under project
+        values.append(max(file_lines_count, 1))
+        colors.append(avg_file_score)
+        hover_info.append(f"File: {file_name}<br>Coverage: {file_coverage:.1f}%<br>Lines: {file_covered_lines}/{file_statements}")
+        
+        # Add classes and functions within the file (only if they have significant scores)
+        classes_data = file_data.get('classes', {})
+        functions_data = file_data.get('functions', {})
+        
+        # Process classes
+        for class_name, class_info in classes_data.items():
+            if class_name == "" or len(class_name) == 0:
+                continue  # Skip global code
+            
+            # Get class suspiciousness from executed lines
+            executed_lines = class_info.get('executed_lines', [])
+            class_scores = []
+            for line_num in executed_lines:
+                line_str = str(line_num)
+                if line_str in file_suspiciousness:
+                    raw_score = float(file_suspiciousness[line_str].get(formula, 0.0))
+                    if raw_score >= actual_min_score:
+                        # Normalize score to 0-1 range using cached stats
+                        normalized_score = (raw_score - formula_stats.min_score) / formula_stats.range_score
+                        class_scores.append(normalized_score)
+            
+            if not class_scores:
+                continue  # Skip classes with no significant scores
+            
+            avg_class_score = sum(class_scores) / len(class_scores)
+            class_lines_count = len(class_scores)
+            
+            # Make class label unique
+            class_label = f"class {class_name}"
+            counter = 1
+            original_class_label = class_label
+            while class_label in labels:
+                class_label = f"{original_class_label} ({counter})"
+                counter += 1
+            
+            labels.append(class_label)
+            parents.append(file_name)  # Class parent is the file
+            values.append(max(class_lines_count, 1))
+            colors.append(avg_class_score)
+            hover_info.append(f"Class: {class_name}<br>Lines with data: {class_lines_count}<br>Avg Score: {avg_class_score:.3f}")
+            
+            # Add methods for this class (only with significant scores)
+            for func_name, func_info in functions_data.items():
+                if func_name.startswith(f"{class_name}."):
+                    method_name = func_name.split('.')[-1]
+                    
+                    method_executed_lines = func_info.get('executed_lines', [])
+                    method_scores = []
+                    for line_num in method_executed_lines:
+                        line_str = str(line_num)
+                        if line_str in file_suspiciousness:
+                            raw_score = float(file_suspiciousness[line_str].get(formula, 0.0))
+                            if raw_score >= actual_min_score:
+                                # Normalize score to 0-1 range using cached stats
+                                normalized_score = (raw_score - formula_stats.min_score) / formula_stats.range_score
+                                method_scores.append(normalized_score)
+                    
+                    if not method_scores:
+                        continue  # Skip methods with no significant scores
+                    
+                    # Get method coverage summary
+                    method_summary = func_info.get('summary', {})
+                    method_coverage = method_summary.get('percent_covered', 0.0)
+                    method_statements = method_summary.get('num_statements', 0)
+                    
+                    avg_method_score = sum(method_scores) / len(method_scores)
+                    method_lines_count = len(method_scores)
+                    
+                    # Make method label unique
+                    method_label = f"def {method_name}()"
+                    counter = 1
+                    original_method_label = method_label
+                    while method_label in labels:
+                        method_label = f"{original_method_label} ({counter})"
+                        counter += 1
+                    
+                    labels.append(method_label)
+                    parents.append(class_label)  # Method parent is the class
+                    values.append(max(method_lines_count, 1))
+                    colors.append(avg_method_score)
+                    hover_info.append(f"Method: {method_name}<br>Coverage: {method_coverage:.1f}%<br>Statements: {method_statements}")
+        
+        # Process standalone functions (not methods, only with significant scores)
+        for func_name, func_info in functions_data.items():
+            if '.' in func_name or func_name == "" or len(func_name) == 0:
+                continue  # Skip methods and global code
+            
+            func_executed_lines = func_info.get('executed_lines', [])
+            func_scores = []
+            for line_num in func_executed_lines:
+                line_str = str(line_num)
+                if line_str in file_suspiciousness:
+                    raw_score = float(file_suspiciousness[line_str].get(formula, 0.0))
+                    if raw_score >= actual_min_score:
+                        # Normalize score to 0-1 range using cached stats
+                        normalized_score = (raw_score - formula_stats.min_score) / formula_stats.range_score
+                        func_scores.append(normalized_score)
+            
+            if not func_scores:
+                continue  # Skip functions with no significant scores
+            
+            # Get function coverage summary
+            func_summary = func_info.get('summary', {})
+            func_coverage = func_summary.get('percent_covered', 0.0)
+            func_statements = func_summary.get('num_statements', 0)
+            
+            avg_func_score = sum(func_scores) / len(func_scores)
+            func_lines_count = len(func_scores)
+            
+            # Make function label unique
+            func_label = f"def {func_name}()"
+            counter = 1
+            original_func_label = func_label
+            while func_label in labels:
+                func_label = f"{original_func_label} ({counter})"
+                counter += 1
+            
+            labels.append(func_label)
+            parents.append(file_name)  # Function parent is the file
+            values.append(max(func_lines_count, 1))
+            colors.append(avg_func_score)
+            hover_info.append(f"Function: {func_name}<br>Coverage: {func_coverage:.1f}%<br>Statements: {func_statements}")
+    
+    return {
+        'labels': labels,
+        'parents': parents,
+        'values': values,
+        'colors': colors,
+        'hover_info': hover_info
+    }
+
+
+def calculate_file_suspiciousness_with_threshold(data: Dict[str, Any], formula: str, 
+                                               formula_stats: FormulaStats, 
+                                               actual_threshold: float) -> List[FileStats]:
+    """Calculate file suspiciousness statistics with a specific threshold."""
+    files_data = data.get('files', {})
+    file_suspiciousness = []
+    
+    for file_path, file_data in files_data.items():
+        file_scores = []
+        normalized_scores = []
+        suspicious_statements_count = 0
+        total_statements_with_test_coverage = 0
+        suspicious_branches_count = 0
+        total_branches_with_test_coverage = 0
+        
+        # Get executed lines (actual statements)
+        executed_lines = file_data.get('executed_lines', [])
+        contexts = file_data.get('contexts', {})
+        suspiciousness = file_data.get('suspiciousness', {})
+        
+        # Get executed branches
+        executed_branches = file_data.get('executed_branches', [])
+        
+        # Process only executed statements that have test coverage
+        for line_num in executed_lines:
+            line_str = str(line_num)
+            
+            # Check if this line has test coverage (non-empty contexts)
+            line_contexts = contexts.get(line_str, [])
+            has_test_coverage = any(context.strip() for context in line_contexts)
+            
+            # Check if this line has suspiciousness score
+            if line_str in suspiciousness and formula in suspiciousness[line_str] and has_test_coverage:
+                score = float(suspiciousness[line_str][formula])
+                # Normalize score to 0-1 range using cached stats
+                normalized_score = (score - formula_stats.min_score) / formula_stats.range_score
+                file_scores.append(score)
+                normalized_scores.append(normalized_score)
+                total_statements_with_test_coverage += 1
+                if score >= actual_threshold:
+                    suspicious_statements_count += 1
+        
+        # Process executed branches that have test coverage
+        for branch in executed_branches:
+            if len(branch) >= 2:
+                source_line = branch[0]
+                source_line_str = str(source_line)
+                
+                # Check if the source line of the branch has test coverage
+                line_contexts = contexts.get(source_line_str, [])
+                has_test_coverage = any(context.strip() for context in line_contexts)
+                
+                # Check if the source line has suspiciousness score
+                if source_line_str in suspiciousness and formula in suspiciousness[source_line_str] and has_test_coverage:
+                    score = float(suspiciousness[source_line_str][formula])
+                    total_branches_with_test_coverage += 1
+                    if score >= actual_threshold:
+                        suspicious_branches_count += 1
+        
+        if file_scores:
+            avg_score = sum(normalized_scores) / len(normalized_scores)
+            max_score = max(normalized_scores)
+            
+            # Calculate percentage of suspicious statements
+            suspicious_statements_percentage = (suspicious_statements_count / total_statements_with_test_coverage * 100) if total_statements_with_test_coverage > 0 else 0
+            
+            # Calculate percentage of suspicious branches
+            suspicious_branches_percentage = (suspicious_branches_count / total_branches_with_test_coverage * 100) if total_branches_with_test_coverage > 0 else 0
+            
+            # Only include files with max suspiciousness > 0 (normalized)
+            if max_score > 0:
+                file_suspiciousness.append(FileStats(
+                    file_path=file_path,
+                    max_score=round(max_score, 3),
+                    avg_score=round(avg_score, 3),
+                    suspicious_statements=suspicious_statements_count,
+                    suspicious_statements_pct=round(suspicious_statements_percentage, 1),
+                    suspicious_branches=suspicious_branches_count,
+                    suspicious_branches_pct=round(suspicious_branches_percentage, 1),
+                    total_statements_with_coverage=total_statements_with_test_coverage,
+                    total_branches_with_coverage=total_branches_with_test_coverage
+                ))
+    
+    return file_suspiciousness
 
 
 def launch_dashboard(report_file: str = "report.json", 
@@ -104,6 +538,9 @@ def main():
 def show_overview(data: Dict[str, Any], formula: str):
     """Show comprehensive overview with key metrics for fault localization."""
     st.header("Fault Localization Overview")
+    
+    # Calculate formula statistics once (cached)
+    formula_stats = calculate_formula_statistics(data, formula)
     
     # Extract main sections from report
     meta = data.get('meta', {})
@@ -332,32 +769,20 @@ def show_overview(data: Dict[str, Any], formula: str):
     if formulas:
         st.write("**Available Formulas:**", ", ".join(f"`{f}`" for f in formulas))
     
-    # Calculate and show top suspicious files preview
+    # Calculate and show top suspicious files preview using cached data
     st.divider()
     st.subheader("Most Suspicious Files")
     
-    # First pass: calculate min/max values for the current formula across all files
-    all_scores = []
-    for file_path, file_data in files_data.items():
-        suspiciousness = file_data.get('suspiciousness', {})
-        for line_scores in suspiciousness.values():
-            if formula in line_scores:
-                all_scores.append(float(line_scores[formula]))
-    
-    if not all_scores:
+    if not formula_stats.all_scores:
         st.warning("No suspiciousness data available for this formula")
         return
-    
-    formula_min = min(all_scores)
-    formula_max = max(all_scores)
-    formula_range = formula_max - formula_min if formula_max > formula_min else 1
     
     # Add threshold control for suspicious lines (normalized)
     col1, col2 = st.columns([1, 3])
     with col1:
         st.write(f"**{formula.title()} Range:**")
-        st.write(f"Min: {formula_min:.3f}")
-        st.write(f"Max: {formula_max:.3f}")
+        st.write(f"Min: {formula_stats.min_score:.3f}")
+        st.write(f"Max: {formula_stats.max_score:.3f}")
         
         suspicious_threshold = st.slider(
             "Suspiciousness Threshold",
@@ -369,136 +794,66 @@ def show_overview(data: Dict[str, Any], formula: str):
             help="Normalized threshold (0=min, 1=max) for considering lines suspicious"
         )
         
-        # Convert normalized threshold to actual value
-        actual_threshold = formula_min + (suspicious_threshold * formula_range)
+        # Convert normalized threshold to actual value using cached stats
+        actual_threshold = formula_stats.min_score + (suspicious_threshold * formula_stats.range_score)
         st.write(f"**Actual threshold:** {actual_threshold:.3f}")
     
-    file_suspiciousness = []
-    for file_path, file_data in files_data.items():
-        file_scores = []
-        normalized_scores = []
-        suspicious_statements_count = 0
-        total_statements_with_test_coverage = 0
-        suspicious_branches_count = 0
-        total_branches_with_test_coverage = 0
-        
-        # Get executed lines (actual statements)
-        executed_lines = file_data.get('executed_lines', [])
-        contexts = file_data.get('contexts', {})
-        suspiciousness = file_data.get('suspiciousness', {})
-        
-        # Get executed branches
-        executed_branches = file_data.get('executed_branches', [])
-        
-        # Process only executed statements that have test coverage
-        for line_num in executed_lines:
-            line_str = str(line_num)
-            
-            # Check if this line has test coverage (non-empty contexts)
-            line_contexts = contexts.get(line_str, [])
-            has_test_coverage = any(context.strip() for context in line_contexts)
-            
-            # Check if this line has suspiciousness score
-            if line_str in suspiciousness and formula in suspiciousness[line_str] and has_test_coverage:
-                score = float(suspiciousness[line_str][formula])
-                # Normalize score to 0-1 range
-                normalized_score = (score - formula_min) / formula_range
-                file_scores.append(score)
-                normalized_scores.append(normalized_score)
-                total_statements_with_test_coverage += 1
-                if score >= actual_threshold:
-                    suspicious_statements_count += 1
-        
-        # Process executed branches that have test coverage
-        for branch in executed_branches:
-            if len(branch) >= 2:
-                source_line = branch[0]
-                source_line_str = str(source_line)
-                
-                # Check if the source line of the branch has test coverage
-                line_contexts = contexts.get(source_line_str, [])
-                has_test_coverage = any(context.strip() for context in line_contexts)
-                
-                # Check if the source line has suspiciousness score
-                if source_line_str in suspiciousness and formula in suspiciousness[source_line_str] and has_test_coverage:
-                    score = float(suspiciousness[source_line_str][formula])
-                    total_branches_with_test_coverage += 1
-                    if score >= actual_threshold:
-                        suspicious_branches_count += 1
-        
-        if file_scores:
-            avg_score = sum(normalized_scores) / len(normalized_scores)
-            max_score = max(normalized_scores)
-            
-            # Calculate percentage of suspicious statements
-            suspicious_statements_percentage = (suspicious_statements_count / total_statements_with_test_coverage * 100) if total_statements_with_test_coverage > 0 else 0
-            
-            # Calculate percentage of suspicious branches
-            suspicious_branches_percentage = (suspicious_branches_count / total_branches_with_test_coverage * 100) if total_branches_with_test_coverage > 0 else 0
-            
-            # Only include files with max suspiciousness > 0 (normalized)
-            if max_score > 0:
-                file_suspiciousness.append({
-                    'File': file_path,
-                    'Max Score': round(max_score, 3),
-                    'Avg Score': round(avg_score, 3),
-                    'Suspicious Statements': suspicious_statements_count,
-                    'Suspicious Statements (%)': suspicious_statements_percentage,
-                    'Suspicious Branches': suspicious_branches_count,
-                    'Suspicious Branches (%)': suspicious_branches_percentage
-                })
+    # Calculate suspicious files with the specific threshold using cached data
+    file_suspiciousness = calculate_file_suspiciousness_with_threshold(
+        data, formula, formula_stats, actual_threshold
+    )
     
     # Create sortable dataframe
     if file_suspiciousness:
-        import pandas as pd
-        df = pd.DataFrame(file_suspiciousness)
+        df = pd.DataFrame([f._asdict() for f in file_suspiciousness])
         
         # Sort by Max Score (priority), then by Suspicious Statements count
-        df = df.sort_values(['Max Score', 'Suspicious Statements'], ascending=[False, False])
+        df = df.sort_values(['max_score', 'suspicious_statements'], ascending=[False, False])
         
         # Calculate maximums for progress bars
-        max_max_score = df['Max Score'].max()
-        max_avg_score = df['Avg Score'].max()
+        max_max_score = df['max_score'].max()
+        max_avg_score = df['avg_score'].max()
         
-        # Display as interactive table with progress bars (hide the count column used for sorting)
+        # Display as interactive table with progress bars
         st.dataframe(
-            df,
+            df[['file_path', 'max_score', 'avg_score', 'suspicious_statements', 
+                'suspicious_statements_pct', 'suspicious_branches', 'suspicious_branches_pct']],
             use_container_width=True,
             hide_index=True,
             column_config={
-                "File": st.column_config.TextColumn("File", width="large"),
-                "Max Score": st.column_config.ProgressColumn(
+                "file_path": st.column_config.TextColumn("File", width="large"),
+                "max_score": st.column_config.ProgressColumn(
                     "Max Score",
                     help="Maximum suspiciousness score in the file",
                     min_value=0,
                     max_value=max_max_score,
                     format="%.3f"
                 ),
-                "Avg Score": st.column_config.ProgressColumn(
+                "avg_score": st.column_config.ProgressColumn(
                     "Avg Score", 
                     help="Average suspiciousness score in the file",
                     min_value=0,
                     max_value=max_avg_score,
                     format="%.3f"
                 ),
-                "Suspicious Statements": st.column_config.NumberColumn(
+                "suspicious_statements": st.column_config.NumberColumn(
                     "Suspicious Statements",
                     help="Count of suspicious statements",
                     min_value=0
                 ),
-                "Suspicious Statements (%)": st.column_config.ProgressColumn(
+                "suspicious_statements_pct": st.column_config.ProgressColumn(
                     "Suspicious Statements (%)",
                     help="Percentage of suspicious statements (Suspicious Statements / Covered Statements)",
                     min_value=0,
                     max_value=100,
                     format="%.1f%%"
                 ),
-                "Suspicious Branches": st.column_config.NumberColumn(
+                "suspicious_branches": st.column_config.NumberColumn(
                     "Suspicious Branches",
                     help="Count of suspicious branches",
                     min_value=0
                 ),
-                "Suspicious Branches (%)": st.column_config.ProgressColumn(
+                "suspicious_branches_pct": st.column_config.ProgressColumn(
                     "Suspicious Branches (%)",
                     help="Percentage of suspicious branches (Suspicious Branches / Covered Branches)",
                     min_value=0,
@@ -511,7 +866,7 @@ def show_overview(data: Dict[str, Any], formula: str):
         with col2:
             st.caption(f"Scores normalized to 0-1 range. Files sorted by Max Score, then by Suspicious Statements (≥{actual_threshold:.3f}). Click column headers to re-sort.")
             if len(df) > 0:
-                st.info(f"Top priority: **{df.iloc[0]['File']}** (Normalized Max Score: {df.iloc[0]['Max Score']}, {df.iloc[0]['Suspicious Statements']} suspicious statements)")
+                st.info(f"Top priority: **{df.iloc[0]['file_path']}** (Normalized Max Score: {df.iloc[0]['max_score']}, {df.iloc[0]['suspicious_statements']} suspicious statements)")
     
     
     # Recommendations
@@ -529,11 +884,11 @@ def show_overview(data: Dict[str, Any], formula: str):
     if lines_with_scores < 100:
         recommendations.append("**Suggestion**: More code execution needed for better analysis")
     
-    if len(file_suspiciousness) > 0:
+    if file_suspiciousness:
         # Use same prioritization as table: sort by Max Score, then by Suspicious Statements Count
-        sorted_files = sorted(file_suspiciousness, key=lambda x: (x['Max Score'], x['Suspicious Statements']), reverse=True)
+        sorted_files = sorted(file_suspiciousness, key=lambda x: (x.max_score, x.suspicious_statements), reverse=True)
         top_file = sorted_files[0]
-        recommendations.append(f"**Priority**: Focus on `{top_file['File']}` (Max Score: {top_file['Max Score']:.3f}, {top_file['Suspicious Statements']} suspicious statements)")
+        recommendations.append(f"**Priority**: Focus on `{top_file.file_path}` (Max Score: {top_file.max_score:.3f}, {top_file.suspicious_statements} suspicious statements)")
     
     if not recommendations:
         recommendations.append("**Good**: Project setup looks optimal for fault localization")
@@ -542,229 +897,12 @@ def show_overview(data: Dict[str, Any], formula: str):
         st.write(f"{i}. {rec}")
 
 
-def build_hierarchical_data(data: Dict[str, Any], formula: str, min_score: float = 0.0) -> Dict[str, List]:
-    """Build hierarchical data structure for treemap and sunburst visualizations."""
-    files_data = data.get('files', {})
-    
-    # First pass: calculate min/max values for normalization
-    all_scores = []
-    for file_path, file_data in files_data.items():
-        file_suspiciousness = file_data.get('suspiciousness', {})
-        for line_scores in file_suspiciousness.values():
-            if formula in line_scores:
-                all_scores.append(float(line_scores[formula]))
-    
-    if not all_scores:
-        return {'labels': [], 'parents': [], 'values': [], 'colors': [], 'hover_info': []}
-    
-    formula_min = min(all_scores)
-    formula_max = max(all_scores)
-    formula_range = formula_max - formula_min if formula_max > formula_min else 1
-    
-    # Convert normalized min_score to actual threshold
-    actual_min_score = formula_min + (min_score * formula_range)
-    
-    labels = []
-    parents = []
-    values = []
-    colors = []
-    hover_info = []  # New: hover information with coverage
-    
-    # Root node
-    labels.append("Project")
-    parents.append("")
-    values.append(1)
-    colors.append(0.0)
-    
-    # Get overall project coverage from totals
-    totals = data.get('totals', {})
-    project_coverage = totals.get('percent_covered', 0.0)
-    total_files = totals.get('analysis_statistics', {}).get('files_analyzed', 0)
-    hover_info.append(f"Project<br>Coverage: {project_coverage:.1f}%<br>Files: {total_files}")
-    
-    # Simplified approach: Project -> Files -> Classes/Functions
-    # Use labels as references for parent-child relationships
-    
-    for file_path, file_data in files_data.items():
-        # Skip files without significant suspiciousness data
-        file_suspiciousness = file_data.get('suspiciousness', {})
-        if not file_suspiciousness:
-            continue
-            
-        # Check if file has any scores above threshold (using actual threshold)
-        file_scores = []
-        for line_scores in file_suspiciousness.values():
-            if formula in line_scores:
-                raw_score = float(line_scores[formula])
-                if raw_score >= actual_min_score:
-                    # Normalize score to 0-1 range
-                    normalized_score = (raw_score - formula_min) / formula_range
-                    file_scores.append(normalized_score)
-        
-        if not file_scores:
-            continue  # Skip files with no significant scores
-        
-        # Get just the filename for display (ensure it's unique)
-        file_name = file_path
-        
-        # Make file name unique if necessary
-        counter = 1
-        original_file_name = file_name
-        while file_name in labels:
-            file_name = f"{original_file_name} ({counter})"
-            counter += 1
-        
-        # Get file coverage summary
-        file_summary = file_data.get('summary', {})
-        file_coverage = file_summary.get('percent_covered', 0.0)
-        file_statements = file_summary.get('num_statements', 0)
-        file_covered_lines = file_summary.get('covered_lines', 0)
-        
-        # Add file
-        avg_file_score = sum(file_scores) / len(file_scores)
-        file_lines_count = len(file_scores)
-        
-        labels.append(file_name)
-        parents.append("Project")  # All files directly under project
-        values.append(max(file_lines_count, 1))
-        colors.append(avg_file_score)
-        hover_info.append(f"File: {file_name}<br>Coverage: {file_coverage:.1f}%<br>Lines: {file_covered_lines}/{file_statements}")
-        
-        # Add classes and functions within the file (only if they have significant scores)
-        classes_data = file_data.get('classes', {})
-        functions_data = file_data.get('functions', {})
-        
-        # Process classes
-        for class_name, class_info in classes_data.items():
-            if class_name == "" or len(class_name) == 0:
-                continue  # Skip global code
-            
-            # Get class suspiciousness from executed lines
-            executed_lines = class_info.get('executed_lines', [])
-            class_scores = []
-            for line_num in executed_lines:
-                line_str = str(line_num)
-                if line_str in file_suspiciousness:
-                    raw_score = float(file_suspiciousness[line_str].get(formula, 0.0))
-                    if raw_score >= actual_min_score:
-                        # Normalize score to 0-1 range
-                        normalized_score = (raw_score - formula_min) / formula_range
-                        class_scores.append(normalized_score)
-            
-            if not class_scores:
-                continue  # Skip classes with no significant scores
-            
-            avg_class_score = sum(class_scores) / len(class_scores)
-            class_lines_count = len(class_scores)
-            
-            # Make class label unique
-            class_label = f"class {class_name}"
-            counter = 1
-            original_class_label = class_label
-            while class_label in labels:
-                class_label = f"{original_class_label} ({counter})"
-                counter += 1
-            
-            labels.append(class_label)
-            parents.append(file_name)  # Class parent is the file
-            values.append(max(class_lines_count, 1))
-            colors.append(avg_class_score)
-            hover_info.append(f"Class: {class_name}<br>Lines with data: {class_lines_count}<br>Avg Score: {avg_class_score:.3f}")
-            
-            # Add methods for this class (only with significant scores)
-            for func_name, func_info in functions_data.items():
-                if func_name.startswith(f"{class_name}."):
-                    method_name = func_name.split('.')[-1]
-                    
-                    method_executed_lines = func_info.get('executed_lines', [])
-                    method_scores = []
-                    for line_num in method_executed_lines:
-                        line_str = str(line_num)
-                        if line_str in file_suspiciousness:
-                            raw_score = float(file_suspiciousness[line_str].get(formula, 0.0))
-                            if raw_score >= actual_min_score:
-                                # Normalize score to 0-1 range
-                                normalized_score = (raw_score - formula_min) / formula_range
-                                method_scores.append(normalized_score)
-                    
-                    if not method_scores:
-                        continue  # Skip methods with no significant scores
-                    
-                    # Get method coverage summary
-                    method_summary = func_info.get('summary', {})
-                    method_coverage = method_summary.get('percent_covered', 0.0)
-                    method_statements = method_summary.get('num_statements', 0)
-                    
-                    avg_method_score = sum(method_scores) / len(method_scores)
-                    method_lines_count = len(method_scores)
-                    
-                    # Make method label unique
-                    method_label = f"def {method_name}()"
-                    counter = 1
-                    original_method_label = method_label
-                    while method_label in labels:
-                        method_label = f"{original_method_label} ({counter})"
-                        counter += 1
-                    
-                    labels.append(method_label)
-                    parents.append(class_label)  # Method parent is the class
-                    values.append(max(method_lines_count, 1))
-                    colors.append(avg_method_score)
-                    hover_info.append(f"Method: {method_name}<br>Coverage: {method_coverage:.1f}%<br>Statements: {method_statements}")
-        
-        # Process standalone functions (not methods, only with significant scores)
-        for func_name, func_info in functions_data.items():
-            if '.' in func_name or func_name == "" or len(func_name) == 0:
-                continue  # Skip methods and global code
-            
-            func_executed_lines = func_info.get('executed_lines', [])
-            func_scores = []
-            for line_num in func_executed_lines:
-                line_str = str(line_num)
-                if line_str in file_suspiciousness:
-                    raw_score = float(file_suspiciousness[line_str].get(formula, 0.0))
-                    if raw_score >= actual_min_score:
-                        # Normalize score to 0-1 range
-                        normalized_score = (raw_score - formula_min) / formula_range
-                        func_scores.append(normalized_score)
-            
-            if not func_scores:
-                continue  # Skip functions with no significant scores
-            
-            # Get function coverage summary
-            func_summary = func_info.get('summary', {})
-            func_coverage = func_summary.get('percent_covered', 0.0)
-            func_statements = func_summary.get('num_statements', 0)
-            
-            avg_func_score = sum(func_scores) / len(func_scores)
-            func_lines_count = len(func_scores)
-            
-            # Make function label unique
-            func_label = f"def {func_name}()"
-            counter = 1
-            original_func_label = func_label
-            while func_label in labels:
-                func_label = f"{original_func_label} ({counter})"
-                counter += 1
-            
-            labels.append(func_label)
-            parents.append(file_name)  # Function parent is the file
-            values.append(max(func_lines_count, 1))
-            colors.append(avg_func_score)
-            hover_info.append(f"Function: {func_name}<br>Coverage: {func_coverage:.1f}%<br>Statements: {func_statements}")
-    
-    return {
-        'labels': labels,
-        'parents': parents,
-        'values': values,
-        'colors': colors,
-        'hover_info': hover_info
-    }
-
-
 def show_treemap_tab(data: Dict[str, Any], formula: str):
     """Show dedicated treemap tab with detailed hierarchical view."""
     st.header("Hierarchical Treemap")
+    
+    # Calculate formula statistics once (cached)
+    formula_stats = calculate_formula_statistics(data, formula)
     
     # Add threshold control
     col1, col2 = st.columns([1, 3])
@@ -778,7 +916,7 @@ def show_treemap_tab(data: Dict[str, Any], formula: str):
             help="Filter out elements with suspiciousness score below this threshold"
         )
     
-    hierarchy_data = build_hierarchical_data(data, formula, min_score)
+    hierarchy_data = build_hierarchical_data_cached(data, formula, formula_stats, min_score)
     
     if not hierarchy_data or len(hierarchy_data['labels']) <= 1:
         st.warning(f"No hierarchical data available with minimum score {min_score:.2f}")
@@ -838,7 +976,10 @@ def show_treemap_tab(data: Dict[str, Any], formula: str):
 
 def show_treemap(data: Dict[str, Any], formula: str):
     """Create hierarchical treemap visualization based on Python project structure."""
-    hierarchy_data = build_hierarchical_data(data, formula, min_score=0.05)  # Small threshold for overview
+    # Calculate formula statistics once (cached)
+    formula_stats = calculate_formula_statistics(data, formula)
+    
+    hierarchy_data = build_hierarchical_data_cached(data, formula, formula_stats, min_score=0.05)  # Small threshold for overview
     
     if not hierarchy_data or len(hierarchy_data['labels']) <= 1:
         st.warning("No hierarchical data available")
@@ -904,57 +1045,9 @@ def show_ranking_table(susp_data: List[Dict]):
 
 def get_most_suspicious_file(data: Dict[str, Any], formula: str) -> Optional[str]:
     """Get the file with the highest suspiciousness score for the given formula."""
-    files_data = data.get('files', {})
-    if not files_data:
-        return None
-    
-    # Calculate suspiciousness for each file (same logic as in show_overview)
-    all_scores = []
-    for file_path, file_data in files_data.items():
-        suspiciousness = file_data.get('suspiciousness', {})
-        for line_scores in suspiciousness.values():
-            if formula in line_scores:
-                all_scores.append(float(line_scores[formula]))
-    
-    if not all_scores:
-        return None
-    
-    formula_min = min(all_scores)
-    formula_max = max(all_scores)
-    formula_range = formula_max - formula_min if formula_max > formula_min else 1
-    
-    file_scores = []
-    for file_path, file_data in files_data.items():
-        file_suspiciousness_scores = []
-        executed_lines = file_data.get('executed_lines', [])
-        contexts = file_data.get('contexts', {})
-        suspiciousness = file_data.get('suspiciousness', {})
-        
-        # Process only executed statements that have test coverage
-        for line_num in executed_lines:
-            line_str = str(line_num)
-            line_contexts = contexts.get(line_str, [])
-            has_test_coverage = any(context.strip() for context in line_contexts)
-            
-            if line_str in suspiciousness and formula in suspiciousness[line_str] and has_test_coverage:
-                score = float(suspiciousness[line_str][formula])
-                normalized_score = (score - formula_min) / formula_range
-                file_suspiciousness_scores.append(normalized_score)
-        
-        if file_suspiciousness_scores:
-            max_score = max(file_suspiciousness_scores)
-            file_scores.append({
-                'file': file_path,
-                'max_score': max_score,
-                'num_suspicious_lines': len(file_suspiciousness_scores)
-            })
-    
-    if not file_scores:
-        return None
-    
-    # Sort by max score (priority), then by number of suspicious lines
-    file_scores.sort(key=lambda x: (x['max_score'], x['num_suspicious_lines']), reverse=True)
-    return file_scores[0]['file']
+    # Use cached version for performance
+    formula_stats = calculate_formula_statistics(data, formula)
+    return get_most_suspicious_file_cached(data, formula, formula_stats)
 
 
 def show_source_code(data: Dict[str, Any], formula: str):
@@ -1446,6 +1539,9 @@ def show_sunburst(data: Dict[str, Any], formula: str):
     """Show sunburst visualization with hierarchical Python project structure."""
     st.header("Sunburst View")
     
+    # Calculate formula statistics once (cached)
+    formula_stats = calculate_formula_statistics(data, formula)
+    
     # Add threshold control
     col1, col2 = st.columns([1, 3])
     with col1:
@@ -1459,14 +1555,14 @@ def show_sunburst(data: Dict[str, Any], formula: str):
             help="Filter out elements with suspiciousness score below this threshold"
         )
     
-    hierarchy_data = build_hierarchical_data(data, formula, min_score)
+    hierarchy_data = build_hierarchical_data_cached(data, formula, formula_stats, min_score)
     
     if not hierarchy_data or len(hierarchy_data['labels']) <= 1:
         st.warning(f"No hierarchical data available with minimum score {min_score:.2f}")
         st.info("Try lowering the minimum score threshold")
         
         # Show fallback with very low threshold
-        fallback_data = build_hierarchical_data(data, formula, 0.0)
+        fallback_data = build_hierarchical_data_cached(data, formula, formula_stats, 0.0)
         if fallback_data and len(fallback_data['labels']) > 1:
             st.info(f"Available elements with threshold 0.0: {len(fallback_data['labels'])}")
         return
