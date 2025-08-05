@@ -9,7 +9,7 @@ import pandas as pd
 import json
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 import os
 
 
@@ -902,6 +902,61 @@ def show_ranking_table(susp_data: List[Dict]):
     )
 
 
+def get_most_suspicious_file(data: Dict[str, Any], formula: str) -> Optional[str]:
+    """Get the file with the highest suspiciousness score for the given formula."""
+    files_data = data.get('files', {})
+    if not files_data:
+        return None
+    
+    # Calculate suspiciousness for each file (same logic as in show_overview)
+    all_scores = []
+    for file_path, file_data in files_data.items():
+        suspiciousness = file_data.get('suspiciousness', {})
+        for line_scores in suspiciousness.values():
+            if formula in line_scores:
+                all_scores.append(float(line_scores[formula]))
+    
+    if not all_scores:
+        return None
+    
+    formula_min = min(all_scores)
+    formula_max = max(all_scores)
+    formula_range = formula_max - formula_min if formula_max > formula_min else 1
+    
+    file_scores = []
+    for file_path, file_data in files_data.items():
+        file_suspiciousness_scores = []
+        executed_lines = file_data.get('executed_lines', [])
+        contexts = file_data.get('contexts', {})
+        suspiciousness = file_data.get('suspiciousness', {})
+        
+        # Process only executed statements that have test coverage
+        for line_num in executed_lines:
+            line_str = str(line_num)
+            line_contexts = contexts.get(line_str, [])
+            has_test_coverage = any(context.strip() for context in line_contexts)
+            
+            if line_str in suspiciousness and formula in suspiciousness[line_str] and has_test_coverage:
+                score = float(suspiciousness[line_str][formula])
+                normalized_score = (score - formula_min) / formula_range
+                file_suspiciousness_scores.append(normalized_score)
+        
+        if file_suspiciousness_scores:
+            max_score = max(file_suspiciousness_scores)
+            file_scores.append({
+                'file': file_path,
+                'max_score': max_score,
+                'num_suspicious_lines': len(file_suspiciousness_scores)
+            })
+    
+    if not file_scores:
+        return None
+    
+    # Sort by max score (priority), then by number of suspicious lines
+    file_scores.sort(key=lambda x: (x['max_score'], x['num_suspicious_lines']), reverse=True)
+    return file_scores[0]['file']
+
+
 def show_source_code(data: Dict[str, Any], formula: str):
     """Show source code with suspiciousness highlighting."""
     st.header("Source Code")
@@ -911,9 +966,16 @@ def show_source_code(data: Dict[str, Any], formula: str):
         st.warning("No file data available")
         return
     
-    # File selection
+    # File selection with most suspicious file as default
     file_paths = list(files_data.keys())
-    selected_file = st.selectbox("Select File", file_paths)
+    most_suspicious_file = get_most_suspicious_file(data, formula)
+    
+    # Set default index to the most suspicious file if found
+    default_index = 0
+    if most_suspicious_file and most_suspicious_file in file_paths:
+        default_index = file_paths.index(most_suspicious_file)
+    
+    selected_file = st.selectbox("Select File", file_paths, index=default_index)
     
     if selected_file:
         show_file_with_highlighting(files_data[selected_file], selected_file, formula)
@@ -977,7 +1039,7 @@ def show_file_with_highlighting(file_data: Dict, file_path: str, formula: str):
             )
 
     st.markdown(
-        f'<div style="font-family: monospace; font-size: 12px; background-color: #f8f8f8; padding: 10px; border-radius: 5px; height: 500px; overflow-y: scroll;">'
+        f'<div style="font-family: monospace; font-size: 12px; background-color: rgba(240, 242, 246, 0.5); padding: 15px; border-radius: 8px; border: 1px solid rgba(49, 51, 63, 0.2);">'
         + ''.join(highlighted_lines) +
         '</div>',
         unsafe_allow_html=True
