@@ -223,7 +223,7 @@ def show_overview(data: Dict[str, Any], formula: str):
         total_branches = summary.get('num_branches', 0)
         branch_coverage = (covered_branches / total_branches * 100) if total_branches > 0 else 0
         file_coverage_data.append({
-            'File': Path(file_path).name,
+            'File': file_path,
             'Line Coverage': round(summary.get('percent_covered', 0.0), 1),
             'Covered Lines': summary.get('covered_lines', 0),
             'Total Statements': summary.get('num_statements', 0),
@@ -246,7 +246,7 @@ def show_overview(data: Dict[str, Any], formula: str):
             use_container_width=True,
             hide_index=True,
             column_config={
-                "File": st.column_config.TextColumn("File", width="medium"),
+                "File": st.column_config.TextColumn("File", width="large"),
                 "Line Coverage": st.column_config.ProgressColumn(
                     "Line Coverage",
                     help="Percentage of statements covered by tests",
@@ -439,7 +439,7 @@ def show_overview(data: Dict[str, Any], formula: str):
             # Only include files with max suspiciousness > 0 (normalized)
             if max_score > 0:
                 file_suspiciousness.append({
-                    'File': Path(file_path).name,
+                    'File': file_path,
                     'Max Score': round(max_score, 3),
                     'Avg Score': round(avg_score, 3),
                     'Suspicious Statements': suspicious_statements_count,
@@ -466,7 +466,7 @@ def show_overview(data: Dict[str, Any], formula: str):
             use_container_width=True,
             hide_index=True,
             column_config={
-                "File": st.column_config.TextColumn("File", width="medium"),
+                "File": st.column_config.TextColumn("File", width="large"),
                 "Max Score": st.column_config.ProgressColumn(
                     "Max Score",
                     help="Maximum suspiciousness score in the file",
@@ -605,7 +605,7 @@ def build_hierarchical_data(data: Dict[str, Any], formula: str, min_score: float
             continue  # Skip files with no significant scores
         
         # Get just the filename for display (ensure it's unique)
-        file_name = Path(file_path).name
+        file_name = file_path
         
         # Make file name unique if necessary
         counter = 1
@@ -880,7 +880,7 @@ def show_ranking_table(susp_data: List[Dict]):
     for i, item in enumerate(susp_data, 1):
         df_data.append({
             'Rank': i,
-            'File': Path(item['file']).name,
+            'File': item['file'],
             'Line': item['line'],
             'Score': item['score']
         })
@@ -935,7 +935,7 @@ def show_file_with_highlighting(file_data: Dict, file_path: str, formula: str):
         st.error(f"Could not read file: {file_path}")
         return
 
-    st.subheader(f"File: {Path(file_path).name}")
+    st.subheader(f"File: {file_path}")
 
     # Create highlighted code display with preserved indentation
     highlighted_lines = []
@@ -1048,13 +1048,13 @@ def show_coverage_matrix(data: Dict[str, Any]):
                             susp_score = float(list(scores.values())[0])
                     
                     all_lines.append({
-                        'file': Path(file_path).name,
+                        'file': file_path,
                         'line': int(line_num),
                         'test': test_name,
                         'test_status': test_status,
                         'covered': 1,
                         'suspiciousness': susp_score,
-                        'file_line': f"{Path(file_path).name}:{line_num}"
+                        'file_line': f"{file_path}:{line_num}"
                     })
     
     if not all_lines:
@@ -1472,7 +1472,7 @@ def show_sunburst(data: Dict[str, Any], formula: str):
         df_data = []
         for item in susp_data[:15]:  # Top 15
             df_data.append({
-                'Element': f"{Path(item['file']).name}:{item['line']}",
+                'Element': f"{item['file']}:{item['line']}",
                 'Score': item['score']
             })
         
