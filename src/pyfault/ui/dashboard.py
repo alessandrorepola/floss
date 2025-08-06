@@ -11,6 +11,10 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, List, Any, Optional, NamedTuple
 import os
+import sys
+import subprocess
+import tkinter as tk
+from tkinter import filedialog
 
 # Data structures for cached computations
 class FormulaStats(NamedTuple):
@@ -32,6 +36,29 @@ class FileStats(NamedTuple):
     suspicious_branches_pct: float
     total_statements_with_coverage: int
     total_branches_with_coverage: int
+
+
+def select_directory_with_dialog() -> Optional[str]:
+    """Open native file dialog to select directory."""
+    try:
+        # Create a root window but hide it
+        root = tk.Tk()
+        root.withdraw()
+        root.attributes('-topmost', True)  # Bring dialog to front
+        
+        # Open directory selection dialog
+        directory = filedialog.askdirectory(
+            title="Select Project Root Directory",
+            mustexist=True
+        )
+        
+        # Clean up
+        root.destroy()
+        
+        return directory if directory else None
+    except Exception as e:
+        st.error(f"Error opening file dialog: {str(e)}")
+        return None
 
 
 @st.cache_data
@@ -486,6 +513,8 @@ def main():
     # Initialize session state
     if 'data' not in st.session_state:
         st.session_state.data = None
+    if 'project_root' not in st.session_state:
+        st.session_state.project_root = None
     
     # Auto-load report file
     if st.session_state.data is None:
@@ -683,7 +712,7 @@ def show_overview(data: Dict[str, Any], formula: str):
             use_container_width=True,
             hide_index=True,
             column_config={
-                "File": st.column_config.TextColumn("File", width="large"),
+                "File": st.column_config.TextColumn("File"),
                 "Line Coverage": st.column_config.ProgressColumn(
                     "Line Coverage",
                     help="Percentage of statements covered by tests",
@@ -821,7 +850,7 @@ def show_overview(data: Dict[str, Any], formula: str):
             use_container_width=True,
             hide_index=True,
             column_config={
-                "file_path": st.column_config.TextColumn("File", width="large"),
+                "file_path": st.column_config.TextColumn("File"),
                 "max_score": st.column_config.ProgressColumn(
                     "Max Score",
                     help="Maximum suspiciousness score in the file",
@@ -1053,11 +1082,28 @@ def get_most_suspicious_file(data: Dict[str, Any], formula: str) -> Optional[str
 def show_source_code(data: Dict[str, Any], formula: str):
     """Show source code with suspiciousness highlighting."""
     st.header("Source Code")
-    
+
     files_data = data.get('files', {})
     if not files_data:
         st.warning("No file data available")
         return
+    
+    # Project root selection
+    col1, col2 = st.columns([3, 1])
+    
+    with col1:
+        # Display current project root
+        st.info(f"📁 Project root: `{st.session_state.project_root or os.getcwd()}`")
+    with col2:
+        # Browse button for project root
+        if st.button("📁 Browse Project Root", help="Select the root directory of your project"):
+            # Open native file dialog
+            selected_directory = select_directory_with_dialog()
+            if selected_directory:
+                st.session_state.project_root = selected_directory
+                st.rerun()
+    
+    st.divider()
     
     # File selection with most suspicious file as default
     file_paths = list(files_data.keys())
@@ -1082,12 +1128,51 @@ def show_file_with_highlighting(file_data: Dict, file_path: str, formula: str):
         st.warning("No suspiciousness data for this file")
         return
 
+    # Determine the actual file path to read
+    actual_file_path = file_path
+    
+    # If project root is set, try to construct the full path
+    if st.session_state.project_root:
+        # Try different combinations to find the file
+        potential_paths = [
+            os.path.join(st.session_state.project_root, file_path),  # Direct join
+            os.path.join(st.session_state.project_root, file_path.lstrip('./')),  # Remove leading ./
+            os.path.join(st.session_state.project_root, file_path.lstrip('/\\')),  # Remove leading slashes
+        ]
+        
+        # If file_path is already absolute, also try it as-is
+        if os.path.isabs(file_path):
+            potential_paths.insert(0, file_path)
+        
+        # Find the first path that exists
+        for path in potential_paths:
+            if os.path.exists(path):
+                actual_file_path = path
+                break
+    
     # Try to read the actual file content
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(actual_file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
-    except:
-        st.error(f"Could not read file: {file_path}")
+            
+    except FileNotFoundError:
+        st.error(f"❌ Could not find file: `{file_path}`")
+        if st.session_state.project_root:
+            st.error(f"🔍 Searched in project root: `{st.session_state.project_root}`")
+            # Show tried paths for debugging
+            with st.expander("Show attempted paths"):
+                potential_paths = [
+                    os.path.join(st.session_state.project_root, file_path),
+                    os.path.join(st.session_state.project_root, file_path.lstrip('./')),
+                    os.path.join(st.session_state.project_root, file_path.lstrip('/\\')),
+                ]
+                for i, path in enumerate(potential_paths, 1):
+                    st.code(f"{i}. {path}")
+        else:
+            st.info("💡 Try setting a project root directory using the 'Browse Project Root' button above.")
+        return
+    except Exception as e:
+        st.error(f"❌ Error reading file: {str(e)}")
         return
 
     st.subheader(f"File: {file_path}")
