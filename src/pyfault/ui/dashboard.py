@@ -545,7 +545,7 @@ def main():
     
     # Main dashboard tabs
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "Overview", "Source Code", "Coverage Matrix", "Treemap", "Sunburst"
+        "Overview", "Source Code", "Test-to-Fault Analysis", "Treemap", "Sunburst"
     ])
     
     with tab1:
@@ -555,7 +555,7 @@ def main():
         show_source_code(data, selected_formula)
     
     with tab3:
-        show_coverage_matrix(data)
+        show_coverage_matrix(data, selected_formula)
     
     with tab4:
         show_treemap_tab(data, selected_formula)
@@ -1224,9 +1224,10 @@ def show_file_with_highlighting(file_data: Dict, file_path: str, formula: str):
     )
 
 
-def show_coverage_matrix(data: Dict[str, Any]):
-    """Show enhanced coverage matrix visualization with interactive controls."""
-    st.header("Coverage Matrix")
+def show_coverage_matrix(data: Dict[str, Any], formula: str):
+    """Show intuitive test-to-fault relationship analysis."""
+    st.header("Test-to-Fault Analysis")
+    st.markdown(f"**Understand which failing tests are most informative for finding bugs** (using `{formula}` formula)")
     
     # Extract test and coverage information
     tests_info = data.get('tests', {})
@@ -1236,169 +1237,255 @@ def show_coverage_matrix(data: Dict[str, Any]):
         st.warning("No test or coverage data available")
         return
     
-    # Controls row
-    col1, col2, col3, col4 = st.columns(4)
+    # Get formula statistics for normalization using the selected formula
+    formula_stats = calculate_formula_statistics(data, formula)
     
-    with col1:
-        view_mode = st.selectbox(
-            "View Mode",
-            ["Detailed Lines", "File Summary", "Test Clustering"],
-            help="Choose how to display the coverage data"
-        )
+    if not formula_stats.all_scores:
+        st.warning("No suspiciousness data available")
+        return
     
-    with col2:
-        test_filter = st.selectbox(
-            "Test Filter",
-            ["All Tests", "Failed Tests Only", "Passed Tests Only"],
-            help="Filter tests by their execution result"
-        )
-    
-    with col3:
-        max_rows = st.slider("Max Rows", 10, 100, 50, help="Maximum number of rows to display")
-    
-    with col4:
-        max_cols = st.slider("Max Columns", 5, 50, 20, help="Maximum number of columns to display")
-    
-    # Build enhanced coverage matrix with test status and suspiciousness
+    # Analyze test-line relationships
     passed_tests = set(tests_info.get('passed', []))
     failed_tests = set(tests_info.get('failed', []))
-    all_lines = []
+    
+    if not failed_tests:
+        st.error("❌ No failing tests found. Fault localization requires failing tests to work.")
+        return
+    
+    # Build simplified analysis data
+    line_analysis = []
+    test_coverage_data = {}
     
     for file_path, file_data in files_data.items():
         contexts = file_data.get('contexts', {})
         suspiciousness = file_data.get('suspiciousness', {})
         
         for line_num, test_contexts in contexts.items():
-            for context in test_contexts:
-                if '::' in context:  # It's a test context
-                    test_name = context.split('|')[0]  # Remove |run suffix
-                    
-                    # Determine test status
-                    test_status = "unknown"
-                    if test_name in passed_tests:
-                        test_status = "passed"
-                    elif test_name in failed_tests:
-                        test_status = "failed"
-                    
-                    # Get suspiciousness score (use first available formula)
-                    susp_score = 0.0
-                    if line_num in suspiciousness:
-                        scores = suspiciousness[line_num]
-                        if scores:
-                            susp_score = float(list(scores.values())[0])
-                    
-                    all_lines.append({
-                        'file': file_path,
-                        'line': int(line_num),
-                        'test': test_name,
-                        'test_status': test_status,
-                        'covered': 1,
-                        'suspiciousness': susp_score,
-                        'file_line': f"{file_path}:{line_num}"
-                    })
-    
-    if not all_lines:
-        st.warning("No coverage data found")
-        return
-    
-    # Apply test filter
-    df = pd.DataFrame(all_lines)
-    if test_filter == "Failed Tests Only":
-        df = df[df['test_status'] == 'failed']
-    elif test_filter == "Passed Tests Only":
-        df = df[df['test_status'] == 'passed']
-    
-    if df.empty:
-        st.warning("No coverage data to display with current filters")
-        return
-    
-    # Show different views based on mode
-    if view_mode == "Detailed Lines":
-        show_detailed_coverage_heatmap(df, max_rows, max_cols)
-    elif view_mode == "File Summary":
-        show_file_summary_heatmap(df, max_rows, max_cols)
-    elif view_mode == "Test Clustering":
-        show_test_clustering_heatmap(df, max_rows, max_cols)
-    
-    # Show coverage statistics
-    show_coverage_statistics(df, tests_info)
-
-
-def show_detailed_coverage_heatmap(df: pd.DataFrame, max_rows: int, max_cols: int):
-    """Show detailed line-by-line coverage heatmap with enhanced features."""
-    st.subheader("Detailed Coverage Heatmap")
-    
-    # Create pivot table with suspiciousness as values for coloring
-    pivot_coverage = df.pivot_table(
-        index=['file', 'line'], 
-        columns='test', 
-        values='covered', 
-        fill_value=0
-    )
-    
-    pivot_suspiciousness = df.pivot_table(
-        index=['file', 'line'], 
-        columns='test', 
-        values='suspiciousness', 
-        fill_value=0,
-        aggfunc='mean'  # Average if multiple entries
-    )
-    
-    if pivot_coverage.empty:
-        st.warning("No pivot data to display")
-        return
-    
-    # Sort by suspiciousness (lines with highest average suspiciousness first)
-    avg_susp_per_line = pivot_suspiciousness.mean(axis=1).sort_values(ascending=False)
-    sorted_indices = avg_susp_per_line.index
-    
-    # Limit and sort data
-    display_coverage = pivot_coverage.loc[sorted_indices].iloc[:max_rows, :max_cols]
-    display_suspiciousness = pivot_suspiciousness.loc[sorted_indices].iloc[:max_rows, :max_cols]
-    
-    # Create enhanced heatmap
-    hover_text = []
-    for i in range(len(display_coverage)):
-        hover_row = []
-        for j in range(len(display_coverage.columns)):
-            line_info = display_coverage.index[i]
-            test_name = display_coverage.columns[j]
-            covered = display_coverage.iloc[i, j]
-            susp = display_suspiciousness.iloc[i, j]
+            # Get suspiciousness score
+            susp_score = 0.0
+            if line_num in suspiciousness and formula in suspiciousness[line_num]:
+                raw_score = float(suspiciousness[line_num][formula])
+                # Normalize to 0-1 range
+                susp_score = (raw_score - formula_stats.min_score) / formula_stats.range_score
             
-            hover_row.append(
-                f"File: {line_info[0]}<br>"
-                f"Line: {line_info[1]}<br>"
-                f"Test: {test_name}<br>"
-                f"Covered: {'Yes' if covered else 'No'}<br>"
-                f"Suspiciousness: {susp:.3f}"
+            # Only consider lines with some suspiciousness
+            if susp_score > 0.1:  # Small threshold to focus on meaningful lines
+                # Extract test names from contexts
+                covering_tests = set()
+                for context in test_contexts:
+                    if '::' in context:
+                        test_name = context.split('|')[0]
+                        covering_tests.add(test_name)
+                
+                # Categorize coverage
+                failed_covering = covering_tests & failed_tests
+                passed_covering = covering_tests & passed_tests
+                
+                coverage_type = "Unknown"
+                if failed_covering and not passed_covering:
+                    coverage_type = "Only Failed Tests"
+                elif failed_covering and passed_covering:
+                    coverage_type = "Mixed (Failed + Passed)"
+                elif passed_covering and not failed_covering:
+                    coverage_type = "Only Passed Tests"
+                
+                line_analysis.append({
+                    'file': file_path,
+                    'line': int(line_num),
+                    'suspiciousness': susp_score,
+                    'coverage_type': coverage_type,
+                    'failed_tests_count': len(failed_covering),
+                    'passed_tests_count': len(passed_covering),
+                    'failed_tests': list(failed_covering),
+                    'passed_tests': list(passed_covering),
+                    'file_line': f"{file_path}:{line_num}"
+                })
+                
+                # Track test coverage for each failed test
+                for test in failed_covering:
+                    if test not in test_coverage_data:
+                        test_coverage_data[test] = {'lines_covered': 0, 'total_suspiciousness': 0.0}
+                    test_coverage_data[test]['lines_covered'] += 1
+                    test_coverage_data[test]['total_suspiciousness'] += susp_score
+    
+    if not line_analysis:
+        st.warning("No suspicious lines found with current data")
+        return
+    
+    # Show main insights
+    show_test_fault_insights(line_analysis, test_coverage_data, failed_tests, passed_tests)
+    
+    # Show detailed breakdown
+    show_suspicious_lines_breakdown(line_analysis, formula)
+
+
+def show_test_fault_insights(line_analysis: List[Dict], test_coverage_data: Dict, 
+                           failed_tests: set, passed_tests: set):
+    """Show key insights about test-to-fault relationships."""
+    st.subheader("Key Insights")
+    
+    # Convert to DataFrame for analysis
+    df = pd.DataFrame(line_analysis)
+    
+    # Calculate key metrics
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        only_failed_lines = len(df[df['coverage_type'] == 'Only Failed Tests'])
+        st.metric(
+            "🎯 Lines Only Hit by Failed Tests",
+            only_failed_lines,
+            help="These lines are most suspicious - only failing tests execute them"
+        )
+    
+    with col2:
+        mixed_lines = len(df[df['coverage_type'] == 'Mixed (Failed + Passed)'])
+        st.metric(
+            "⚖️ Lines Hit by Both",
+            mixed_lines,
+            help="Lines executed by both failing and passing tests"
+        )
+    
+    with col3:
+        avg_suspiciousness_failed_only = df[df['coverage_type'] == 'Only Failed Tests']['suspiciousness'].mean() if only_failed_lines > 0 else 0
+        st.metric(
+            "📊 Avg Suspiciousness (Failed-Only)",
+            f"{avg_suspiciousness_failed_only:.3f}",
+            help="Average suspiciousness of lines hit only by failed tests"
+        )
+    
+    with col4:
+        most_informative_test = max(test_coverage_data.items(), 
+                                  key=lambda x: x[1]['total_suspiciousness']) if test_coverage_data else (None, None)
+        if most_informative_test[0]:
+            st.metric(
+                "🔍 Most Informative Failed Test",
+                "::".join(most_informative_test[0].split("::")[-2:]) if len(most_informative_test[0].split("::")) >= 2 else most_informative_test[0].split("::")[-1],
+                help="The failing test that covers the most suspicious code"
             )
-        hover_text.append(hover_row)
     
-    # Use suspiciousness for coloring, but show coverage in hover
-    fig = go.Figure(data=go.Heatmap(
-        z=display_suspiciousness.values,
-        x=display_coverage.columns,
-        y=[f"{idx[0]}:{idx[1]}" for idx in display_coverage.index],
-        hovertemplate='%{customdata}<extra></extra>',
-        customdata=hover_text,
-        colorscale='RdYlBu_r',  # Red for high suspiciousness, blue for low
-        colorbar=dict(title="Suspiciousness Score")
-    ))
+    # Show distribution of coverage types
+    st.subheader("Coverage Pattern Analysis")
     
-    fig.update_layout(
-        height=max(400, len(display_coverage) * 25),
-        xaxis_title="Tests",
-        yaxis_title="File:Line",
-        title="Coverage Matrix (colored by Suspiciousness, sorted by priority)"
-    )
+    col1, col2 = st.columns(2)
     
-    fig.update_xaxes(tickangle=45)
+    with col1:
+        # Pie chart of coverage types
+        coverage_counts = df['coverage_type'].value_counts()
+        
+        # Custom colors for better clarity
+        colors = ['#ff4444', '#ffaa44', '#44aa44']  # Red for failed-only, orange for mixed, green for passed-only
+        
+        fig_pie = px.pie(
+            values=coverage_counts.values,
+            names=coverage_counts.index,
+            title="Distribution of Suspicious Lines by Coverage Type",
+            color_discrete_sequence=colors
+        )
+        
+        fig_pie.update_traces(textposition='inside', textinfo='percent+label')
+        st.plotly_chart(fig_pie, use_container_width=True)
     
-    st.plotly_chart(fig, use_container_width=True)
+    with col2:
+        # Bar chart of test informativeness
+        if test_coverage_data:
+            test_info_df = pd.DataFrame([
+                {
+                    'test': "::".join(test.split("::")[-2:]) if len(test.split("::")) >= 2 else test.split("::")[-1],  # Include class and test name
+                    'lines_covered': data['lines_covered'],
+                    'total_suspiciousness': data['total_suspiciousness'],
+                    'avg_suspiciousness': data['total_suspiciousness'] / data['lines_covered']
+                }
+                for test, data in test_coverage_data.items()
+            ]).sort_values('total_suspiciousness', ascending=True).tail(10)  # Top 10 most informative
+            
+            fig_bar = px.bar(
+                test_info_df,
+                x='total_suspiciousness',
+                y='test',
+                orientation='h',
+                title="Most Informative Failed Tests",
+                labels={'total_suspiciousness': 'Total Suspiciousness Score', 'test': 'Test Name'},
+                color='avg_suspiciousness',
+                color_continuous_scale='Reds'
+            )
+            
+            fig_bar.update_layout(height=400)
+            st.plotly_chart(fig_bar, use_container_width=True)
+
+
+def show_suspicious_lines_breakdown(line_analysis: List[Dict], formula: str):
+    """Show detailed breakdown of suspicious lines."""
+    st.subheader("Suspicious Lines Details")
     
-    if len(pivot_coverage) > max_rows or len(pivot_coverage.columns) > max_cols:
-        st.info(f"Showing top {max_rows} most suspicious lines and {max_cols} tests. Total: {len(pivot_coverage)} lines, {len(pivot_coverage.columns)} tests")
+    df = pd.DataFrame(line_analysis)
+    
+    # Add a filter for coverage type
+    col1, col2 = st.columns([1, 3])
+    
+    with col1:
+        coverage_filter = st.selectbox(
+            "Filter by Coverage",
+            ["All", "Only Failed Tests", "Mixed (Failed + Passed)", "Only Passed Tests"],
+            help="Focus on specific types of coverage patterns"
+        )
+        
+        min_suspiciousness = st.slider(
+            "Min Suspiciousness",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.2,
+            step=0.1,
+            help="Show only lines above this suspiciousness threshold"
+        )
+    
+    # Apply filters
+    filtered_df = df[df['suspiciousness'] >= min_suspiciousness].copy()
+    if coverage_filter != "All":
+        filtered_df = filtered_df[filtered_df['coverage_type'] == coverage_filter]
+    
+    if filtered_df.empty:
+        st.warning("No lines match the current filters")
+        return
+    
+    # Sort by suspiciousness
+    filtered_df = filtered_df.sort_values('suspiciousness', ascending=False)
+    
+    # Display table with enhanced formatting
+    display_df = filtered_df[['file', 'line', 'suspiciousness', 'coverage_type', 'failed_tests_count', 'passed_tests_count']].copy()
+    
+    with col2:
+        st.dataframe(
+            display_df,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "file": st.column_config.TextColumn("File"),
+                "line": st.column_config.NumberColumn("Line"),
+                "suspiciousness": st.column_config.ProgressColumn(
+                    "Suspiciousness",
+                    min_value=0.0,
+                    max_value=1.0,
+                    format="%.3f"
+                ),
+                "coverage_type": st.column_config.TextColumn("Coverage Type"),
+                "failed_tests_count": st.column_config.NumberColumn("Failed Tests", help="Number of failed tests covering this line"),
+                "passed_tests_count": st.column_config.NumberColumn("Passed Tests", help="Number of passed tests covering this line")
+            }
+        )
+        
+        st.caption(f"Showing {len(filtered_df)} lines sorted by suspiciousness (using `{formula}` formula)")
+    
+    # Quick stats about filtered data
+    if len(filtered_df) > 0:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Average Suspiciousness", f"{filtered_df['suspiciousness'].mean():.3f}")
+        with col2:
+            st.metric("Highest Suspiciousness", f"{filtered_df['suspiciousness'].max():.3f}")
+        with col3:
+            unique_files = filtered_df['file'].nunique()
+            st.metric("Files Involved", unique_files)
 
 
 def show_file_summary_heatmap(df: pd.DataFrame, max_rows: int, max_cols: int):
