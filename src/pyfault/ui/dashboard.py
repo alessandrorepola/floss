@@ -186,202 +186,205 @@ def build_hierarchical_data_cached(data: Dict[str, Any], formula: str,
                                   min_score: float = 0.0) -> Dict[str, List]:
     """Build hierarchical data structure using cached formula statistics."""
     files_data = data.get('files', {})
-    
+
     if not formula_stats.all_scores:
-        return {'labels': [], 'parents': [], 'values': [], 'colors': [], 'hover_info': []}
-    
+        return {'labels': [], 'parents': [], 'ids': [], 'values': [], 'colors': [], 'hover_info': []}
+
     # Convert normalized min_score to actual threshold using cached stats
     actual_min_score = formula_stats.min_score + (min_score * formula_stats.range_score)
-    
-    labels = []
-    parents = []
-    values = []
-    colors = []
-    hover_info = []
-    
+
+    labels: List[str] = []
+    parents: List[str] = []  # store parent ids
+    ids: List[str] = []      # unique node ids
+    values: List[float] = []
+    colors: List[float] = []
+    hover_info: List[str] = []
+
+    # Track directory nodes for aggregation
+    dir_nodes: Dict[str, Dict[str, Any]] = {}
+    root_stats = {"lines": 0, "sum_score": 0.0}
+
     # Root node
     labels.append("Project")
     parents.append("")
+    ids.append("Project")
     values.append(1)
     colors.append(0.0)
-    
-    # Get overall project coverage from totals
+
+    # Root hover info
     totals = data.get('totals', {})
     project_coverage = totals.get('percent_covered', 0.0)
     total_files = totals.get('analysis_statistics', {}).get('files_analyzed', 0)
     hover_info.append(f"Project<br>Coverage: {project_coverage:.1f}%<br>Files: {total_files}")
-    
-    # Process files with cached normalization
+
+    # Iterate files
     for file_path, file_data in files_data.items():
         file_suspiciousness = file_data.get('suspiciousness', {})
         if not file_suspiciousness:
             continue
-            
-        # Check if file has any scores above threshold (using actual threshold)
-        file_scores = []
+
+        # Collect normalized scores above threshold
+        file_scores: List[float] = []
         for line_scores in file_suspiciousness.values():
             if formula in line_scores:
                 raw_score = float(line_scores[formula])
                 if raw_score >= actual_min_score:
-                    # Normalize score to 0-1 range using cached stats
-                    normalized_score = (raw_score - formula_stats.min_score) / formula_stats.range_score
-                    file_scores.append(normalized_score)
-        
+                    norm = (raw_score - formula_stats.min_score) / (formula_stats.range_score)
+                    file_scores.append(norm)
+
         if not file_scores:
-            continue  # Skip files with no significant scores
-        
-        # Get just the filename for display (ensure it's unique)
-        file_name = file_path
-        
-        # Make file name unique if necessary
-        counter = 1
-        original_file_name = file_name
-        while file_name in labels:
-            file_name = f"{original_file_name} ({counter})"
-            counter += 1
-        
-        # Get file coverage summary
+            continue
+
+        normalized_path = str(file_path).replace('\\', '/')
+        parts = [p for p in normalized_path.split('/') if p]
+        dir_chain = parts[:-1] if len(parts) > 1 else []
+
+        # Ensure directory chain nodes
+        parent_id = "Project"
+        current_path: List[str] = []
+        for seg in dir_chain:
+            current_path.append(seg)
+            dir_key = "/".join(current_path)
+            if dir_key not in dir_nodes:
+                labels.append(seg)
+                parents.append(parent_id)
+                ids.append(f"dir:{dir_key}")
+                values.append(0)
+                colors.append(0.0)
+                hover_info.append("")
+                dir_nodes[dir_key] = {
+                    "index": len(labels) - 1,
+                    "lines": 0,
+                    "sum_score": 0.0,
+                    "id": f"dir:{dir_key}",
+                }
+            parent_id = dir_nodes[dir_key]["id"]
+
+        # File node (label = basename, hover shows full path)
+        file_label = parts[-1] if parts else str(file_path)
         file_summary = file_data.get('summary', {})
         file_coverage = file_summary.get('percent_covered', 0.0)
         file_statements = file_summary.get('num_statements', 0)
         file_covered_lines = file_summary.get('covered_lines', 0)
-        
-        # Add file
+
         avg_file_score = sum(file_scores) / len(file_scores)
         file_lines_count = len(file_scores)
-        
-        labels.append(file_name)
-        parents.append("Project")  # All files directly under project
+
+        labels.append(file_label)
+        parents.append(parent_id)
+        ids.append(f"file:{normalized_path}")
         values.append(max(file_lines_count, 1))
         colors.append(avg_file_score)
-        hover_info.append(f"File: {file_name}<br>Coverage: {file_coverage:.1f}%<br>Lines: {file_covered_lines}/{file_statements}")
-        
-        # Add classes and functions within the file (only if they have significant scores)
+        hover_info.append(f"File: {normalized_path}<br>Coverage: {file_coverage:.1f}%<br>Lines: {file_covered_lines}/{file_statements}")
+
+        # Aggregate into directory nodes
+        if dir_chain:
+            weight = file_lines_count
+            for i in range(len(dir_chain)):
+                dir_key = "/".join(dir_chain[:i+1])
+                node = dir_nodes[dir_key]
+                node["lines"] += weight
+                node["sum_score"] += avg_file_score * weight
+                idx = node["index"]
+                values[idx] = max(node["lines"], 1)
+                avg_dir_score = (node["sum_score"] / node["lines"]) if node["lines"] > 0 else 0.0
+                colors[idx] = avg_dir_score
+                hover_info[idx] = f"Directory: {dir_key}<br>Lines with data: {node['lines']}<br>Avg Score: {avg_dir_score:.3f}"
+
+        # Aggregate into root
+        root_stats["lines"] += file_lines_count
+        root_stats["sum_score"] += avg_file_score * file_lines_count
+
+        # Classes
         classes_data = file_data.get('classes', {})
         functions_data = file_data.get('functions', {})
-        
-        # Process classes
+
         for class_name, class_info in classes_data.items():
-            if class_name == "" or len(class_name) == 0:
-                continue  # Skip global code
-            
-            # Get class suspiciousness from executed lines
+            if not class_name:
+                continue
             executed_lines = class_info.get('executed_lines', [])
-            class_scores = []
+            class_scores: List[float] = []
             for line_num in executed_lines:
                 line_str = str(line_num)
                 if line_str in file_suspiciousness:
-                    raw_score = float(file_suspiciousness[line_str].get(formula, 0.0))
-                    if raw_score >= actual_min_score:
-                        # Normalize score to 0-1 range using cached stats
-                        normalized_score = (raw_score - formula_stats.min_score) / formula_stats.range_score
-                        class_scores.append(normalized_score)
-            
+                    raw = float(file_suspiciousness[line_str].get(formula, 0.0))
+                    if raw >= actual_min_score:
+                        class_scores.append((raw - formula_stats.min_score) / (formula_stats.range_score))
             if not class_scores:
-                continue  # Skip classes with no significant scores
-            
-            avg_class_score = sum(class_scores) / len(class_scores)
-            class_lines_count = len(class_scores)
-            
-            # Make class label unique
+                continue
+            avg_class = sum(class_scores) / len(class_scores)
+            class_count = len(class_scores)
             class_label = f"class {class_name}"
-            counter = 1
-            original_class_label = class_label
-            while class_label in labels:
-                class_label = f"{original_class_label} ({counter})"
-                counter += 1
-            
             labels.append(class_label)
-            parents.append(file_name)  # Class parent is the file
-            values.append(max(class_lines_count, 1))
-            colors.append(avg_class_score)
-            hover_info.append(f"Class: {class_name}<br>Lines with data: {class_lines_count}<br>Avg Score: {avg_class_score:.3f}")
-            
-            # Add methods for this class (only with significant scores)
+            parents.append(f"file:{normalized_path}")
+            ids.append(f"class:{normalized_path}:{class_name}")
+            values.append(max(class_count, 1))
+            colors.append(avg_class)
+            hover_info.append(f"Class: {class_name}<br>Lines with data: {class_count}<br>Avg Score: {avg_class:.3f}")
+
+            # Methods inside the class
             for func_name, func_info in functions_data.items():
-                if func_name.startswith(f"{class_name}."):
-                    method_name = func_name.split('.')[-1]
-                    
-                    method_executed_lines = func_info.get('executed_lines', [])
-                    method_scores = []
-                    for line_num in method_executed_lines:
-                        line_str = str(line_num)
-                        if line_str in file_suspiciousness:
-                            raw_score = float(file_suspiciousness[line_str].get(formula, 0.0))
-                            if raw_score >= actual_min_score:
-                                # Normalize score to 0-1 range using cached stats
-                                normalized_score = (raw_score - formula_stats.min_score) / formula_stats.range_score
-                                method_scores.append(normalized_score)
-                    
-                    if not method_scores:
-                        continue  # Skip methods with no significant scores
-                    
-                    # Get method coverage summary
-                    method_summary = func_info.get('summary', {})
-                    method_coverage = method_summary.get('percent_covered', 0.0)
-                    method_statements = method_summary.get('num_statements', 0)
-                    
-                    avg_method_score = sum(method_scores) / len(method_scores)
-                    method_lines_count = len(method_scores)
-                    
-                    # Make method label unique
-                    method_label = f"def {method_name}()"
-                    counter = 1
-                    original_method_label = method_label
-                    while method_label in labels:
-                        method_label = f"{original_method_label} ({counter})"
-                        counter += 1
-                    
-                    labels.append(method_label)
-                    parents.append(class_label)  # Method parent is the class
-                    values.append(max(method_lines_count, 1))
-                    colors.append(avg_method_score)
-                    hover_info.append(f"Method: {method_name}<br>Coverage: {method_coverage:.1f}%<br>Statements: {method_statements}")
-        
-        # Process standalone functions (not methods, only with significant scores)
+                if not func_name.startswith(f"{class_name}."):
+                    continue
+                method_name = func_name.split('.')[-1]
+                method_lines = func_info.get('executed_lines', [])
+                method_scores: List[float] = []
+                for line_num in method_lines:
+                    line_str = str(line_num)
+                    if line_str in file_suspiciousness:
+                        raw = float(file_suspiciousness[line_str].get(formula, 0.0))
+                        if raw >= actual_min_score:
+                            method_scores.append((raw - formula_stats.min_score) / (formula_stats.range_score))
+                if not method_scores:
+                    continue
+                avg_method = sum(method_scores) / len(method_scores)
+                method_count = len(method_scores)
+                method_label = f"def {method_name}()"
+                labels.append(method_label)
+                parents.append(f"class:{normalized_path}:{class_name}")
+                ids.append(f"method:{normalized_path}:{class_name}.{method_name}")
+                values.append(max(method_count, 1))
+                colors.append(avg_method)
+                method_summary = func_info.get('summary', {})
+                method_cov = method_summary.get('percent_covered', 0.0)
+                method_stmts = method_summary.get('num_statements', 0)
+                hover_info.append(f"Method: {method_name}<br>Coverage: {method_cov:.1f}%<br>Statements: {method_stmts}")
+
+        # Standalone functions
         for func_name, func_info in functions_data.items():
-            if '.' in func_name or func_name == "" or len(func_name) == 0:
-                continue  # Skip methods and global code
-            
-            func_executed_lines = func_info.get('executed_lines', [])
-            func_scores = []
-            for line_num in func_executed_lines:
+            if (not func_name) or ('.' in func_name):
+                continue
+            func_lines = func_info.get('executed_lines', [])
+            func_scores: List[float] = []
+            for line_num in func_lines:
                 line_str = str(line_num)
                 if line_str in file_suspiciousness:
-                    raw_score = float(file_suspiciousness[line_str].get(formula, 0.0))
-                    if raw_score >= actual_min_score:
-                        # Normalize score to 0-1 range using cached stats
-                        normalized_score = (raw_score - formula_stats.min_score) / formula_stats.range_score
-                        func_scores.append(normalized_score)
-            
+                    raw = float(file_suspiciousness[line_str].get(formula, 0.0))
+                    if raw >= actual_min_score:
+                        func_scores.append((raw - formula_stats.min_score) / (formula_stats.range_score))
             if not func_scores:
-                continue  # Skip functions with no significant scores
-            
-            # Get function coverage summary
-            func_summary = func_info.get('summary', {})
-            func_coverage = func_summary.get('percent_covered', 0.0)
-            func_statements = func_summary.get('num_statements', 0)
-            
-            avg_func_score = sum(func_scores) / len(func_scores)
-            func_lines_count = len(func_scores)
-            
-            # Make function label unique
+                continue
+            avg_func = sum(func_scores) / len(func_scores)
+            func_count = len(func_scores)
             func_label = f"def {func_name}()"
-            counter = 1
-            original_func_label = func_label
-            while func_label in labels:
-                func_label = f"{original_func_label} ({counter})"
-                counter += 1
-            
             labels.append(func_label)
-            parents.append(file_name)  # Function parent is the file
-            values.append(max(func_lines_count, 1))
-            colors.append(avg_func_score)
-            hover_info.append(f"Function: {func_name}<br>Coverage: {func_coverage:.1f}%<br>Statements: {func_statements}")
-    
+            parents.append(f"file:{normalized_path}")
+            ids.append(f"func:{normalized_path}:{func_name}")
+            values.append(max(func_count, 1))
+            colors.append(avg_func)
+            func_summary = func_info.get('summary', {})
+            func_cov = func_summary.get('percent_covered', 0.0)
+            func_stmts = func_summary.get('num_statements', 0)
+            hover_info.append(f"Function: {func_name}<br>Coverage: {func_cov:.1f}%<br>Statements: {func_stmts}")
+
+    # Root color as overall average
+    if root_stats["lines"] > 0:
+        colors[0] = root_stats["sum_score"] / root_stats["lines"]
+
     return {
         'labels': labels,
         'parents': parents,
+        'ids': ids,
         'values': values,
         'colors': colors,
         'hover_info': hover_info
@@ -700,7 +703,6 @@ def show_overview(data: Dict[str, Any], formula: str):
         })
     
     if file_coverage_data:
-        import pandas as pd
         coverage_df = pd.DataFrame(file_coverage_data)
         
         # Sort by coverage percentage descending
@@ -819,7 +821,7 @@ def show_overview(data: Dict[str, Any], formula: str):
             max_value=1.0,
             value=0.5,
             step=0.1,
-            key="suspicious_threshold",
+            key=f"suspicious_threshold_{formula}",
             help="Normalized threshold (0=min, 1=max) for considering lines suspicious"
         )
         
@@ -955,6 +957,7 @@ def show_treemap_tab(data: Dict[str, Any], formula: str):
     fig = go.Figure(go.Treemap(
         labels=hierarchy_data['labels'],
         parents=hierarchy_data['parents'],
+        ids=hierarchy_data.get('ids', None),
         values=hierarchy_data['values'],
         textinfo="label+value",
         marker=dict(
@@ -1018,6 +1021,7 @@ def show_treemap(data: Dict[str, Any], formula: str):
     fig = go.Figure(go.Treemap(
         labels=hierarchy_data['labels'],
         parents=hierarchy_data['parents'],
+        ids=hierarchy_data.get('ids', None),
         values=hierarchy_data['values'],
         textinfo="label+value",
         marker=dict(
@@ -1088,12 +1092,20 @@ def show_source_code(data: Dict[str, Any], formula: str):
         st.warning("No file data available")
         return
     
+    # Calculate stats for normalization in highlighting
+    formula_stats = calculate_formula_statistics(data, formula)
+    
     # Project root selection
     col1, col2 = st.columns([3, 1])
     
     with col1:
         # Display current project root
         st.info(f"📁 Project root: `{st.session_state.project_root or os.getcwd()}`")
+        # Manual input fallback for headless environments
+        manual_root = st.text_input("Project root (manual)", value=st.session_state.project_root or "", placeholder="e.g., C:/path/to/project")
+        if manual_root and manual_root != st.session_state.project_root:
+            st.session_state.project_root = manual_root
+            st.rerun()
     with col2:
         # Browse button for project root
         if st.button("📁 Browse Project Root", help="Select the root directory of your project"):
@@ -1116,11 +1128,23 @@ def show_source_code(data: Dict[str, Any], formula: str):
     
     selected_file = st.selectbox("Select File", file_paths, index=default_index)
     
+    # Filtering controls for long files
+    colf1, colf2, colf3 = st.columns([1.2, 1, 1])
+    with colf1:
+        enable_filter = st.checkbox("Show only lines ≥ threshold / Top N", value=False)
+    with colf2:
+        thr = st.slider("Threshold (normalized)", 0.0, 1.0, 0.2, 0.05, disabled=not enable_filter)
+    with colf3:
+        topn = st.number_input("Top N lines", min_value=1, max_value=1000, value=200, step=10, disabled=not enable_filter)
+
     if selected_file:
-        show_file_with_highlighting(files_data[selected_file], selected_file, formula)
+        show_file_with_highlighting(
+            files_data[selected_file], selected_file, formula, formula_stats,
+            filter_enabled=enable_filter, threshold=thr, top_n=int(topn)
+        )
 
 
-def show_file_with_highlighting(file_data: Dict, file_path: str, formula: str):
+def show_file_with_highlighting(file_data: Dict, file_path: str, formula: str, formula_stats: FormulaStats, *, filter_enabled: bool=False, threshold: float=0.0, top_n: int=0):
     """Show file content with line highlighting based on suspiciousness."""
     suspiciousness = file_data.get('suspiciousness', {})
 
@@ -1176,11 +1200,37 @@ def show_file_with_highlighting(file_data: Dict, file_path: str, formula: str):
         return
 
     st.subheader(f"File: {file_path}")
+    # Color legend for normalized suspiciousness
+    st.caption("Highlight based on normalized suspiciousness (0–1): >0.8=🔴, >0.5=🟠, >0.2=🟡")
+
+    # Precompute normalized scores per line
+    normalized_scores: Dict[int, float] = {}
+    for line_str, scores in suspiciousness.items():
+        raw = float(scores.get(formula, 0.0))
+        norm = (raw - formula_stats.min_score) / (formula_stats.range_score or 1.0)
+        normalized_scores[int(line_str)] = max(0.0, min(1.0, norm))
+
+    # Determine which lines to display based on filters
+    show_lines: Optional[set] = None
+    if filter_enabled:
+        # Lines above threshold
+        above = {ln for ln, sc in normalized_scores.items() if sc >= threshold}
+        # Top-N by score (ties not guaranteed stable)
+        if top_n > 0:
+            sorted_by_score = sorted(normalized_scores.items(), key=lambda x: x[1], reverse=True)
+            top_set = {ln for ln, _ in sorted_by_score[:top_n]}
+            candidate = above | top_set
+        else:
+            candidate = above
+        show_lines = candidate if candidate else set()
 
     # Create highlighted code display with preserved indentation
     highlighted_lines = []
     for line_num, line_content in enumerate(lines, 1):
         line_str = str(line_num)
+        # Filter out non-selected lines if filtering is enabled
+        if show_lines is not None and line_num not in show_lines:
+            continue
         # Escape HTML special characters and preserve indentation
         safe_content = line_content.rstrip('\n').replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
         # Replace leading spaces/tabs with &nbsp; for indentation
@@ -1189,9 +1239,9 @@ def show_file_with_highlighting(file_data: Dict, file_path: str, formula: str):
         indent = '&nbsp;' * leading_spaces + ('&nbsp;&nbsp;&nbsp;&nbsp;' * leading_tabs)
         stripped_content = safe_content.lstrip(' \t')
         code_html = f"{indent}{stripped_content}"
-        if line_str in suspiciousness:
-            score = suspiciousness[line_str].get(formula, 0)
-            # Color intensity based on suspiciousness
+        if line_num in normalized_scores:
+            score = normalized_scores[line_num]
+            # Color intensity based on normalized suspiciousness
             if score > 0.8:
                 color = "#ff4444"
             elif score > 0.5:
@@ -1209,6 +1259,7 @@ def show_file_with_highlighting(file_data: Dict, file_path: str, formula: str):
                 f'</div>'
             )
         else:
+            # No score available for this line: render plain line without score badge
             highlighted_lines.append(
                 f'<div style="padding: 2px; margin: 1px;">'
                 f'<span style="color: #666; width: 40px; display: inline-block;">{line_num:3d}</span> '
@@ -1251,6 +1302,23 @@ def show_coverage_matrix(data: Dict[str, Any], formula: str):
     if not failed_tests:
         st.error("❌ No failing tests found. Fault localization requires failing tests to work.")
         return
+
+    # Threshold control for filtering suspicious lines (normalized 0–1)
+    st.divider()
+    col_thr1, col_thr2 = st.columns([2, 3])
+    with col_thr1:
+        thr_key = f"tf_susp_threshold_{formula}"
+        susp_threshold = st.slider(
+            "Suspiciousness Threshold (normalized)",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.1,
+            step=0.05,
+            key=thr_key,
+            help="Consider only lines with normalized suspiciousness above this threshold for the analysis below. Set to 0.0 to include all lines."
+        )
+    with col_thr2:
+        st.caption(f"Metrics below only consider lines with suspiciousness > {susp_threshold:.2f} (normalized).")
     
     # Build simplified analysis data
     line_analysis = []
@@ -1268,8 +1336,8 @@ def show_coverage_matrix(data: Dict[str, Any], formula: str):
                 # Normalize to 0-1 range
                 susp_score = (raw_score - formula_stats.min_score) / formula_stats.range_score
             
-            # Only consider lines with some suspiciousness
-            if susp_score > 0.1:  # Small threshold to focus on meaningful lines
+            # Only consider lines with suspiciousness above the configured threshold
+            if susp_score > susp_threshold:
                 # Extract test names from contexts
                 covering_tests = set()
                 for context in test_contexts:
@@ -1328,7 +1396,7 @@ def show_test_fault_insights(line_analysis: List[Dict], test_coverage_data: Dict
     df = pd.DataFrame(line_analysis)
     
     # Calculate key metrics
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         only_failed_lines = len(df[df['coverage_type'] == 'Only Failed Tests'])
@@ -1345,7 +1413,7 @@ def show_test_fault_insights(line_analysis: List[Dict], test_coverage_data: Dict
             mixed_lines,
             help="Lines executed by both failing and passing tests"
         )
-    
+
     with col3:
         avg_suspiciousness_failed_only = df[df['coverage_type'] == 'Only Failed Tests']['suspiciousness'].mean() if only_failed_lines > 0 else 0
         st.metric(
@@ -1353,17 +1421,7 @@ def show_test_fault_insights(line_analysis: List[Dict], test_coverage_data: Dict
             f"{avg_suspiciousness_failed_only:.3f}",
             help="Average suspiciousness of lines hit only by failed tests"
         )
-    
-    with col4:
-        most_informative_test = max(test_coverage_data.items(), 
-                                  key=lambda x: x[1]['total_suspiciousness']) if test_coverage_data else (None, None)
-        if most_informative_test[0]:
-            st.metric(
-                "🔍 Most Informative Failed Test",
-                "::".join(most_informative_test[0].split("::")[-2:]) if len(most_informative_test[0].split("::")) >= 2 else most_informative_test[0].split("::")[-1],
-                help="The failing test that covers the most suspicious code"
-            )
-    
+
     # Show distribution of coverage types
     st.subheader("Coverage Pattern Analysis")
     
@@ -1723,7 +1781,7 @@ def show_sunburst(data: Dict[str, Any], formula: str):
             max_value=1.0,
             value=0.05,
             step=0.05,
-            key="sunburst_threshold",
+            key=f"sunburst_threshold_{formula}",
             help="Filter out elements with suspiciousness score below this threshold"
         )
     
@@ -1739,14 +1797,20 @@ def show_sunburst(data: Dict[str, Any], formula: str):
             st.info(f"Available elements with threshold 0.0: {len(fallback_data['labels'])}")
         return
     
-    # Fix small values that cause rendering issues
-    fixed_values = [max(v, 5) for v in hierarchy_data['values']]
+    # Scale values mildly to keep proportions while avoiding tiny slices
+    try:
+        vals_arr = np.array(hierarchy_data['values'], dtype=float)
+        scaled = np.sqrt(vals_arr)
+        fixed_values = np.maximum(scaled, 1).tolist()  # ensure minimum size without heavy distortion
+    except Exception:
+        fixed_values = hierarchy_data['values']
     
     # Create hierarchical sunburst
     try:
         fig = go.Figure(go.Sunburst(
             labels=hierarchy_data['labels'],
             parents=hierarchy_data['parents'],
+            ids=hierarchy_data.get('ids', None),
             values=fixed_values,
             marker=dict(
                 colors=hierarchy_data['colors'],
