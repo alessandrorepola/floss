@@ -28,12 +28,9 @@ dependencies = [
     "rich>=14.0.1",
     "click>=8.1.8",
     "pytest>=8.3.5",
-    "pandas>=2.0.3",
     "numpy>=1.24.4",
-    "plotly>=5.22.0",
     "coverage>=7.6.1",
     "pytest-cov>=4.0.0",
-    "streamlit>=1.45.0",
 ]
 
 [project.optional-dependencies]
@@ -42,6 +39,11 @@ dev = [
     "black",
     "flake8",
     "pre-commit",
+]
+ui = [
+    "streamlit>=1.45.0",
+    "plotly>=5.22.0",
+    "pandas>=2.0.3",
 ]
 
 [project.scripts]

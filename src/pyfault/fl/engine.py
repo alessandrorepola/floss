@@ -72,6 +72,12 @@ class FLEngine:
         # Enhance meta section with PyFault FL information
         self._add_pyfault_fl_metadata(report, coverage_data)
         
+        # Add fl_metadata section expected by CLI tests/consumers
+        report["fl_metadata"] = {
+            "formulas_used": list(self.formulas.keys()),
+            "total_lines_analyzed": len(suspiciousness_scores),
+        }
+
         # Add fl summary in the totals section and reorganize JSON structure
         self._add_fl_summary_info_and_reorganize(report, coverage_data)
         

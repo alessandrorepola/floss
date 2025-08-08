@@ -170,6 +170,19 @@ def fl(ctx: click.Context, input: str, output: str, formulas: List[str], config:
         console.print(f"\n[bold green]✓[/bold green] Fault localization completed!")
         console.print(f"Report saved to: [cyan]{fl_config.output_file}[/cyan]")
         
+    except FileNotFoundError as e:
+        console.print(f"[bold red]Error:[/bold red] No such file or directory: {fl_config.input_file}")
+        if ctx.obj.get('verbose'):
+            console.print_exception()
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        console.print(
+            f"[bold red]Error:[/bold red] Malformed JSON in input file: {fl_config.input_file} \n"
+            f"Line {e.lineno}, Column {e.colno}: {e.msg}"
+        )
+        if ctx.obj.get('verbose'):
+            console.print_exception()
+        sys.exit(1)
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {e}")
         if ctx.obj.get('verbose'):
@@ -325,7 +338,7 @@ def ui(ctx: click.Context, report: str, port: int, no_open: bool) -> None:
         
     except ImportError as e:
         console.print("[bold red]Error:[/bold red] Dashboard dependencies not available.")
-        console.print("Install dashboard dependencies: pip install streamlit plotly")
+        console.print("Install UI extras: pip install .[ui]  (or: pip install pyfault[ui])")
         if ctx.obj.get('verbose'):
             console.print_exception()
         sys.exit(1)
