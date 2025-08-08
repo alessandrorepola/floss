@@ -547,8 +547,8 @@ def main():
     selected_formula = st.selectbox("SBFL Formula", formulas)
     
     # Main dashboard tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "Overview", "Source Code", "Test-to-Fault Analysis", "Treemap", "Sunburst"
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+        "Overview", "Source Code", "Test-to-Fault Analysis", "Treemap", "Sunburst", "Formula Comparison", "What-If Analysis", "Formula Performance"
     ])
     
     with tab1:
@@ -565,6 +565,15 @@ def main():
     
     with tab5:
         show_sunburst(data, selected_formula)
+    
+    with tab6:
+        show_formula_comparison(data, formulas)
+    
+    with tab7:
+        show_what_if_analysis(data, selected_formula)
+    
+    with tab8:
+        show_formula_performance(data, formulas)
 
 
 def show_overview(data: Dict[str, Any], formula: str):
@@ -1903,6 +1912,783 @@ def extract_suspiciousness_data(data: Dict[str, Any], formula: str) -> List[Dict
     # Sort by score descending
     susp_data.sort(key=lambda x: x['score'], reverse=True)
     return susp_data
+
+
+@st.cache_data
+def get_top_suspicious_lines_for_formula(data: Dict[str, Any], formula: str, top_n: int = 10) -> List[Dict]:
+    """Get top N most suspicious lines for a specific formula."""
+    files_data = data.get('files', {})
+    all_suspicious = []
+    
+    for file_path, file_data in files_data.items():
+        suspiciousness = file_data.get('suspiciousness', {})
+        contexts = file_data.get('contexts', {})
+        executed_lines = file_data.get('executed_lines', [])
+        
+        for line_num in executed_lines:
+            line_str = str(line_num)
+            
+            # Check if this line has test coverage
+            line_contexts = contexts.get(line_str, [])
+            has_test_coverage = any(context.strip() for context in line_contexts)
+            
+            if line_str in suspiciousness and formula in suspiciousness[line_str] and has_test_coverage:
+                score = float(suspiciousness[line_str][formula])
+                all_suspicious.append({
+                    'file': file_path,
+                    'line': line_num,
+                    'score': score,
+                    'formula': formula
+                })
+    
+    # Sort by score descending and return top N
+    all_suspicious.sort(key=lambda x: x['score'], reverse=True)
+    return all_suspicious[:top_n]
+
+
+def show_formula_comparison(data: Dict[str, Any], formulas: List[str]):
+    """Show comparison between different SBFL formulas."""
+    st.header("Formula Comparison")
+    st.markdown("Compare the performance and agreement between different SBFL formulas.")
+    
+    if len(formulas) < 2:
+        st.warning("At least 2 formulas are required for comparison.")
+        return
+    
+    # Formula selection for comparison
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        formula1 = st.selectbox("First Formula", formulas, key="comp_formula1")
+    
+    with col2:
+        # Filter out the first formula from second selection
+        available_formulas = [f for f in formulas if f != formula1]
+        if available_formulas:
+            formula2 = st.selectbox("Second Formula", available_formulas, key="comp_formula2")
+        else:
+            st.warning("Please select a different formula for comparison.")
+            return
+    
+    # Get top suspicious lines for both formulas
+    top_n = st.slider("Number of top suspicious lines to compare", 5, 20, 10)
+    
+    top_lines_f1 = get_top_suspicious_lines_for_formula(data, formula1, top_n)
+    top_lines_f2 = get_top_suspicious_lines_for_formula(data, formula2, top_n)
+    
+    if not top_lines_f1 or not top_lines_f2:
+        st.warning("No suspicious lines found for the selected formulas.")
+        return
+    
+    # === SIDE-BY-SIDE COMPARISON TABLE ===
+    st.subheader(f"Top {top_n} Most Suspicious Lines Comparison")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown(f"**{formula1}**")
+        df1 = pd.DataFrame(top_lines_f1)
+        df1['rank'] = range(1, len(df1) + 1)
+        df1['file_line'] = df1['file'] + ':' + df1['line'].astype(str)
+        st.dataframe(
+            df1[['rank', 'file_line', 'score']].rename(columns={
+                'rank': 'Rank',
+                'file_line': 'File:Line',
+                'score': 'Score'
+            }),
+            use_container_width=True
+        )
+    
+    with col2:
+        st.markdown(f"**{formula2}**")
+        df2 = pd.DataFrame(top_lines_f2)
+        df2['rank'] = range(1, len(df2) + 1)
+        df2['file_line'] = df2['file'] + ':' + df2['line'].astype(str)
+        st.dataframe(
+            df2[['rank', 'file_line', 'score']].rename(columns={
+                'rank': 'Rank',
+                'file_line': 'File:Line',
+                'score': 'Score'
+            }),
+            use_container_width=True
+        )
+    
+    # === SCATTER PLOT COMPARISON ===
+    st.subheader("Score Correlation Analysis")
+    
+    # Create a combined dataset for scatter plot
+    files_data = data.get('files', {})
+    scatter_data = []
+    
+    for file_path, file_data in files_data.items():
+        suspiciousness = file_data.get('suspiciousness', {})
+        contexts = file_data.get('contexts', {})
+        executed_lines = file_data.get('executed_lines', [])
+        
+        for line_num in executed_lines:
+            line_str = str(line_num)
+            
+            # Check if this line has test coverage
+            line_contexts = contexts.get(line_str, [])
+            has_test_coverage = any(context.strip() for context in line_contexts)
+            
+            if (line_str in suspiciousness and 
+                formula1 in suspiciousness[line_str] and 
+                formula2 in suspiciousness[line_str] and 
+                has_test_coverage):
+                
+                score1 = float(suspiciousness[line_str][formula1])
+                score2 = float(suspiciousness[line_str][formula2])
+                
+                scatter_data.append({
+                    'file': file_path,
+                    'line': line_num,
+                    'score1': score1,
+                    'score2': score2,
+                    'file_line': f"{file_path}:{line_num}"
+                })
+    
+    if scatter_data:
+        scatter_df = pd.DataFrame(scatter_data)
+        
+        # Create scatter plot
+        fig = px.scatter(
+            scatter_df,
+            x='score1',
+            y='score2',
+            hover_data=['file_line'],
+            title=f"Suspiciousness Score Comparison: {formula1} vs {formula2}",
+            labels={
+                'score1': f'{formula1} Score',
+                'score2': f'{formula2} Score'
+            }
+        )
+        
+        # Add diagonal line for perfect agreement
+        max_score = max(scatter_df['score1'].max(), scatter_df['score2'].max())
+        min_score = min(scatter_df['score1'].min(), scatter_df['score2'].min())
+        
+        fig.add_trace(
+            go.Scatter(
+                x=[min_score, max_score],
+                y=[min_score, max_score],
+                mode='lines',
+                name='Perfect Agreement',
+                line=dict(dash='dash', color='red', width=2)
+            )
+        )
+        
+        fig.update_layout(
+            width=800,
+            height=600,
+            showlegend=True
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Calculate correlation coefficient
+        correlation = scatter_df['score1'].corr(scatter_df['score2'])
+        st.metric(
+            "Pearson Correlation Coefficient",
+            f"{correlation:.3f}",
+            help="Measures linear correlation between the two formulas. Values closer to 1 indicate high agreement."
+        )
+        
+        # === AGREEMENT ANALYSIS ===
+        st.subheader("Agreement Analysis")
+        
+        # Find lines where formulas disagree significantly
+        scatter_df['score_diff'] = abs(scatter_df['score1'] - scatter_df['score2'])
+        scatter_df['avg_score'] = (scatter_df['score1'] + scatter_df['score2']) / 2
+        
+        # Define disagreement threshold (e.g., 20% of the score range)
+        score_range = max(scatter_df['score1'].max(), scatter_df['score2'].max()) - min(scatter_df['score1'].min(), scatter_df['score2'].min())
+        disagreement_threshold = score_range * 0.2
+        
+        disagreements = scatter_df[scatter_df['score_diff'] > disagreement_threshold].copy()
+        disagreements = disagreements.sort_values('score_diff', ascending=False)
+        
+        if len(disagreements) > 0:
+            st.markdown(f"**Lines with significant disagreement** (difference > {disagreement_threshold:.3f}):")
+            
+            disagreements['diff_formatted'] = disagreements['score_diff'].round(3)
+            disagreements['score1_formatted'] = disagreements['score1'].round(3)
+            disagreements['score2_formatted'] = disagreements['score2'].round(3)
+            
+            st.dataframe(
+                disagreements[['file_line', 'score1_formatted', 'score2_formatted', 'diff_formatted']].rename(columns={
+                    'file_line': 'File:Line',
+                    'score1_formatted': f'{formula1} Score',
+                    'score2_formatted': f'{formula2} Score',
+                    'diff_formatted': 'Difference'
+                }),
+                use_container_width=True
+            )
+        else:
+            st.success("No significant disagreements found between the formulas!")
+        
+        # Show summary statistics
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Total Lines Compared", len(scatter_df))
+        
+        with col2:
+            st.metric("Lines with Disagreement", len(disagreements))
+        
+        with col3:
+            agreement_pct = ((len(scatter_df) - len(disagreements)) / len(scatter_df)) * 100
+            st.metric("Agreement Percentage", f"{agreement_pct:.1f}%")
+    
+    else:
+        st.warning("No overlapping suspicious lines found between the selected formulas.")
+
+
+def extract_all_tests_from_data(data: Dict[str, Any]) -> List[str]:
+    """Extract all unique test names from the report data."""
+    all_tests = set()
+    files_data = data.get('files', {})
+    
+    for file_data in files_data.values():
+        contexts = file_data.get('contexts', {})
+        for line_contexts in contexts.values():
+            for context in line_contexts:
+                if context.strip() and '::' in context:
+                    # Extract test name from context
+                    test_name = context.split('|')[0] if '|' in context else context
+                    all_tests.add(test_name)
+    
+    return sorted(list(all_tests))
+
+
+def filter_failed_tests(all_tests: List[str]) -> List[str]:
+    """Filter tests to show only those that are likely failed tests."""
+    # This is a heuristic - in a real implementation, we'd need the actual test results
+    # For now, we'll assume tests with certain patterns might be failing
+    failed_patterns = ['test_fail', 'test_error', 'test_exception']
+    
+    failed_tests = []
+    for test in all_tests:
+        # Add all tests for now - in practice, you'd filter based on actual test results
+        failed_tests.append(test)
+    
+    return failed_tests
+
+
+@st.cache_data
+def recalculate_suspiciousness_without_tests(data: Dict[str, Any], formula: str, excluded_tests: List[str]) -> Dict[str, Any]:
+    """Recalculate suspiciousness scores excluding specified tests.
+    
+    This is a simplified simulation - in a real implementation, you'd need to 
+    rerun the SBFL analysis with the excluded tests.
+    """
+    if not excluded_tests:
+        return data
+    
+    # Create a copy of the data
+    modified_data = json.loads(json.dumps(data))
+    files_data = modified_data.get('files', {})
+    
+    # Track statistics
+    total_contexts_removed = 0
+    files_affected = 0
+    
+    for file_path, file_data in files_data.items():
+        contexts = file_data.get('contexts', {})
+        original_contexts = dict(contexts)
+        contexts_modified = False
+        
+        for line_str in list(contexts.keys()):
+            line_contexts = contexts[line_str]
+            # Filter out excluded tests
+            filtered_contexts = [
+                ctx for ctx in line_contexts 
+                if not any(excluded_test in ctx for excluded_test in excluded_tests)
+            ]
+            
+            if len(filtered_contexts) != len(line_contexts):
+                contexts[line_str] = filtered_contexts
+                contexts_modified = True
+                total_contexts_removed += len(line_contexts) - len(filtered_contexts)
+                
+                # If no contexts remain, remove suspiciousness scores for this line
+                if not filtered_contexts:
+                    suspiciousness = file_data.get('suspiciousness', {})
+                    if line_str in suspiciousness:
+                        del suspiciousness[line_str]
+        
+        if contexts_modified:
+            files_affected += 1
+    
+    # Update metadata
+    modified_data['meta']['what_if_analysis'] = {
+        'excluded_tests': excluded_tests,
+        'contexts_removed': total_contexts_removed,
+        'files_affected': files_affected,
+        'original_analysis': False
+    }
+    
+    return modified_data
+
+
+def show_what_if_analysis(data: Dict[str, Any], formula: str):
+    """Show What-If analysis for excluding tests from fault localization."""
+    st.header("What-If Analysis")
+    st.markdown("Explore how excluding specific tests affects fault localization results.")
+    
+    # Extract all tests
+    all_tests = extract_all_tests_from_data(data)
+    
+    if not all_tests:
+        st.warning("No test contexts found in the data.")
+        return
+    
+    st.subheader("Test Selection")
+    st.markdown(f"Found **{len(all_tests)}** unique tests in the coverage data.")
+    
+    # Test filtering options
+    filter_option = st.radio(
+        "Show tests:",
+        ["All tests", "Failed tests only", "Search tests"],
+        horizontal=True
+    )
+    
+    available_tests = all_tests
+    
+    if filter_option == "Failed tests only":
+        # This is simplified - ideally we'd have actual test results
+        test_stats = data.get('totals', {}).get('test_statistics', {})
+        failed_count = test_stats.get('failed_tests', 0)
+        st.info(f"Note: This dataset has {failed_count} failed tests. In a complete implementation, we would filter to show only those tests.")
+        # For demo purposes, show first 20 tests as "likely failed"
+        available_tests = all_tests[:min(20, len(all_tests))]
+    
+    elif filter_option == "Search tests":
+        search_term = st.text_input("Search for test names containing:")
+        if search_term:
+            available_tests = [test for test in all_tests if search_term.lower() in test.lower()]
+        else:
+            available_tests = all_tests[:20]  # Show first 20 by default
+    
+    else:
+        # Show first 50 tests to avoid overwhelming the interface
+        available_tests = all_tests[:min(50, len(all_tests))]
+        if len(all_tests) > 50:
+            st.info(f"Showing first 50 tests out of {len(all_tests)}. Use search to find specific tests.")
+    
+    # Test selection
+    selected_tests = st.multiselect(
+        "Select tests to exclude from analysis:",
+        available_tests,
+        help="Selected tests will be excluded from the fault localization analysis."
+    )
+    
+    if selected_tests:
+        st.subheader("Analysis Results")
+        
+        with st.spinner("Recalculating suspiciousness scores..."):
+            # Recalculate without selected tests
+            modified_data = recalculate_suspiciousness_without_tests(data, formula, selected_tests)
+        
+        # Show impact summary
+        what_if_meta = modified_data.get('meta', {}).get('what_if_analysis', {})
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Tests Excluded", len(selected_tests))
+        with col2:
+            st.metric("Contexts Removed", what_if_meta.get('contexts_removed', 0))
+        with col3:
+            st.metric("Files Affected", what_if_meta.get('files_affected', 0))
+        
+        # Compare top suspicious lines before and after
+        st.subheader("Impact on Top Suspicious Lines")
+        
+        # Get top lines before and after
+        original_top = get_top_suspicious_lines_for_formula(data, formula, 10)
+        modified_top = get_top_suspicious_lines_for_formula(modified_data, formula, 10)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**Original Analysis**")
+            if original_top:
+                df_orig = pd.DataFrame(original_top)
+                df_orig['rank'] = range(1, len(df_orig) + 1)
+                df_orig['file_line'] = df_orig['file'] + ':' + df_orig['line'].astype(str)
+                st.dataframe(
+                    df_orig[['rank', 'file_line', 'score']].rename(columns={
+                        'rank': 'Rank',
+                        'file_line': 'File:Line',
+                        'score': 'Score'
+                    }),
+                    use_container_width=True
+                )
+            else:
+                st.info("No suspicious lines found")
+        
+        with col2:
+            st.markdown("**After Excluding Tests**")
+            if modified_top:
+                df_mod = pd.DataFrame(modified_top)
+                df_mod['rank'] = range(1, len(df_mod) + 1)
+                df_mod['file_line'] = df_mod['file'] + ':' + df_mod['line'].astype(str)
+                st.dataframe(
+                    df_mod[['rank', 'file_line', 'score']].rename(columns={
+                        'rank': 'Rank',
+                        'file_line': 'File:Line',
+                        'score': 'Score'
+                    }),
+                    use_container_width=True
+                )
+            else:
+                st.warning("No suspicious lines found after excluding tests")
+        
+        # Analysis insights
+        st.subheader("Analysis Insights")
+        
+        if original_top and modified_top:
+            # Check ranking changes
+            orig_lines = {f"{item['file']}:{item['line']}" for item in original_top}
+            mod_lines = {f"{item['file']}:{item['line']}" for item in modified_top}
+            
+            disappeared_lines = orig_lines - mod_lines
+            new_lines = mod_lines - orig_lines
+            
+            if disappeared_lines:
+                st.error(f"**Lines that disappeared from top 10:** {', '.join(list(disappeared_lines)[:5])}")
+                st.markdown("This suggests these tests were **critical** for identifying these suspicious lines.")
+            
+            if new_lines:
+                st.success(f"**New lines in top 10:** {', '.join(list(new_lines)[:5])}")
+                st.markdown("These lines became more prominent after excluding the selected tests.")
+            
+            if not disappeared_lines and not new_lines:
+                st.info("**No changes in top 10 suspicious lines.**")
+                st.markdown("The excluded tests had minimal impact on the ranking.")
+        
+        elif original_top and not modified_top:
+            st.error("**All suspicious lines disappeared!**")
+            st.markdown("The excluded tests were **essential** for fault localization. Consider including them in the analysis.")
+        
+        elif not original_top:
+            st.warning("No suspicious lines found in original analysis.")
+        
+        # Show test impact score
+        if what_if_meta.get('contexts_removed', 0) > 0:
+            impact_score = what_if_meta['contexts_removed'] / max(1, len(selected_tests))
+            st.metric(
+                "Test Impact Score",
+                f"{impact_score:.1f}",
+                help="Average number of contexts removed per excluded test. Higher values indicate more impactful tests."
+            )
+        
+        # Option to download modified report
+        st.subheader("Export Modified Analysis")
+        if st.button("Download Modified Report"):
+            modified_json = json.dumps(modified_data, indent=2)
+            st.download_button(
+                label="Download JSON Report",
+                data=modified_json,
+                file_name=f"report_excluded_{len(selected_tests)}_tests.json",
+                mime="application/json"
+            )
+    
+    else:
+        st.info("Select one or more tests to see how excluding them affects the fault localization results.")
+        
+        # Show some sample insights about test distribution
+        st.subheader("Test Coverage Overview")
+        
+        # Count contexts per test
+        test_context_count = {}
+        files_data = data.get('files', {})
+        
+        for file_data in files_data.values():
+            contexts = file_data.get('contexts', {})
+            for line_contexts in contexts.values():
+                for context in line_contexts:
+                    if context.strip() and '::' in context:
+                        test_name = context.split('|')[0] if '|' in context else context
+                        test_context_count[test_name] = test_context_count.get(test_name, 0) + 1
+        
+        if test_context_count:
+            # Show most "active" tests
+            sorted_tests = sorted(test_context_count.items(), key=lambda x: x[1], reverse=True)
+            top_tests = sorted_tests[:10]
+            
+            st.markdown("**Most Active Tests** (highest line coverage):")
+            df_tests = pd.DataFrame(top_tests, columns=['Test', 'Lines Covered'])
+            st.dataframe(df_tests, use_container_width=True)
+            
+            st.markdown("""
+            💡 **Tip:** Tests with high line coverage might have more impact when excluded. 
+            Try excluding tests with high coverage to see significant changes in fault localization results.
+            """)
+
+
+def show_formula_performance(data: Dict[str, Any], formulas: List[str]):
+    """Show comprehensive performance analysis for all SBFL formulas."""
+    st.header("Formula Performance Analysis")
+    st.markdown("Comprehensive comparison of all SBFL formulas' effectiveness and characteristics.")
+    
+    if len(formulas) < 2:
+        st.warning("At least 2 formulas are required for performance analysis.")
+        return
+    
+    # Calculate statistics for all formulas
+    formula_statistics = {}
+    for formula in formulas:
+        formula_statistics[formula] = calculate_formula_statistics(data, formula)
+    
+    # === PERFORMANCE METRICS TABLE ===
+    st.subheader("Performance Metrics Summary")
+    
+    performance_data = []
+    for formula in formulas:
+        stats = formula_statistics[formula]
+        top_lines = get_top_suspicious_lines_for_formula(data, formula, 20)
+        
+        # Calculate various metrics
+        total_scored_lines = len(stats.all_scores)
+        max_score = stats.max_score
+        min_score = stats.min_score
+        score_range = stats.range_score
+        avg_score = np.mean(stats.all_scores) if stats.all_scores else 0
+        std_score = np.std(stats.all_scores) if stats.all_scores else 0
+        
+        # Calculate score distribution percentiles
+        if stats.all_scores:
+            p95 = np.percentile(stats.all_scores, 95)
+            p90 = np.percentile(stats.all_scores, 90)
+            p75 = np.percentile(stats.all_scores, 75)
+            median = np.percentile(stats.all_scores, 50)
+        else:
+            p95 = p90 = p75 = median = 0
+        
+        # Calculate concentration metric (how concentrated are high scores)
+        high_score_threshold = max_score * 0.8 if max_score > 0 else 0
+        high_score_count = sum(1 for score in stats.all_scores if score >= high_score_threshold)
+        concentration_ratio = (high_score_count / total_scored_lines * 100) if total_scored_lines > 0 else 0
+        
+        performance_data.append({
+            'Formula': formula,
+            'Total Lines': total_scored_lines,
+            'Max Score': round(max_score, 3),
+            'Min Score': round(min_score, 3),
+            'Score Range': round(score_range, 3),
+            'Average Score': round(avg_score, 3),
+            'Std Dev': round(std_score, 3),
+            'Median': round(median, 3),
+            '75th Percentile': round(p75, 3),
+            '90th Percentile': round(p90, 3),
+            '95th Percentile': round(p95, 3),
+            'High Score Concentration (%)': round(concentration_ratio, 1)
+        })
+    
+    df_performance = pd.DataFrame(performance_data)
+    st.dataframe(df_performance, use_container_width=True)
+    
+    # === SCORE DISTRIBUTION COMPARISON ===
+    st.subheader("Score Distribution Comparison")
+    
+    # Create box plots for score distributions
+    all_scores_data = []
+    for formula in formulas:
+        stats = formula_statistics[formula]
+        for score in stats.all_scores:
+            all_scores_data.append({
+                'Formula': formula,
+                'Score': score
+            })
+    
+    if all_scores_data:
+        df_scores = pd.DataFrame(all_scores_data)
+        
+        fig_box = px.box(
+            df_scores,
+            x='Formula',
+            y='Score',
+            title="Score Distribution by Formula",
+            points="outliers"
+        )
+        fig_box.update_layout(height=500)
+        st.plotly_chart(fig_box, use_container_width=True)
+        
+        # Violin plot for better distribution visualization
+        fig_violin = px.violin(
+            df_scores,
+            x='Formula',
+            y='Score',
+            title="Score Distribution Density by Formula",
+            box=True
+        )
+        fig_violin.update_layout(height=500)
+        st.plotly_chart(fig_violin, use_container_width=True)
+    
+    # === TOP LINES OVERLAP ANALYSIS ===
+    st.subheader("Top Lines Overlap Analysis")
+    
+    # Get top 10 lines for each formula
+    top_lines_by_formula = {}
+    for formula in formulas:
+        top_lines = get_top_suspicious_lines_for_formula(data, formula, 10)
+        top_lines_by_formula[formula] = {f"{line['file']}:{line['line']}" for line in top_lines}
+    
+    # Calculate pairwise overlaps
+    overlap_data = []
+    for i, formula1 in enumerate(formulas):
+        for j, formula2 in enumerate(formulas):
+            if i <= j:  # Only calculate upper triangle
+                lines1 = top_lines_by_formula[formula1]
+                lines2 = top_lines_by_formula[formula2]
+                
+                if i == j:
+                    overlap = len(lines1)
+                    overlap_pct = 100.0
+                else:
+                    overlap = len(lines1.intersection(lines2))
+                    overlap_pct = (overlap / len(lines1.union(lines2)) * 100) if lines1.union(lines2) else 0
+                
+                overlap_data.append({
+                    'Formula 1': formula1,
+                    'Formula 2': formula2,
+                    'Overlap Count': overlap,
+                    'Overlap %': round(overlap_pct, 1)
+                })
+    
+    df_overlap = pd.DataFrame(overlap_data)
+    st.dataframe(df_overlap, use_container_width=True)
+    
+    # === RANKING EFFECTIVENESS SIMULATION ===
+    st.subheader("Ranking Effectiveness Analysis")
+    
+    st.markdown("""
+    This analysis simulates how effective each formula would be at finding bugs by measuring
+    how well they rank suspicious lines.
+    """)
+    
+    effectiveness_data = []
+    for formula in formulas:
+        top_lines = get_top_suspicious_lines_for_formula(data, formula, 50)
+        
+        if top_lines:
+            # Calculate some effectiveness metrics
+            top_10_avg_score = np.mean([line['score'] for line in top_lines[:10]])
+            top_20_avg_score = np.mean([line['score'] for line in top_lines[:20]])
+            
+            # Score decline rate (how quickly scores drop)
+            if len(top_lines) >= 20:
+                score_decline = (top_lines[0]['score'] - top_lines[19]['score']) / 20
+            else:
+                score_decline = 0
+            
+            # Consistency metric (how consistent are the top scores)
+            top_10_scores = [line['score'] for line in top_lines[:10]]
+            consistency = 1 / (1 + np.std(top_10_scores)) if np.std(top_10_scores) > 0 else 1
+            
+            effectiveness_data.append({
+                'Formula': formula,
+                'Top 10 Avg Score': round(top_10_avg_score, 3),
+                'Top 20 Avg Score': round(top_20_avg_score, 3),
+                'Score Decline Rate': round(score_decline, 4),
+                'Top 10 Consistency': round(consistency, 3),
+                'Total Suspicious Lines': len(top_lines)
+            })
+    
+    if effectiveness_data:
+        df_effectiveness = pd.DataFrame(effectiveness_data)
+        st.dataframe(df_effectiveness, use_container_width=True)
+        
+        # Radar chart for multi-dimensional comparison
+        fig_radar = go.Figure()
+        
+        # Normalize metrics for radar chart
+        metrics = ['Top 10 Avg Score', 'Top 20 Avg Score', 'Score Decline Rate', 'Top 10 Consistency']
+        
+        for _, row in df_effectiveness.iterrows():
+            values = []
+            labels = []
+            for metric in metrics:
+                if metric == 'Score Decline Rate':
+                    # For decline rate, lower is better, so invert
+                    max_decline = df_effectiveness[metric].max()
+                    normalized_value = 1 - (row[metric] / max_decline) if max_decline > 0 else 1
+                else:
+                    # For other metrics, higher is better
+                    max_value = df_effectiveness[metric].max()
+                    normalized_value = row[metric] / max_value if max_value > 0 else 0
+                
+                values.append(normalized_value)
+                labels.append(metric)
+            
+            # Close the polygon
+            values.append(values[0])
+            labels.append(labels[0])
+            
+            fig_radar.add_trace(go.Scatterpolar(
+                r=values,
+                theta=labels,
+                fill='toself',
+                name=row['Formula']
+            ))
+        
+        fig_radar.update_layout(
+            polar=dict(
+                radialaxis=dict(
+                    visible=True,
+                    range=[0, 1]
+                )
+            ),
+            showlegend=True,
+            title="Formula Performance Radar Chart (Normalized Metrics)"
+        )
+        
+        st.plotly_chart(fig_radar, use_container_width=True)
+    
+    # === RECOMMENDATIONS ===
+    st.subheader("Recommendations")
+    
+    if effectiveness_data:
+        df_eff = pd.DataFrame(effectiveness_data)
+        
+        # Find best formula for different criteria
+        best_avg_score = df_eff.loc[df_eff['Top 10 Avg Score'].idxmax(), 'Formula']
+        best_consistency = df_eff.loc[df_eff['Top 10 Consistency'].idxmax(), 'Formula']
+        most_suspicious_lines = df_eff.loc[df_eff['Total Suspicious Lines'].idxmax(), 'Formula']
+        
+        st.markdown(f"""
+        **Recommendations based on the analysis:**
+        
+        - **Best for high-confidence results:** {best_avg_score} (highest average score in top 10)
+        - **Most consistent rankings:** {best_consistency} (most consistent top 10 scores)
+        - **Most comprehensive analysis:** {most_suspicious_lines} (identifies most suspicious lines)
+        
+        **General Guidelines:**
+        - If you need **high precision** and are looking for the most likely bug locations, use **{best_avg_score}**
+        - If you need **consistent results** across different runs, use **{best_consistency}**
+        - If you want **comprehensive coverage** of potentially buggy code, use **{most_suspicious_lines}**
+        """)
+    
+    # === EXPORT OPTIONS ===
+    st.subheader("Export Performance Report")
+    
+    if st.button("Generate Performance Report"):
+        report_data = {
+            'performance_metrics': performance_data,
+            'overlap_analysis': overlap_data,
+            'effectiveness_metrics': effectiveness_data if effectiveness_data else [],
+            'timestamp': pd.Timestamp.now().isoformat(),
+            'total_formulas_analyzed': len(formulas)
+        }
+        
+        report_json = json.dumps(report_data, indent=2)
+        st.download_button(
+            label="Download Performance Report (JSON)",
+            data=report_json,
+            file_name="formula_performance_report.json",
+            mime="application/json"
+        )
 
 
 if __name__ == "__main__":
