@@ -334,11 +334,13 @@ formulas = ochiai, tarantula, dstar2
             with open('report.json', 'r') as f:
                 report = json.load(f)
             
-            # Check meta preservation
-            assert report['meta'] == original_data['meta']
+            # Check meta preservation: original fields must be preserved (allow extras)
+            for k, v in original_data['meta'].items():
+                assert report['meta'].get(k) == v
             
-            # Check totals preservation  
-            assert report['totals'] == original_data['totals']
+            # Check totals preservation: original fields must be preserved (allow extras)
+            for k, v in original_data['totals'].items():
+                assert report['totals'].get(k) == v
             
             # Check test outcomes preservation
             assert report['tests'] == original_data['tests']

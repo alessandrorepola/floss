@@ -12,8 +12,8 @@ import os
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from src.pyfault.test.config import TestConfig
-from src.pyfault.test.runner import TestRunner, TestResult
+from pyfault.test.config import TestConfig
+from pyfault.test.runner import TestRunner, TestResult
 
 
 class TestTestConfig:
@@ -295,8 +295,8 @@ def test_subtract_normal():
         assert "files" in result
         assert "totals" in result
     
-    @patch('src.pyfault.test.runner.TestRunner._load_coverage_data')
-    @patch('src.pyfault.test.runner.TestRunner._parse_junit_xml')
+    @patch('pyfault.test.runner.TestRunner._load_coverage_data')
+    @patch('pyfault.test.runner.TestRunner._parse_junit_xml')
     @patch('subprocess.run')
     def test_run_tests_success(self, mock_run, mock_parse_xml, mock_load_coverage):
         """Test successful test run."""
@@ -340,7 +340,7 @@ def test_subtract_normal():
         with pytest.raises(RuntimeError, match="pytest execution failed"):
             runner.run_tests()
     
-    @patch('src.pyfault.test.runner.TestRunner._parse_junit_xml')
+    @patch('pyfault.test.runner.TestRunner._parse_junit_xml')
     @patch('subprocess.run')
     def test_run_tests_missing_coverage_file(self, mock_run, mock_parse_xml):
         """Test handling when coverage file is missing."""
