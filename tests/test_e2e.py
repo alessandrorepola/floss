@@ -4,8 +4,6 @@ End-to-end integration tests for PyFault workflow.
 
 import json
 import os
-import tempfile
-import shutil
 from click.testing import CliRunner
 
 from pyfault.cli.main import main

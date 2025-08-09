@@ -4,10 +4,8 @@ Test suite for the new CLI implementation.
 This module tests the simplified CLI with only the 'test' command.
 """
 
-import pytest
 import tempfile
 import shutil
-import json
 import os
 from pathlib import Path
 from unittest.mock import Mock, patch
