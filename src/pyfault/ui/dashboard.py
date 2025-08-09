@@ -11,10 +11,54 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, List, Any, Optional, NamedTuple
 import os
-import sys
-import subprocess
 import tkinter as tk
 from tkinter import filedialog
+
+# --- Streamlit runtime-aware caching -------------------------------------------------
+# Using st.cache_data at import time can emit warnings if no Streamlit runtime
+# is active yet (e.g., when the module is imported from a CLI process or during
+# the early phase of Streamlit app startup). To suppress these warnings, we
+# alias a no-op decorator when no runtime is available.
+try:
+    from streamlit.runtime.scriptrunner import get_script_run_ctx  # type: ignore
+except Exception:
+    get_script_run_ctx = None  # type: ignore
+
+def cache_data(func=None, **kwargs):
+    """Runtime-aware cache decorator.
+
+    - If used outside Streamlit runtime: returns function without caching.
+    - On first call inside Streamlit runtime: wraps with st.cache_data and caches as usual.
+    """
+    def decorator(f):
+        cached_f = None
+
+        def wrapped(*args, **kw):
+            nonlocal cached_f
+            if cached_f is None:
+                try:
+                    has_runtime = False
+                    if get_script_run_ctx is not None:
+                        ctx = get_script_run_ctx()
+                        has_runtime = ctx is not None
+                    if has_runtime:
+                        cached_f = st.cache_data(**kwargs)(f)
+                    else:
+                        cached_f = f
+                except Exception:
+                    cached_f = f
+            return cached_f(*args, **kw)
+
+        # Preserve common attributes
+        wrapped.__name__ = getattr(f, "__name__", "wrapped")
+        wrapped.__doc__ = getattr(f, "__doc__", None)
+        wrapped.__module__ = getattr(f, "__module__", None)
+        return wrapped
+
+    # Support @cache_data and @cache_data(...)
+    if func is not None and callable(func):
+        return decorator(func)
+    return decorator
 
 # Data structures for cached computations
 class FormulaStats(NamedTuple):
@@ -61,7 +105,7 @@ def select_directory_with_dialog() -> Optional[str]:
         return None
 
 
-@st.cache_data
+@cache_data
 def calculate_formula_statistics(data: Dict[str, Any], formula: str) -> FormulaStats:
     """Calculate and cache min/max/range statistics for a specific formula.
     
@@ -86,7 +130,7 @@ def calculate_formula_statistics(data: Dict[str, Any], formula: str) -> FormulaS
     return FormulaStats(min_score, max_score, range_score, all_scores)
 
 
-@st.cache_data
+@cache_data
 def calculate_file_suspiciousness_stats(data: Dict[str, Any], formula: str, 
                                        formula_stats: FormulaStats) -> List[FileStats]:
     """Calculate and cache file-level suspiciousness statistics.
@@ -164,7 +208,7 @@ def calculate_file_suspiciousness_stats(data: Dict[str, Any], formula: str,
     return file_suspiciousness
 
 
-@st.cache_data
+@cache_data
 def get_most_suspicious_file_cached(data: Dict[str, Any], formula: str, 
                                    formula_stats: FormulaStats) -> Optional[str]:
     """Get the most suspicious file using cached statistics."""
@@ -180,7 +224,7 @@ def get_most_suspicious_file_cached(data: Dict[str, Any], formula: str,
     return sorted_files[0].file_path
 
 
-@st.cache_data
+@cache_data
 def build_hierarchical_data_cached(data: Dict[str, Any], formula: str, 
                                   formula_stats: FormulaStats, 
                                   min_score: float = 0.0) -> Dict[str, List]:
@@ -1911,7 +1955,7 @@ def extract_suspiciousness_data(data: Dict[str, Any], formula: str) -> List[Dict
     return susp_data
 
 
-@st.cache_data
+@cache_data
 def get_top_suspicious_lines_for_formula(data: Dict[str, Any], formula: str, top_n: int = 10) -> List[Dict]:
     """Get top N most suspicious lines for a specific formula."""
     files_data = data.get('files', {})
@@ -2390,9 +2434,6 @@ def show_formula_performance(data: Dict[str, Any], formulas: List[str]):
         
         st.plotly_chart(fig_radar, use_container_width=True)
     
-    # === RECOMMENDATIONS ===
-    st.subheader("Recommendations")
-    
     if effectiveness_data:
         df_eff = pd.DataFrame(effectiveness_data)
         
@@ -2400,19 +2441,6 @@ def show_formula_performance(data: Dict[str, Any], formulas: List[str]):
         best_avg_score = df_eff.loc[df_eff['Top 10 Avg Score'].idxmax(), 'Formula']
         best_consistency = df_eff.loc[df_eff['Top 10 Consistency'].idxmax(), 'Formula']
         most_suspicious_lines = df_eff.loc[df_eff['Total Suspicious Lines'].idxmax(), 'Formula']
-        
-        st.markdown(f"""
-        **Recommendations based on the analysis:**
-        
-        - **Best for high-confidence results:** {best_avg_score} (highest average score in top 10)
-        - **Most consistent rankings:** {best_consistency} (most consistent top 10 scores)
-        - **Most comprehensive analysis:** {most_suspicious_lines} (identifies most suspicious lines)
-        
-        **General Guidelines:**
-        - If you need **high precision** and are looking for the most likely bug locations, use **{best_avg_score}**
-        - If you need **consistent results** across different runs, use **{best_consistency}**
-        - If you want **comprehensive coverage** of potentially buggy code, use **{most_suspicious_lines}**
-        """)
     
     # === EXPORT OPTIONS ===
     st.subheader("Export Performance Report")
