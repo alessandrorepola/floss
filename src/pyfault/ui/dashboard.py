@@ -14,51 +14,6 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 
-# --- Streamlit runtime-aware caching -------------------------------------------------
-# Using st.cache_data at import time can emit warnings if no Streamlit runtime
-# is active yet (e.g., when the module is imported from a CLI process or during
-# the early phase of Streamlit app startup). To suppress these warnings, we
-# alias a no-op decorator when no runtime is available.
-try:
-    from streamlit.runtime.scriptrunner import get_script_run_ctx  # type: ignore
-except Exception:
-    get_script_run_ctx = None  # type: ignore
-
-def cache_data(func=None, **kwargs):
-    """Runtime-aware cache decorator.
-
-    - If used outside Streamlit runtime: returns function without caching.
-    - On first call inside Streamlit runtime: wraps with st.cache_data and caches as usual.
-    """
-    def decorator(f):
-        cached_f = None
-
-        def wrapped(*args, **kw):
-            nonlocal cached_f
-            if cached_f is None:
-                try:
-                    has_runtime = False
-                    if get_script_run_ctx is not None:
-                        ctx = get_script_run_ctx()
-                        has_runtime = ctx is not None
-                    if has_runtime:
-                        cached_f = st.cache_data(**kwargs)(f)
-                    else:
-                        cached_f = f
-                except Exception:
-                    cached_f = f
-            return cached_f(*args, **kw)
-
-        # Preserve common attributes
-        wrapped.__name__ = getattr(f, "__name__", "wrapped")
-        wrapped.__doc__ = getattr(f, "__doc__", None)
-        wrapped.__module__ = getattr(f, "__module__", None)
-        return wrapped
-
-    # Support @cache_data and @cache_data(...)
-    if func is not None and callable(func):
-        return decorator(func)
-    return decorator
 
 # Data structures for cached computations
 class FormulaStats(NamedTuple):
@@ -105,7 +60,6 @@ def select_directory_with_dialog() -> Optional[str]:
         return None
 
 
-@cache_data
 def calculate_formula_statistics(data: Dict[str, Any], formula: str) -> FormulaStats:
     """Calculate and cache min/max/range statistics for a specific formula.
     
@@ -130,7 +84,6 @@ def calculate_formula_statistics(data: Dict[str, Any], formula: str) -> FormulaS
     return FormulaStats(min_score, max_score, range_score, all_scores)
 
 
-@cache_data
 def calculate_file_suspiciousness_stats(data: Dict[str, Any], formula: str, 
                                        formula_stats: FormulaStats) -> List[FileStats]:
     """Calculate and cache file-level suspiciousness statistics.
@@ -208,7 +161,6 @@ def calculate_file_suspiciousness_stats(data: Dict[str, Any], formula: str,
     return file_suspiciousness
 
 
-@cache_data
 def get_most_suspicious_file_cached(data: Dict[str, Any], formula: str, 
                                    formula_stats: FormulaStats) -> Optional[str]:
     """Get the most suspicious file using cached statistics."""
@@ -224,7 +176,6 @@ def get_most_suspicious_file_cached(data: Dict[str, Any], formula: str,
     return sorted_files[0].file_path
 
 
-@cache_data
 def build_hierarchical_data_cached(data: Dict[str, Any], formula: str, 
                                   formula_stats: FormulaStats, 
                                   min_score: float = 0.0) -> Dict[str, List]:
@@ -1955,7 +1906,6 @@ def extract_suspiciousness_data(data: Dict[str, Any], formula: str) -> List[Dict
     return susp_data
 
 
-@cache_data
 def get_top_suspicious_lines_for_formula(data: Dict[str, Any], formula: str, top_n: int = 10) -> List[Dict]:
     """Get top N most suspicious lines for a specific formula."""
     files_data = data.get('files', {})
