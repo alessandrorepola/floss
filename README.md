@@ -1,342 +1,345 @@
-# PyFault: Spectrum-Based Fault Localization for Python
+# PyFault
 
-PyFault è un framework Python moderno per la localizzazione automatica di errori tramite Spectrum-Based Fault Localization (SBFL), ispirato a GZoltar. Il framework offre un'interfaccia sia programmatica che da riga di comando per identificare elementi di codice sospetti che potrebbero contenere bug.
+**A Python framework for Spectrum-Based Fault Localization (SBFL)**
 
-## ✨ Caratteristiche Principali
+PyFault is a comprehensive tool for automated fault localization using Spectrum-Based Fault Localization (SBFL) techniques. It helps developers identify potential bug locations in their Python code by analyzing test execution traces and applying statistical formulas to calculate suspiciousness scores for code lines.
 
-- **🔍 Raccolta Copertura**: Utilizza `coverage.py` con hook personalizzati per raccogliere dati di copertura line e branch
-- **📊 Algoritmi SBFL**: Implementazione completa di formule SBFL consolidate (Ochiai, Tarantula, Jaccard, D*, Kulczynski2)
-- **🧪 Integrazione Test**: Supporto nativo per pytest con filtri personalizzabili
-- **💻 Interfaccia CLI**: Potente CLI basata su `Click` per analisi batch e automazione
-- **📱 Dashboard Interattiva**: UI web moderna con Streamlit per visualizzazione e analisi in tempo reale
-- **📝 Generazione Report**: Report multipli (HTML, CSV, JSON) con ranking dettagliati e visualizzazioni
-- **🎯 Analisi Comparativa**: Confronto simultaneo di multiple formule SBFL per migliori risultati
+## 🚀 Features
 
-## 🚀 Installazione
+- **Multiple SBFL Formulas**: Supports popular formulas including Ochiai, Tarantula, Jaccard, and D*
+- **Interactive Dashboard**: Web-based visualization with treemaps, source code highlighting, and coverage matrices
+- **Comprehensive CLI**: Complete command-line interface for all fault localization tasks
+- **Test Integration**: Seamless integration with pytest for test execution and coverage collection
+- **Configurable**: Flexible configuration via configuration files and command-line options
+- **Performance Analysis**: Compare different SBFL formulas and analyze their effectiveness
 
-### Requisiti
-- Python = 3.12
-- pytest ≥ 7.0.0
-- coverage ≥ 7.0.0
+## 📦 Installation
 
-### Installazione Standard
+### From Source
+
 ```bash
-# Clona il repository
-git clone <repository-url>
-cd PyFault
+# Clone the repository
+git clone https://github.com/example/pyfault.git
+cd pyfault
 
-# Installa il package
+# Install in development mode
 pip install -e .
-```
 
-### Installazione per Sviluppo
-```bash
-# Installa con dipendenze di sviluppo
+# Install with UI dependencies
+pip install -e ".[ui]"
+
+# Install with development dependencies
 pip install -e ".[dev]"
-
-# Verifica installazione
-pyfault --help
 ```
 
-## 💡 Utilizzo
+### Package Dependencies
 
-### 🔧 Interfaccia CLI
+- **Core**: `rich`, `click`, `pytest`, `numpy`, `coverage`
+- **UI (optional)**: `streamlit`, `plotly`, `pandas`
+- **Development (optional)**: `mypy`, `black`, `flake8`, `pre-commit`
 
-#### Analisi Completa (Raccomandato)
-```bash
-# Esecuzione completa: test + fault localization + report
-pyfault run --source-dir src --test-dir tests --output-dir results
+## 🎯 Quick Start
 
-# Con formule specifiche
-pyfault run -s src -t tests -f ochiai -f tarantula -f dstar
+### 1. Basic Usage
 
-# Con filtro test e coverage branch
-pyfault run -s src -t tests -k "test_critical" --branch-coverage --top 10
-```
-
-#### Solo Fault Localization
-```bash
-# Analizza dati di copertura esistenti
-pyfault fl --coverage-file coverage_matrix.csv --output-dir results
-
-# Con formule multiple
-pyfault fl -c coverage_data.csv -f ochiai -f jaccard --top 15
-```
-
-#### Raccolta Copertura
-```bash
-# Solo raccolta dati (senza analisi SBFL)
-pyfault test --source-dir src --test-dir tests --output-dir coverage_data
-```
-
-#### Dashboard Interattiva
-```bash
-# Avvia UI con dati esistenti
-pyfault ui --data-file results/summary.json --auto-open
-
-# Avvia UI vuota (upload manuale)
-pyfault ui --port 8502
-
-# Con dati CSV per analisi real-time
-pyfault ui --data-file coverage_matrix.csv
-```
-
-### 🐍 API Python
-
-```python
-from pyfault import FaultLocalizer
-from pyfault.formulas import OchiaiFormula, TarantulaFormula, DStarFormula
-
-# Configurazione base
-localizer = FaultLocalizer(
-    source_dirs=['src'],
-    test_dirs=['tests'],
-    formulas=[OchiaiFormula(), TarantulaFormula(), DStarFormula()],
-    output_dir='results'
-)
-
-# Esegui analisi completa
-result = localizer.run()
-
-# Accedi ai risultati
-for formula_name, scores in result.scores.items():
-    print(f"\n=== {formula_name.upper()} ===")
-    for score in scores[:10]:  # Top 10
-        element = score.element
-        print(f"{element.file_path}:{element.line_number} -> {score.score:.4f}")
-
-# Genera report personalizzati
-from pyfault.reporters import HTMLReporter, CSVReporter
-
-html_reporter = HTMLReporter(output_dir='custom_reports')
-html_reporter.write_report(result)
-```
-
-### 🎯 Esempi Pratici
-
-#### Esempio 1: Progetto Web (FastAPI/Flask)
-```bash
-# Analisi completa per web app
-pyfault run -s app -t tests -f ochiai -f tarantula --branch-coverage --top 15
-
-# Apri dashboard per analisi interattiva
-pyfault ui --data-file pyfault_output/summary.json --auto-open
-```
-
-#### Esempio 2: Libreria Data Science
-```bash
-# Focus su test specifici
-pyfault run -s src/datalib -t tests -k "test_calculation" -f dstar -f kulczynski2
-
-# Analisi coverage esistente
-pyfault fl -c existing_coverage.csv -o analysis_results
-```
-
-## 🏗️ Architettura
-
-PyFault segue un'architettura modulare ispirata a GZoltar:
-
-```
-src/pyfault/
-├── core/                      # 🧠 Logica centrale e modelli
-│   ├── fault_localizer.py     # Orchestratore principale
-│   └── models.py              # Modelli dati (CoverageMatrix, TestResult, etc.)
-├── coverage/                  # 📊 Raccolta copertura del codice
-│   └── collector.py           # Integrazione con coverage.py
-├── formulas/                  # 🧮 Formule SBFL
-│   ├── base.py                # Classe base astratta
-│   └── sbfl_formulas.py       # Implementazioni concrete
-├── test_runner/               # 🧪 Esecuzione test
-│   └── pytest_runner.py       # Runner per pytest
-├── reporters/                 # 📝 Generazione report
-│   ├── html_reporter.py       # Report HTML interattivi
-│   ├── csv_reporter.py        # Export/import CSV
-│   └── json_reporter.py       # Serializzazione JSON
-├── ui/                        # 🎨 Dashboard web
-│   └── dashboard.py           # Interfaccia Streamlit
-├── cli/                       # 💻 Interfaccia riga di comando
-│   └── main.py                # Comandi CLI con Click
-└── benchmarking/              # 📈 Strumenti di benchmark
-```
-
-### 🔄 Flusso di Lavoro
-
-1. **Raccolta Copertura**: `CoverageCollector` instrumenta il codice e raccoglie dati durante i test
-2. **Esecuzione Test**: `PytestRunner` esegue i test con raccolta copertura
-3. **Calcolo SBFL**: Le formule calcolano il punteggio di sospetto per ogni elemento
-4. **Generazione Report**: I reporter creano output in vari formati
-5. **Visualizzazione**: Dashboard interattiva per analisi approfondita
-
-## 🎨 Dashboard Interattiva
-
-La dashboard web di PyFault offre un'esperienza di analisi moderna e intuitiva:
-
-### ✨ Funzionalità Principali
-
-- **📊 Visualizzazioni Interattive**: 
-  - Istogrammi di distribuzione suspiciousness
-  - Grafici a barre per top elementi sospetti
-  - Treemap per analisi gerarchica dei file
-  - Scatter plot per confronto formule
-
-- **🔍 Code Viewer Integrato**: 
-  - Evidenziazione sintassi con colori
-  - Linee sospette highlight in base al punteggio
-  - Navigazione rapida tra file e funzioni
-
-- **📁 Analisi Multi-livello**: 
-  - Vista per progetto/package
-  - Raggruppamento per file
-  - Drill-down su singoli elementi
-
-- **🎛️ Controlli Dinamici**: 
-  - Filtri per soglia di punteggio
-  - Selezione tipi di file
-  - Top-N elementi configurabile
-  - Modalità comparison tra formule
-
-### 🚀 Quick Start Dashboard
+Run the complete fault localization pipeline on your project:
 
 ```bash
-# Metodo 1: Analisi completa + UI
-pyfault run -s src -t tests && pyfault ui --data-file pyfault_output/summary.json --auto-open
+# Navigate to your project directory
+cd /path/to/your/project
 
-# Metodo 2: Carica dati esistenti
-pyfault ui --data-file my_analysis.json --port 8080
+# Run fault localization (will auto-detect tests)
+pyfault run --source-dir src --output report.json
 
-# Metodo 3: Analisi real-time da CSV
-pyfault ui --data-file coverage_matrix.csv
+# Launch interactive dashboard
+pyfault ui --report report.json
 ```
 
-> 📖 **Per esempi dettagliati e screenshot**: Vedi [UI_USAGE.md](UI_USAGE.md)
-
-## 📊 Formule SBFL Supportate
-
-PyFault implementa un set completo di formule SBFL consolidate dalla letteratura:
-
-| Formula | Descrizione | Efficacia | Caso d'Uso |
-|---------|-------------|-----------|-------------|
-| **Ochiai** | Formula più efficace, basata su coefficiente di correlazione | ⭐⭐⭐⭐⭐ | Raccomandato per la maggior parte dei casi |
-| **Tarantula** | Formula classica SBFL, prima ampiamente adottata | ⭐⭐⭐⭐ | Buona baseline, confronti storici |
-| **Jaccard** | Coefficiente di similarità Jaccard | ⭐⭐⭐ | Progetti con alta copertura test |
-| **D*** | Formula binaria ottimizzata per precisione | ⭐⭐⭐⭐ | Quando è importante minimizzare falsi positivi |
-| **Kulczynski2** | Formula di correlazione bilanciata | ⭐⭐⭐ | Analisi comparativa |
-
-
-## 🛠️ Sviluppo e Contributi
-
-### Setup Ambiente di Sviluppo
+### 2. Step-by-Step Usage
 
 ```bash
-# 1. Clone del repository
-git clone <repository-url>
-cd PyFault
+# Step 1: Run tests with coverage collection
+pyfault test --source-dir src --output coverage.json
 
-# 2. Installa dipendenze di sviluppo
-pip install -e ".[dev]"
+# Step 2: Calculate fault localization scores
+pyfault fl --input coverage.json --output report.json --formulas ochiai,tarantula
 
-# 3. Setup pre-commit hooks
-pre-commit install
-
-# 4. Verifica installazione
-pyfault --help
-pytest --version
+# Step 3: Visualize results
+pyfault ui --report report.json
 ```
 
-### 🧪 Testing
+### 3. Configuration File
+
+Create a `pyfault.conf` file in your project root:
+
+```ini
+[test]
+source_dir = src
+output_file = coverage.json
+ignore = */__init__.py,*/migrations/*
+omit = */__init__.py,*/tests/*
+
+[fl]
+input_file = coverage.json
+output_file = report.json
+formulas = ochiai, tarantula, jaccard, dstar2
+```
+
+## 🔧 CLI Commands
+
+### `pyfault test` - Test Execution with Coverage
+
+Runs tests using pytest with enhanced coverage collection.
 
 ```bash
-# Esegui tutti i test
-pytest tests/ -v
+pyfault test [OPTIONS]
 
-# Test con coverage
-pytest tests/ --cov=src/pyfault --cov-report=html
-
-# Test specifici
-pytest tests/test_formulas.py -v
-pytest tests/test_integration.py::test_full_pipeline -v
+Options:
+  -s, --source-dir TEXT    Source code directory to analyze (default: .)
+  -t, --test-dir TEXT      Test directory (auto-detected by pytest)
+  -o, --output TEXT        Output file for coverage data (default: coverage.json)
+  -k, --test-filter TEXT   Filter tests using pytest -k pattern
+  --ignore TEXT            File patterns to ignore (multiple allowed)
+  --omit TEXT              File patterns to omit from coverage (multiple allowed)
+  -c, --config TEXT        Configuration file (default: pyfault.conf)
+  -v, --verbose            Enable verbose output
 ```
 
-### 🏗️ Struttura del Progetto
+### `pyfault fl` - Fault Localization
 
-```
-PyFault/
-├── src/pyfault/           # 📦 Codice sorgente principale
-├── tests/                 # 🧪 Test suite completa
-├── examples/              # 📚 Esempi di utilizzo
-│   ├── datalib/           # Esempio progetto creato con LLM
-│   └── fastapi/           # Esempio caso reale
-├── docs/                  # 📖 Documentazione (se presente)
-├── pyproject.toml        # ⚙️ Configurazione progetto
-├── dev_setup.txt         # 🔧 Istruzioni setup
-└── README.md             # 📝 Questo file
-```
-
-### 🤝 Contributing Guidelines
-
-1. **Fork** il repository
-2. Crea un **branch feature** (`git checkout -b feature/new-feature`)
-3. **Commit** le modifiche (`git commit -m 'Add new feature'`)
-4. **Push** al branch (`git push origin feature/new-feature`)
-5. Apri una **Pull Request**
-
-### 📋 Checklist per Contributi
-
-- [ ] Test aggiornati/aggiunti per nuove funzionalità
-- [ ] Documentazione aggiornata (docstring, README, etc.)
-- [ ] Code style conforme (black, flake8)
-- [ ] Type hints aggiunti/aggiornati
-- [ ] Tutti i test passano (`pytest`)
-- [ ] No regressioni nelle performance
-
-## 📈 Esempi e Benchmark
-
-Il progetto include esempi reali per dimostrare le capacità di PyFault:
-
-### 📊 Esempi Disponibili
-
-- **`examples/datalib/`**: Libreria di calcolo con bug intenzionali creata con LLM
-- **`examples/fastapi/`**: Framework web complesso (caso reale) - fonte [BugsInPy](https://github.com/soarsmu/BugsInPy)
-
-### 🎯 Esecuzione Esempi
+Calculates suspiciousness scores using SBFL formulas.
 
 ```bash
-# Esempio datalib - analisi completa
-cd examples/datalib
-pyfault run -s src -t tests -f ochiai -f tarantula --auto-open
+pyfault fl [OPTIONS]
 
-# Confronto con coverage esistente
-pyfault fl -c coverage.xml -o results
-pyfault ui --data-file results/summary.json
+Options:
+  -i, --input TEXT         Input coverage file (default: coverage.json)
+  -o, --output TEXT        Output report file (default: report.json)
+  -f, --formulas TEXT      SBFL formulas to use (multiple allowed)
+  -c, --config TEXT        Configuration file (default: pyfault.conf)
+  -v, --verbose            Enable verbose output
 ```
 
-## 🔗 Integrazione con Altri Tool
+### `pyfault run` - Complete Pipeline
+
+Executes the complete fault localization pipeline.
+
+```bash
+pyfault run [OPTIONS]
+
+Options:
+  -s, --source-dir TEXT    Source code directory to analyze (default: .)
+  -t, --test-dir TEXT      Test directory (auto-detected by pytest)
+  -o, --output TEXT        Output file for FL report (default: report.json)
+  -k, --test-filter TEXT   Filter tests using pytest -k pattern
+  --ignore TEXT            File patterns to ignore (multiple allowed)
+  --omit TEXT              File patterns to omit from coverage (multiple allowed)
+  -f, --formulas TEXT      SBFL formulas to use (multiple allowed)
+  -c, --config TEXT        Configuration file (default: pyfault.conf)
+  -v, --verbose            Enable verbose output
+```
+
+### `pyfault ui` - Interactive Dashboard
+
+Launches the web-based visualization dashboard.
+
+```bash
+pyfault ui [OPTIONS]
+
+Options:
+  -r, --report TEXT        Report file to visualize (default: report.json)
+  -p, --port INTEGER       Port for the dashboard (default: 8501)
+  --no-open               Do not auto-open browser
+  -v, --verbose            Enable verbose output
+```
+
+## 📊 Dashboard Features
+
+The PyFault dashboard provides comprehensive visualization and analysis tools:
+
+### Overview Tab
+- **Test Execution Summary**: Total, passed, failed, and skipped tests
+- **Code Coverage Analysis**: Statement and branch coverage metrics
+- **Fault Localization Readiness**: Analysis preparation statistics
+- **Most Suspicious Files**: Ranked list of files with highest suspiciousness
+
+### Source Code Tab
+- **Interactive Code Viewer**: Syntax-highlighted source code display
+- **Suspiciousness Highlighting**: Color-coded lines based on scores
+- **Line-by-Line Analysis**: Detailed suspiciousness scores for each line
+- **File Navigation**: Easy browsing through project files
+
+### Test-to-Fault Analysis Tab
+- **Coverage Matrix**: Visualization of test-to-code line relationships
+- **Test Outcome Mapping**: Failed vs. passed test execution patterns
+- **Interactive Filtering**: Focus on specific tests or code sections
+
+### Treemap Tab
+- **Hierarchical Visualization**: Project structure with suspiciousness data
+- **Directory-Level Analysis**: Aggregate scores at folder level
+- **Interactive Navigation**: Drill-down capabilities
+
+### Sunburst Tab
+- **Circular Hierarchy**: Alternative view of project structure
+- **Proportional Representation**: Size based on suspiciousness scores
+- **Multi-Level Analysis**: From project root to individual files
+
+### Formula Comparison Tab
+- **Side-by-Side Analysis**: Compare different SBFL formulas
+- **Statistical Metrics**: Distribution analysis and correlation studies
+- **Performance Benchmarking**: Effectiveness comparison
+
+### Formula Performance Tab
+- **Effectiveness Metrics**: Precision, recall, and F1-score analysis
+- **Ranking Quality**: Top-N analysis and ranking effectiveness
+- **Export Capabilities**: Generate performance reports
+
+## 🧪 SBFL Formulas
+
+PyFault implements several proven SBFL formulas:
+
+### Ochiai
+- **Formula**: `n_cf / sqrt((n_cf + n_nf) * (n_cf + n_cp))`
+- **Description**: One of the most effective SBFL formulas in practice
+- **Use Case**: General-purpose fault localization
+
+### Tarantula
+- **Formula**: `(n_cf / (n_cf + n_nf)) / ((n_cf / (n_cf + n_nf)) + (n_cp / (n_cp + n_np)))`
+- **Description**: First and most well-known SBFL formula
+- **Use Case**: Baseline comparison and research
+
+### Jaccard
+- **Formula**: `n_cf / (n_cf + n_nf + n_cp)`
+- **Description**: Similarity coefficient adapted for fault localization
+- **Use Case**: Alternative similarity-based approach
+
+### D* (D-Star)
+- **Formula**: `n_cf^star / (n_cp + n_nf)`
+- **Description**: Optimized binary formula (star typically 2 or 3)
+- **Use Case**: High-performance fault localization
+
+Where:
+- `n_cf`: Number of failed tests covering the line
+- `n_nf`: Number of failed tests not covering the line
+- `n_cp`: Number of passed tests covering the line
+- `n_np`: Number of passed tests not covering the line
+
+## 🏗️ Architecture
+
+PyFault is organized into several key modules:
+
+### Core Components
+
+- **`pyfault.test`**: Test execution and coverage collection
+- **`pyfault.fl`**: Fault localization engine and algorithms
+- **`pyfault.formulas`**: SBFL formula implementations
+- **`pyfault.cli`**: Command-line interface
+- **`pyfault.ui`**: Interactive dashboard and visualizations
+
+### Data Flow
+
+1. **Test Execution**: Run tests with coverage instrumentation
+2. **Coverage Collection**: Generate detailed execution traces
+3. **Formula Application**: Calculate suspiciousness scores
+4. **Report Generation**: Create structured output with metadata
+5. **Visualization**: Interactive analysis and exploration
+
+## 📝 Configuration
+
+### Configuration File Format
+
+PyFault uses INI-style configuration files:
+
+```ini
+[test]
+source_dir = src
+test_dir = tests
+output_file = coverage.json
+ignore = */__init__.py, */migrations/*, */vendor/*
+omit = */__init__.py, */tests/*, */venv/*
+
+[fl]
+input_file = coverage.json
+output_file = report.json
+formulas = ochiai, tarantula, jaccard, dstar2
+```
+
+### Configuration Options
+
+#### Test Section
+- `source_dir`: Directory containing source code to analyze
+- `test_dir`: Directory containing test files (auto-detected if not specified)
+- `output_file`: Output file for coverage data
+- `ignore`: Patterns to ignore during test discovery
+- `omit`: Patterns to omit from coverage analysis
+
+#### FL Section
+- `input_file`: Input coverage file from test execution
+- `output_file`: Output file for fault localization report
+- `formulas`: Comma-separated list of SBFL formulas to apply
+
+## 🔄 Integration
 
 ### CI/CD Integration
+
+PyFault can be integrated into continuous integration pipelines:
+
 ```yaml
 # GitHub Actions example
-- name: Run PyFault Analysis
+- name: Run Fault Localization
   run: |
-    pip install -e .
-    pyfault run -s src -t tests -o fault_analysis
-    pyfault ui --data-file fault_analysis/summary.json --port 8501 &
+    pip install pyfault[ui]
+    pyfault run --source-dir src --output fl_report.json
+    
+- name: Upload FL Report
+  uses: actions/upload-artifact@v3
+  with:
+    name: fault-localization-report
+    path: fl_report.json
 ```
 
-## 📚 Risorse e Documentazione
+### IDE Integration
 
-- **📖 Tutorial UI (Ancora in fase di sviluppo)**: Vedi [UI_USAGE.md](UI_USAGE.md)
-- **🔬 Paper di Riferimento**: Spectrum-Based Fault Localization literature
-- **🏗️ Architettura**: Ispirata a GZoltar e tool SBFL moderni
-- **🤝 Community**: Issues GitHub per supporto e feature request
+PyFault reports can be imported into various development environments for enhanced debugging workflows.
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+### Development Setup
+
+```bash
+# Clone and install in development mode
+git clone https://github.com/example/pyfault.git
+cd pyfault
+pip install -e ".[dev]"
+
+# Run tests
+python -m pytest tests/ -v
+
+# Type checking
+mypy src
+
+# Code formatting
+black src tests
+```
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Inspired by GZoltar and other fault localization tools
+- Built on the foundation of established SBFL research
+- Thanks to the Python testing and coverage ecosystem
+
+## 🆘 Support
+
+- **Documentation**: Full documentation available in the `docs/` directory
+- **Issues**: Report bugs and request features on GitHub Issues
+- **Discussions**: Join the community discussions for questions and support
 
 ---
 
-<div align="center">
-
-**🔍 Trova i bug più velocemente con PyFault!** 
-
-[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://python.org)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen.svg)](#testing)
-
-</div>
+**PyFault** - Making fault localization accessible and effective for Python developers.
