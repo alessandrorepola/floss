@@ -15,7 +15,6 @@ import tkinter as tk
 from tkinter import filedialog
 
 
-# Data structures for cached computations
 class FormulaStats(NamedTuple):
     """Statistics for a specific formula."""
     min_score: float
@@ -85,10 +84,18 @@ def calculate_formula_statistics(data: Dict[str, Any], formula: str) -> FormulaS
 
 
 def calculate_file_suspiciousness_stats(data: Dict[str, Any], formula: str, 
-                                       formula_stats: FormulaStats) -> List[FileStats]:
+                                       formula_stats: FormulaStats,
+                                       threshold: Optional[float] = None) -> List[FileStats]:
     """Calculate and cache file-level suspiciousness statistics.
     
     Uses pre-calculated formula statistics to avoid redundant computations.
+    If threshold is provided, also calculates threshold-based counts and percentages.
+    
+    Args:
+        data: Fault localization data
+        formula: Formula name to use for calculations
+        formula_stats: Pre-calculated formula statistics
+        threshold: Optional threshold for calculating suspicious counts (actual threshold value)
     """
     files_data = data.get('files', {})
     file_suspiciousness = []
@@ -125,6 +132,10 @@ def calculate_file_suspiciousness_stats(data: Dict[str, Any], formula: str,
                 file_scores.append(score)
                 normalized_scores.append(normalized_score)
                 total_statements_with_test_coverage += 1
+                
+                # Count suspicious statements if threshold is provided
+                if threshold is not None and score >= threshold:
+                    suspicious_statements_count += 1
         
         # Process executed branches that have test coverage
         for branch in executed_branches:
@@ -139,21 +150,35 @@ def calculate_file_suspiciousness_stats(data: Dict[str, Any], formula: str,
                 # Check if the source line has suspiciousness score
                 if source_line_str in suspiciousness and formula in suspiciousness[source_line_str] and has_test_coverage:
                     total_branches_with_test_coverage += 1
+                    
+                    # Count suspicious branches if threshold is provided
+                    if threshold is not None:
+                        score = float(suspiciousness[source_line_str][formula])
+                        if score >= threshold:
+                            suspicious_branches_count += 1
         
         if file_scores:
             avg_score = sum(normalized_scores) / len(normalized_scores)
             max_score = max(normalized_scores)
             
+            # Calculate percentages if threshold is provided
+            if threshold is not None:
+                suspicious_statements_pct = (suspicious_statements_count / total_statements_with_test_coverage * 100) if total_statements_with_test_coverage > 0 else 0
+                suspicious_branches_pct = (suspicious_branches_count / total_branches_with_test_coverage * 100) if total_branches_with_test_coverage > 0 else 0
+            else:
+                suspicious_statements_pct = 0.0
+                suspicious_branches_pct = 0.0
+            
             # Only include files with max suspiciousness > 0 (normalized)
             if max_score > 0:
                 file_suspiciousness.append(FileStats(
                     file_path=file_path,
-                    max_score=max_score,
-                    avg_score=avg_score,
+                    max_score=round(max_score, 3) if threshold is not None else max_score,
+                    avg_score=round(avg_score, 3) if threshold is not None else avg_score,
                     suspicious_statements=suspicious_statements_count,
-                    suspicious_statements_pct=0.0,  # Will be calculated later when threshold is known
+                    suspicious_statements_pct=round(suspicious_statements_pct, 1) if threshold is not None else suspicious_statements_pct,
                     suspicious_branches=suspicious_branches_count,
-                    suspicious_branches_pct=0.0,  # Will be calculated later when threshold is known
+                    suspicious_branches_pct=round(suspicious_branches_pct, 1) if threshold is not None else suspicious_branches_pct,
                     total_statements_with_coverage=total_statements_with_test_coverage,
                     total_branches_with_coverage=total_branches_with_test_coverage
                 ))
@@ -161,31 +186,18 @@ def calculate_file_suspiciousness_stats(data: Dict[str, Any], formula: str,
     return file_suspiciousness
 
 
-def get_most_suspicious_file_cached(data: Dict[str, Any], formula: str, 
-                                   formula_stats: FormulaStats) -> Optional[str]:
-    """Get the most suspicious file using cached statistics."""
-    file_stats = calculate_file_suspiciousness_stats(data, formula, formula_stats)
-    
-    if not file_stats:
-        return None
-    
-    # Sort by max score (priority), then by number of statements with coverage
-    sorted_files = sorted(file_stats, 
-                         key=lambda x: (x.max_score, x.total_statements_with_coverage), 
-                         reverse=True)
-    return sorted_files[0].file_path
-
-
-def build_hierarchical_data_cached(data: Dict[str, Any], formula: str, 
-                                  formula_stats: FormulaStats, 
+def build_hierarchical_data(data: Dict[str, Any], formula: str,
                                   min_score: float = 0.0) -> Dict[str, List]:
-    """Build hierarchical data structure using cached formula statistics."""
+    """Build hierarchical data structure for treemap and sunburst visualizations."""
+    # Calculate formula statistics internally
+    formula_stats = calculate_formula_statistics(data, formula)
+    
     files_data = data.get('files', {})
 
     if not formula_stats.all_scores:
         return {'labels': [], 'parents': [], 'ids': [], 'values': [], 'colors': [], 'hover_info': []}
 
-    # Convert normalized min_score to actual threshold using cached stats
+    # Convert normalized min_score to actual threshold using stats
     actual_min_score = formula_stats.min_score + (min_score * formula_stats.range_score)
 
     labels: List[str] = []
@@ -385,91 +397,6 @@ def build_hierarchical_data_cached(data: Dict[str, Any], formula: str,
         'hover_info': hover_info
     }
 
-
-def calculate_file_suspiciousness_with_threshold(data: Dict[str, Any], formula: str, 
-                                               formula_stats: FormulaStats, 
-                                               actual_threshold: float) -> List[FileStats]:
-    """Calculate file suspiciousness statistics with a specific threshold."""
-    files_data = data.get('files', {})
-    file_suspiciousness = []
-    
-    for file_path, file_data in files_data.items():
-        file_scores = []
-        normalized_scores = []
-        suspicious_statements_count = 0
-        total_statements_with_test_coverage = 0
-        suspicious_branches_count = 0
-        total_branches_with_test_coverage = 0
-        
-        # Get executed lines (actual statements)
-        executed_lines = file_data.get('executed_lines', [])
-        contexts = file_data.get('contexts', {})
-        suspiciousness = file_data.get('suspiciousness', {})
-        
-        # Get executed branches
-        executed_branches = file_data.get('executed_branches', [])
-        
-        # Process only executed statements that have test coverage
-        for line_num in executed_lines:
-            line_str = str(line_num)
-            
-            # Check if this line has test coverage (non-empty contexts)
-            line_contexts = contexts.get(line_str, [])
-            has_test_coverage = any(context.strip() for context in line_contexts)
-            
-            # Check if this line has suspiciousness score
-            if line_str in suspiciousness and formula in suspiciousness[line_str] and has_test_coverage:
-                score = float(suspiciousness[line_str][formula])
-                # Normalize score to 0-1 range using cached stats
-                normalized_score = (score - formula_stats.min_score) / formula_stats.range_score
-                file_scores.append(score)
-                normalized_scores.append(normalized_score)
-                total_statements_with_test_coverage += 1
-                if score >= actual_threshold:
-                    suspicious_statements_count += 1
-        
-        # Process executed branches that have test coverage
-        for branch in executed_branches:
-            if len(branch) >= 2:
-                source_line = branch[0]
-                source_line_str = str(source_line)
-                
-                # Check if the source line of the branch has test coverage
-                line_contexts = contexts.get(source_line_str, [])
-                has_test_coverage = any(context.strip() for context in line_contexts)
-                
-                # Check if the source line has suspiciousness score
-                if source_line_str in suspiciousness and formula in suspiciousness[source_line_str] and has_test_coverage:
-                    score = float(suspiciousness[source_line_str][formula])
-                    total_branches_with_test_coverage += 1
-                    if score >= actual_threshold:
-                        suspicious_branches_count += 1
-        
-        if file_scores:
-            avg_score = sum(normalized_scores) / len(normalized_scores)
-            max_score = max(normalized_scores)
-            
-            # Calculate percentage of suspicious statements
-            suspicious_statements_percentage = (suspicious_statements_count / total_statements_with_test_coverage * 100) if total_statements_with_test_coverage > 0 else 0
-            
-            # Calculate percentage of suspicious branches
-            suspicious_branches_percentage = (suspicious_branches_count / total_branches_with_test_coverage * 100) if total_branches_with_test_coverage > 0 else 0
-            
-            # Only include files with max suspiciousness > 0 (normalized)
-            if max_score > 0:
-                file_suspiciousness.append(FileStats(
-                    file_path=file_path,
-                    max_score=round(max_score, 3),
-                    avg_score=round(avg_score, 3),
-                    suspicious_statements=suspicious_statements_count,
-                    suspicious_statements_pct=round(suspicious_statements_percentage, 1),
-                    suspicious_branches=suspicious_branches_count,
-                    suspicious_branches_pct=round(suspicious_branches_percentage, 1),
-                    total_statements_with_coverage=total_statements_with_test_coverage,
-                    total_branches_with_coverage=total_branches_with_test_coverage
-                ))
-    
-    return file_suspiciousness
 
 
 def launch_dashboard(report_file: str = "report.json", 
@@ -831,7 +758,7 @@ def show_overview(data: Dict[str, Any], formula: str):
         st.write(f"**Actual threshold:** {actual_threshold:.3f}")
     
     # Calculate suspicious files with the specific threshold using cached data
-    file_suspiciousness = calculate_file_suspiciousness_with_threshold(
+    file_suspiciousness = calculate_file_suspiciousness_stats(
         data, formula, formula_stats, actual_threshold
     )
     
@@ -933,9 +860,6 @@ def show_treemap_tab(data: Dict[str, Any], formula: str):
     """Show dedicated treemap tab with detailed hierarchical view."""
     st.header("Hierarchical Treemap")
     
-    # Calculate formula statistics once (cached)
-    formula_stats = calculate_formula_statistics(data, formula)
-    
     # Add threshold control
     col1, col2 = st.columns([1, 3])
     with col1:
@@ -945,16 +869,14 @@ def show_treemap_tab(data: Dict[str, Any], formula: str):
             max_value=1.0,
             value=0.0,
             step=0.05,
-            help="Filter out elements with suspiciousness score below this threshold"
-        )
+        help="Filter out elements with suspiciousness score below this threshold"
+    )
     
-    hierarchy_data = build_hierarchical_data_cached(data, formula, formula_stats, min_score)
+    hierarchy_data = build_hierarchical_data(data, formula, min_score)
     
     if not hierarchy_data or len(hierarchy_data['labels']) <= 1:
         st.warning(f"No hierarchical data available with minimum score {min_score:.2f}")
-        return
-    
-    # Create treemap with hierarchical structure
+        return    # Create treemap with hierarchical structure
     fig = go.Figure(go.Treemap(
         labels=hierarchy_data['labels'],
         parents=hierarchy_data['parents'],
@@ -1009,10 +931,8 @@ def show_treemap_tab(data: Dict[str, Any], formula: str):
 
 def show_treemap(data: Dict[str, Any], formula: str):
     """Create hierarchical treemap visualization based on Python project structure."""
-    # Calculate formula statistics once (cached)
-    formula_stats = calculate_formula_statistics(data, formula)
     
-    hierarchy_data = build_hierarchical_data_cached(data, formula, formula_stats, min_score=0.05)  # Small threshold for overview
+    hierarchy_data = build_hierarchical_data(data, formula, min_score=0.05)  # Small threshold for overview
     
     if not hierarchy_data or len(hierarchy_data['labels']) <= 1:
         st.warning("No hierarchical data available")
@@ -1079,9 +999,17 @@ def show_ranking_table(susp_data: List[Dict]):
 
 def get_most_suspicious_file(data: Dict[str, Any], formula: str) -> Optional[str]:
     """Get the file with the highest suspiciousness score for the given formula."""
-    # Use cached version for performance
     formula_stats = calculate_formula_statistics(data, formula)
-    return get_most_suspicious_file_cached(data, formula, formula_stats)
+    file_stats = calculate_file_suspiciousness_stats(data, formula, formula_stats)
+    
+    if not file_stats:
+        return None
+    
+    # Sort by max score (priority), then by number of statements with coverage
+    sorted_files = sorted(file_stats, 
+                         key=lambda x: (x.max_score, x.total_statements_with_coverage), 
+                         reverse=True)
+    return sorted_files[0].file_path
 
 
 def show_source_code(data: Dict[str, Any], formula: str):
@@ -1770,9 +1698,6 @@ def show_sunburst(data: Dict[str, Any], formula: str):
     """Show sunburst visualization with hierarchical Python project structure."""
     st.header("Sunburst View")
     
-    # Calculate formula statistics once (cached)
-    formula_stats = calculate_formula_statistics(data, formula)
-    
     # Add threshold control
     col1, col2 = st.columns([1, 3])
     with col1:
@@ -1783,22 +1708,20 @@ def show_sunburst(data: Dict[str, Any], formula: str):
             value=0.05,
             step=0.05,
             key=f"sunburst_threshold_{formula}",
-            help="Filter out elements with suspiciousness score below this threshold"
-        )
+        help="Filter out elements with suspiciousness score below this threshold"
+    )
     
-    hierarchy_data = build_hierarchical_data_cached(data, formula, formula_stats, min_score)
+    hierarchy_data = build_hierarchical_data(data, formula, min_score)
     
     if not hierarchy_data or len(hierarchy_data['labels']) <= 1:
         st.warning(f"No hierarchical data available with minimum score {min_score:.2f}")
         st.info("Try lowering the minimum score threshold")
         
         # Show fallback with very low threshold
-        fallback_data = build_hierarchical_data_cached(data, formula, formula_stats, 0.0)
+        fallback_data = build_hierarchical_data(data, formula, 0.0)
         if fallback_data and len(fallback_data['labels']) > 1:
             st.info(f"Available elements with threshold 0.0: {len(fallback_data['labels'])}")
-        return
-    
-    # Scale values mildly to keep proportions while avoiding tiny slices
+        return    # Scale values mildly to keep proportions while avoiding tiny slices
     try:
         vals_arr = np.array(hierarchy_data['values'], dtype=float)
         scaled = np.sqrt(vals_arr)
