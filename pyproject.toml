@@ -47,7 +47,7 @@ ui = [
 ]
 
 [project.scripts]
-pyfault = "pyfault.cli.main:main"
+pyfault = "pyfault.core.cli.main:main"
 
 [project.urls]
 Homepage = "https://github.com/example/pyfault"
@@ -55,10 +55,10 @@ Repository = "https://github.com/example/pyfault"
 Issues = "https://github.com/example/pyfault/issues"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = [""]
 
 [tool.setuptools.package-dir]
-"" = "src"
+"" = "."
 
 [tool.black]
 line-length = 88
