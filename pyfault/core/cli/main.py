@@ -8,18 +8,42 @@ import sys
 import logging
 import json
 import os
-from typing import List, Optional
+import tempfile
+from typing import List, Optional, Callable
 
 import click
 from rich.console import Console
 from rich.logging import RichHandler
+from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 
-from ..test.runner import TestRunner
+from ..test.runner import TestResult, TestRunner
 from ..test.config import TestConfig
 from ..fl.engine import FLEngine
 from ..fl.config import FLConfig
 
 console = Console()
+
+
+# --- Shared Click Options ---
+
+def shared_options(f: Callable) -> Callable:
+    """Decorator for shared options across commands."""
+    f = click.option('--config', '-c', default='pyfault.conf', help='Configuration file (default: pyfault.conf)')(f)
+    return f
+
+def test_options(f: Callable) -> Callable:
+    """Decorator for test-related options."""
+    f = click.option('--source-dir', '-s', default='.', help='Source code directory to analyze (default: .)')(f)
+    f = click.option('--test-dir', '-t', help='Test directory (default: auto-detected by pytest)')(f)
+    f = click.option('--test-filter', '-k', help='Filter tests using pytest -k pattern')(f)
+    f = click.option('--ignore', multiple=True, help='Additional file patterns to ignore for test discovery (besides */__init__.py)')(f)
+    f = click.option('--omit', multiple=True, help='Additional file patterns to omit from coverage (besides */__init__.py)')(f)
+    return f
+
+def fl_options(f: Callable) -> Callable:
+    """Decorator for fault localization options."""
+    f = click.option('--formulas', '-f', multiple=True, help='SBFL formulas to use (default: all available)')(f)
+    return f
 
 
 def setup_logging(verbose: bool = False) -> None:
@@ -49,24 +73,13 @@ def main(ctx: click.Context, verbose: bool) -> None:
 
 
 @main.command()
-@click.option('--source-dir', '-s', default='.',
-              help='Source code directory to analyze (default: .)')
-@click.option('--test-dir', '-t', 
-              help='Test directory (default: auto-detected by pytest)')
-@click.option('--output', '-o', default='coverage.json',
-              help='Output file for coverage data (default: coverage.json)')
-@click.option('--test-filter', '-k',
-              help='Filter tests using pytest -k pattern')
-@click.option('--ignore', multiple=True,
-              help='Additional file patterns to ignore for test discovery (besides */__init__.py)')
-@click.option('--omit', multiple=True,
-              help='Additional file patterns to omit from coverage (besides */__init__.py)')
-@click.option('--config', '-c', default='pyfault.conf',
-              help='Configuration file (default: pyfault.conf)')
+@click.option('--output', '-o', default='coverage.json', help='Output file for coverage data (default: coverage.json)')
+@test_options
+@shared_options
 @click.pass_context
 def test(ctx: click.Context, source_dir: str, test_dir: Optional[str], 
          output: str, test_filter: Optional[str], ignore: List[str],
-         omit: List[str], config: str) -> None:
+         omit: List[str], config: str) -> TestResult:
     """
     Run tests with coverage collection.
     
@@ -99,9 +112,18 @@ def test(ctx: click.Context, source_dir: str, test_dir: Optional[str],
             console.print(f"Test dir: [cyan]{test_config.test_dir}[/cyan]")
         console.print(f"Output file: [cyan]{test_config.output_file}[/cyan]")
         
-        # Execute tests
-        runner = TestRunner(test_config)
-        result = runner.run_tests(test_filter)
+        # Execute tests with progress indicator
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            TimeElapsedColumn(),
+            console=console,
+            transient=True
+        ) as progress:
+            task = progress.add_task("[yellow]Executing tests and collecting coverage...", total=None)
+            runner = TestRunner(test_config)
+            result = runner.run_tests(test_filter)
+            progress.update(task, completed=100, total=100)
         
         # Write coverage matrix code_lines-tests
         with open(test_config.output_file, 'w') as f:
@@ -121,6 +143,7 @@ def test(ctx: click.Context, source_dir: str, test_dir: Optional[str],
                 console.print(f"  - {test}")
         
         console.print(f"\n[bold green]Coverage data saved to:[/bold green] {test_config.output_file}")
+        return result
         
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {e}")
@@ -130,14 +153,10 @@ def test(ctx: click.Context, source_dir: str, test_dir: Optional[str],
 
 
 @main.command()
-@click.option('--input', '-i', default='coverage.json',
-              help='Input coverage file (default: coverage.json)')
-@click.option('--output', '-o', default='report.json',
-              help='Output report file (default: report.json)')
-@click.option('--formulas', '-f', multiple=True,
-              help='SBFL formulas to use (default: all available)')
-@click.option('--config', '-c', default='pyfault.conf',
-              help='Configuration file (default: pyfault.conf)')
+@click.option('--input', '-i', default='coverage.json', help='Input coverage file (default: coverage.json)')
+@click.option('--output', '-o', default='report.json', help='Output report file (default: report.json)')
+@fl_options
+@shared_options
 @click.pass_context
 def fl(ctx: click.Context, input: str, output: str, formulas: List[str], config: str) -> None:
     """
@@ -163,9 +182,18 @@ def fl(ctx: click.Context, input: str, output: str, formulas: List[str], config:
         console.print(f"Output file: [cyan]{fl_config.output_file}[/cyan]")
         console.print(f"Formulas: [cyan]{', '.join(fl_config.formulas or [])}[/cyan]")
         
-        # Create FL engine and calculate
-        engine = FLEngine(fl_config)
-        engine.calculate_suspiciousness(fl_config.input_file, fl_config.output_file)
+        # Create FL engine and calculate with progress indicator
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            TimeElapsedColumn(),
+            console=console,
+            transient=True
+        ) as progress:
+            task = progress.add_task("[yellow]Calculating suspiciousness scores...", total=None)
+            engine = FLEngine(fl_config)
+            engine.calculate_suspiciousness(fl_config.input_file, fl_config.output_file)
+            progress.update(task, completed=100, total=100)
         
         console.print(f"\n[bold green]✓[/bold green] Fault localization completed!")
         console.print(f"Report saved to: [cyan]{fl_config.output_file}[/cyan]")
@@ -191,22 +219,10 @@ def fl(ctx: click.Context, input: str, output: str, formulas: List[str], config:
 
 
 @main.command()
-@click.option('--source-dir', '-s', default='.',
-              help='Source code directory to analyze (default: .)')
-@click.option('--test-dir', '-t', 
-              help='Test directory (default: auto-detected by pytest)')
-@click.option('--output', '-o', default='report.json',
-              help='Output file for fault localization report (default: report.json)')
-@click.option('--test-filter', '-k',
-              help='Filter tests using pytest -k pattern')
-@click.option('--ignore', multiple=True,
-              help='Additional file patterns to ignore for test discovery (besides */__init__.py)')
-@click.option('--omit', multiple=True,
-              help='Additional file patterns to omit from coverage (besides */__init__.py)')
-@click.option('--formulas', '-f', multiple=True,
-              help='SBFL formulas to use (default: all available)')
-@click.option('--config', '-c', default='pyfault.conf',
-              help='Configuration file (default: pyfault.conf)')
+@click.option('--output', '-o', default='report.json', help='Output file for fault localization report (default: report.json)')
+@test_options
+@fl_options
+@shared_options
 @click.pass_context
 def run(ctx: click.Context, source_dir: str, test_dir: Optional[str], 
         output: str, test_filter: Optional[str], ignore: List[str],
@@ -253,8 +269,17 @@ def run(ctx: click.Context, source_dir: str, test_dir: Optional[str],
         # Phase 1: Run tests with coverage
         console.print("\n[bold blue]Phase 1: Running tests with coverage...[/bold blue]")
         try:
-            runner = TestRunner(test_config)
-            result = runner.run_tests(test_filter)
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                TimeElapsedColumn(),
+                console=console,
+                transient=True
+            ) as progress:
+                task = progress.add_task("[yellow]Executing tests and collecting coverage...", total=None)
+                runner = TestRunner(test_config)
+                result = runner.run_tests(test_filter)
+                progress.update(task, completed=100, total=100)
         except Exception as e:
             console.print(f"\n[bold red]✗[/bold red] Test execution failed!")
             console.print(f"[bold red]Error:[/bold red] {e}")
@@ -268,16 +293,17 @@ def run(ctx: click.Context, source_dir: str, test_dir: Optional[str],
         with open(test_config.output_file, 'w') as f:
             json.dump(result.coverage_data, f, indent=2)
         
-        # Display test results
         total_tests = len(result.passed_tests) + len(result.failed_tests) + len(result.skipped_tests)
+        console.print(f"\n[bold green]✓[/bold green] Test execution completed!")
         console.print(f"Total tests: {total_tests}")
         console.print(f"Passed: [green]{len(result.passed_tests)}[/green]")
         console.print(f"Failed: [red]{len(result.failed_tests)}[/red]")
         console.print(f"Skipped: [yellow]{len(result.skipped_tests)}[/yellow]")
-        
+
         if result.failed_tests:
-            console.print(f"Failed tests: {', '.join(result.failed_tests[:3])}{'...' if len(result.failed_tests) > 3 else ''}")
-        
+            console.print(f"\n[bold red]Failed tests:[/bold red]")
+            for test in result.failed_tests:
+                console.print(f"  - {test}")        
         # Check if fault localization is needed
         if not result.failed_tests:
             console.print("\n[bold yellow]ℹ[/bold yellow] All tests passed - fault localization not needed.")
@@ -290,8 +316,17 @@ def run(ctx: click.Context, source_dir: str, test_dir: Optional[str],
         
         # Phase 2: Calculate fault localization
         console.print("\n[bold blue]Phase 2: Calculating fault localization scores...[/bold blue]")
-        engine = FLEngine(fl_config)
-        engine.calculate_suspiciousness(fl_config.input_file, fl_config.output_file)
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            TimeElapsedColumn(),
+            console=console,
+            transient=True
+        ) as progress:
+            task = progress.add_task("[yellow]Calculating suspiciousness scores...", total=None)
+            engine = FLEngine(fl_config)
+            engine.calculate_suspiciousness(fl_config.input_file, fl_config.output_file)
+            progress.update(task, completed=100, total=100)
         
         # Cleanup intermediate file if different from final output
         if intermediate_file != fl_config.output_file and os.path.exists(intermediate_file):

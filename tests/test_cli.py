@@ -528,7 +528,8 @@ formulas = ochiai, tarantula
             
             assert result.exit_code == 0
             assert "Failed: 1" in result.output
-            assert "Failed tests: tests/test_calc.py::test_fail" in result.output
+            assert "Failed tests:" in result.output
+            assert "tests/test_calc.py::test_fail" in result.output
     
     @patch('pyfault.core.test.runner.TestRunner.run_tests')
     @patch('pyfault.core.fl.engine.FLEngine.calculate_suspiciousness')
