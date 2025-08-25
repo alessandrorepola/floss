@@ -6,8 +6,8 @@ TestRunner (coverage JSON) and FLEngine (FL report JSON).
 import json
 from tempfile import NamedTemporaryFile
 
-from pyfault.fl.engine import FLEngine
-from pyfault.fl.config import FLConfig
+from pyfault.core.fl.engine import FLEngine
+from pyfault.core.fl.config import FLConfig
 
 
 def test_fl_report_contains_expected_sections_and_order():
@@ -64,8 +64,8 @@ def test_test_phase_metadata_fields_present_and_promoted():
     test_outcomes = {"failed": ["t_fail"], "passed": ["t_pass"], "skipped": []}
 
     # Import internal helpers directly
-    from pyfault.test.config import TestConfig
-    from pyfault.test.runner import TestRunner
+    from pyfault.core.test.config import TestConfig
+    from pyfault.core.test.runner import TestRunner
 
     runner = TestRunner(TestConfig())
     coverage_data = runner._add_pyfault_metadata(coverage_data, test_outcomes)

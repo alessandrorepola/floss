@@ -4,10 +4,9 @@ Tests for fault localization CLI commands.
 
 import json
 import os
-import tempfile
 from click.testing import CliRunner
 
-from pyfault.cli.main import main
+from pyfault.core.cli.main import main
 
 
 class TestFLCLI:

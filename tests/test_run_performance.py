@@ -10,7 +10,7 @@ import os
 import time
 from click.testing import CliRunner
 
-from pyfault.cli.main import main
+from pyfault.core.cli.main import main
 
 
 class TestRunCommandPerformance:

@@ -3,8 +3,8 @@ Tests that validate TestRunner augments coverage JSON with expected
 meta and totals fields, including reordering.
 """
 
-from pyfault.test.config import TestConfig
-from pyfault.test.runner import TestRunner
+from pyfault.core.test.config import TestConfig
+from pyfault.core.test.runner import TestRunner
 
 
 def test_add_pyfault_metadata_and_summary_reorg():

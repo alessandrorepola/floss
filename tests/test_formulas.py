@@ -4,7 +4,7 @@ Test suite for PyFault SBFL formulas.
 
 import pytest
 import math
-from pyfault.formulas import (
+from pyfault.core.formulas import (
     OchiaiFormula, TarantulaFormula, JaccardFormula, DStarFormula, Kulczynski2Formula
 )
 

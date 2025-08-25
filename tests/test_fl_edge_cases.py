@@ -6,9 +6,9 @@ import json
 import time
 import tempfile
 import os
-from pyfault.fl.config import FLConfig
-from pyfault.fl.data import CoverageData
-from pyfault.fl.engine import FLEngine
+from pyfault.core.fl.config import FLConfig
+from pyfault.core.fl.data import CoverageData
+from pyfault.core.fl.engine import FLEngine
 
 
 class TestFLEdgeCases:

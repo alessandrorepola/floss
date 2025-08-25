@@ -11,9 +11,8 @@ import tempfile
 import shutil
 from pathlib import Path
 from click.testing import CliRunner
-from unittest.mock import patch
 
-from pyfault.cli.main import main
+from pyfault.core.cli.main import main
 
 
 class TestRunCommandIntegration:

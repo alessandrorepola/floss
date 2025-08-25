@@ -16,6 +16,7 @@ from .config import TestConfig
 class TestResult:
     """Result of test execution."""
     
+    __test__ = False
     coverage_data: Dict[str, Any]
     failed_tests: List[str]
     passed_tests: List[str]
@@ -25,6 +26,7 @@ class TestResult:
 class TestRunner:
     """Executes tests with pytest and coverage collection."""
     
+    __test__ = False
     def __init__(self, config: TestConfig):
         self.config = config
     

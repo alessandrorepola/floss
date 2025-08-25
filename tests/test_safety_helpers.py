@@ -2,7 +2,7 @@
 Unit tests for safety helper functions in formulas.base.
 """
 
-from pyfault.formulas.base import safe_divide, safe_sqrt
+from pyfault.core.formulas.base import safe_divide, safe_sqrt
 
 
 def test_safe_divide_basic_and_zero_division():

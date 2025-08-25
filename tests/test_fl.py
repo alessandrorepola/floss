@@ -6,11 +6,10 @@ import json
 import os
 import tempfile
 import pytest
-from unittest.mock import patch, mock_open
 
-from pyfault.fl.config import FLConfig
-from pyfault.fl.data import CoverageData
-from pyfault.fl.engine import FLEngine
+from pyfault.core.fl.config import FLConfig
+from pyfault.core.fl.data import CoverageData
+from pyfault.core.fl.engine import FLEngine
 
 
 class TestFLConfig:

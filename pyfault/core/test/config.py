@@ -10,6 +10,7 @@ import os
 class TestConfig:
     """Configuration for test execution."""
     
+    __test__ = False
     source_dir: str = "."
     test_dir: Optional[str] = None
     output_file: str = "coverage.json"
