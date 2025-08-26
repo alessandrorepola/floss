@@ -23,7 +23,7 @@ classifiers = [
     "Topic :: Software Development :: Testing",
     "Topic :: Software Development :: Debuggers",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 dependencies = [
     "rich>=14.0.1",
     "click>=8.1.8",
@@ -41,9 +41,9 @@ dev = [
     "pre-commit",
 ]
 ui = [
-    "streamlit>=1.45.0",
-    "plotly>=5.22.0",
-    "pandas>=2.0.3",
+    "streamlit>=1.45.0; python_version >= \"3.9\"",
+    "plotly>=5.22.0; python_version >= \"3.9\"",
+    "pandas>=2.0.3; python_version >= \"3.9\"",
 ]
 
 [project.scripts]

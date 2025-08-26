@@ -2,6 +2,7 @@
 Coverage data structures for fault localization.
 """
 
+from __future__ import annotations
 from typing import Dict, Set
 from dataclasses import dataclass
 

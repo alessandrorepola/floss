@@ -2,6 +2,7 @@
 Fault Localization Engine.
 """
 
+from __future__ import annotations
 import json
 from ..formulas import *
 from .data import CoverageData

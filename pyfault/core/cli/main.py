@@ -8,10 +8,10 @@ import sys
 import logging
 import json
 import os
-import tempfile
 from typing import List, Optional, Callable
 
 import click
+from rich.markup import escape
 from rich.console import Console
 from rich.logging import RichHandler
 from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
@@ -373,7 +373,7 @@ def ui(ctx: click.Context, report: str, port: int, no_open: bool) -> None:
         
     except ImportError as e:
         console.print("[bold red]Error:[/bold red] Dashboard dependencies not available.")
-        console.print("Install UI extras: pip install .[ui]  (or: pip install pyfault[ui])")
+        console.print(escape("Install UI extras: pip install .[ui]  (or: pip install pyfault[ui])"))
         if ctx.obj.get('verbose'):
             console.print_exception()
         sys.exit(1)
