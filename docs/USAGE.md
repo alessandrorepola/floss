@@ -47,6 +47,57 @@ pip install -e ".[dev,ui]"
 pyfault --help
 ```
 
+## Learning with Examples
+
+PyFault includes curated examples that demonstrate fault localization on real-world projects. These examples are the best way to learn PyFault's capabilities.
+
+### Example Categories
+
+#### Educational Examples
+Perfect for learning PyFault basics:
+```bash
+# Simple synthetic bug - great for beginners
+cd examples/dummy-example
+pyfault run --source-dir src --test-dir tests
+pyfault ui --report report.json
+```
+
+#### Real Framework Bugs  
+Actual bugs from popular Python frameworks:
+```bash
+# FastAPI dependency injection bug
+cd examples/fastapi/bug6
+./setup.sh  # Downloads FastAPI with the bug
+cd fastapi
+pyfault run
+pyfault ui --report report.json
+```
+
+#### 📊 Data Science Examples
+Fault localization on scientific computing code:
+```bash
+# PyGraphistry visualization library
+cd examples/pygraphistry  
+./setup.sh  # Downloads PyGraphistry
+cd pygraphistry
+pyfault test --source-dir graphistry --test-dir tests
+```
+
+### Example Learning Path
+
+1. **Start Here**: `examples/dummy-example` - Learn basic concepts
+2. **Web Frameworks**: `examples/fastapi/bug6` - Dependency injection issues
+3. **API Validation**: `examples/fastapi/bug2` - Schema generation bugs
+4. **Data Processing**: `examples/pygraphistry` - Scientific computing bugs
+
+Each example includes:
+- ✅ Detailed README with bug description
+- ✅ Automated setup scripts
+- ✅ Pre-configured PyFault settings
+- ✅ Expected results and analysis guides
+
+For complete example documentation, see [`examples/README.md`](../examples/README.md).
+
 ## Quick Start Examples
 
 ### Example 1: Basic Project Analysis

@@ -13,6 +13,7 @@ PyFault is a comprehensive Python framework for automated fault localization usi
 - [Web Dashboard](#web-dashboard)
 - [Configuration](#configuration)
 - [Supported SBFL Formulas](#supported-sbfl-formulas)
+- [Examples](#examples)
 - [Project Structure](#project-structure)
 - [API Reference](#api-reference)
 - [Development](#development)
@@ -107,7 +108,25 @@ Additional UI dependencies:
 
 ## Quick Start
 
-### 1. Basic Fault Localization
+### 1. Try a Real-World Example
+
+The fastest way to see PyFault in action is with our curated examples:
+
+```bash
+# Try the simple educational example
+cd examples/dummy-example
+pyfault run --source-dir src --test-dir tests
+pyfault ui --report report.json
+
+# Or try a real FastAPI bug
+cd examples/fastapi/bug6
+./setup.sh  # Downloads FastAPI with bug
+cd fastapi
+pyfault run
+pyfault ui --report report.json
+```
+
+### 2. Basic Fault Localization on Your Project
 
 ```bash
 # Navigate to your Python project
@@ -120,7 +139,7 @@ pyfault run --source-dir src --test-dir tests
 pyfault ui --report report.json
 ```
 
-### 2. Step-by-Step Workflow
+### 3. Step-by-Step Workflow
 
 ```bash
 # Step 1: Run tests with coverage
@@ -133,7 +152,7 @@ pyfault fl --input coverage.json --output report.json --formulas ochiai tarantul
 pyfault ui --report report.json --port 8501
 ```
 
-### 3. Using Configuration Files
+### 4. Using Configuration Files
 
 Create a `pyfault.conf` file:
 
@@ -394,6 +413,78 @@ class CustomFormula(SBFLFormula):
         return custom_calculation(n_cf, n_nf, n_cp, n_np)
 ```
 
+## Examples
+
+PyFault includes comprehensive real-world examples that demonstrate fault localization on actual software projects with known bugs. These examples provide hands-on learning opportunities and showcase PyFault's effectiveness across different domains.
+
+### Available Examples
+
+#### 🌐 FastAPI Framework Examples
+Real bugs from the FastAPI web framework, sourced from the [BugsInPy](https://github.com/soarsmu/BugsInPy) dataset:
+
+- **[Bug #2](examples/fastapi/bug2/)** - OpenAPI schema generation issue
+- **[Bug #3](examples/fastapi/bug3/)** - Request validation problem  
+- **[Bug #6](examples/fastapi/bug6/)** - Dependency injection error
+- **[Bug #11](examples/fastapi/bug11/)** - Response model validation issue
+
+#### 📊 Data Science Examples
+- **[PyGraphistry](examples/pygraphistry/)** - Graph visualization library fault localization
+
+#### 🎓 Educational Examples
+- **[Dummy Example](examples/dummy-example/)** - Simple synthetic bug for learning PyFault basics
+
+### Quick Example Walkthrough
+
+```bash
+# Navigate to any example
+cd examples/fastapi/bug6
+
+# Run automated setup (downloads project, creates environment)
+./setup.sh
+
+# Execute PyFault on the real bug
+cd fastapi  # Project directory created by setup
+pyfault run
+
+# View interactive results
+pyfault ui --report report.json
+```
+
+### Example Categories
+
+| Category | Domain | Complexity | Python Version | Setup Time |
+|----------|--------|------------|----------------|------------|
+| **FastAPI** | Web APIs | Intermediate | 3.8.3 (exact) | ~3-5 minutes |
+| **PyGraphistry** | Data Visualization | Advanced | 3.7+ | ~2-3 minutes |
+| **Dummy** | Educational | Beginner | 3.9+ | < 1 minute |
+
+### Learning Path
+
+1. **Start with Dummy Example** - Learn PyFault basics with a simple, controlled bug
+2. **Explore FastAPI Bug #6** - Understand dependency injection fault patterns
+3. **Compare FastAPI Bugs** - See how different bug types affect fault localization
+4. **Try PyGraphistry** - Experience fault localization on scientific computing code
+
+### Example Features
+
+Each example includes:
+- ✅ **Automated setup scripts** - One-command environment preparation
+- ✅ **Pre-configured settings** - Optimized PyFault configurations  
+- ✅ **Detailed documentation** - Bug descriptions and analysis guides
+- ✅ **Expected results** - Clear guidance on what to look for
+- ✅ **Learning objectives** - Educational goals and takeaways
+
+### Real-World Bug Patterns
+
+The examples demonstrate common bug categories:
+
+- **API Validation Bugs** (FastAPI Bug #2, #3, #11) - Schema and input validation issues
+- **Framework Integration Bugs** (FastAPI Bug #6) - Dependency injection and lifecycle problems
+- **Data Processing Bugs** (PyGraphistry) - Algorithmic and visualization issues
+- **Logical Bugs** (Dummy Example) - Basic computational errors
+
+For detailed setup instructions and analysis guides, see the [examples directory](examples/).
+
 ## Project Structure
 
 ```
@@ -560,6 +651,47 @@ python -m pytest tests/ --cov=src/pyfault --cov-report=html
 python -m pytest tests/test_formulas.py -v
 python -m pytest tests/test_e2e.py -v
 ```
+
+### Testing Examples
+
+PyFault includes automated testing for all examples through GitHub Actions:
+
+```bash
+# Test the dummy example locally
+cd examples/dummy-example
+pyfault run --source-dir src --test-dir tests
+
+# Test FastAPI examples (requires setup)
+cd examples/fastapi/bug6
+./setup.sh
+cd fastapi
+pyfault run
+
+# Test PyGraphistry example (requires setup)  
+cd examples/pygraphistry
+./setup.sh
+cd PyGraphistry
+pyfault test --source-dir graphistry --test-dir tests
+```
+
+#### CI/CD Workflows
+
+The project includes two GitHub Actions workflows:
+
+1. **Main CI (`ci.yml`)**: Tests core PyFault functionality
+2. **Examples CI (`examples.yml`)**: Tests all examples including:
+   - Dummy example validation
+   - FastAPI bug examples (with Python 3.8.3)
+   - PyGraphistry example setup
+   - Documentation validation
+   - Integration testing
+
+The examples workflow automatically:
+- Sets up required Python versions for each example
+- Runs automated setup scripts
+- Executes PyFault on real bugs
+- Validates output format and structure
+- Checks documentation completeness
 
 ### Code Quality
 
