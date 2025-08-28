@@ -79,15 +79,9 @@ echo "==> Checking out FastAPI buggy version (issue 6)"
 bugsinpy-checkout -p fastapi -v 0 -i 6 -w "$SCRIPT_DIR"
 
 # Install FastAPI deps and package
-REQ_FILE="fastapi/bugsinpy_requirements.txt"
-if [[ ! -f "$REQ_FILE" ]]; then
-  echo "Requirements file not found: $REQ_FILE" >&2
-  exit 1
-fi
-echo "==> Installing FastAPI dependencies from $REQ_FILE"
-$PY -m pip install -r "$REQ_FILE"
 echo "==> Installing FastAPI in editable mode"
 $PY -m pip install -e fastapi
+$PY -m pip install -e fastapi[test]
 
 # Copy pyfault.conf if present
 if [[ -f "pyfault.conf" ]]; then
