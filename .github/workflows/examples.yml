@@ -165,12 +165,6 @@ jobs:
     - name: Test PyFault on PyGraphistry
       run: |
         cd examples/pygraphistry/pygraphistry
-        # Run PyFault with basic test discovery
-        timeout 300 python -m pytest tests/ --collect-only --quiet > /dev/null 2>&1 || {
-          echo "No valid tests found in pygraphistry, skipping test execution"
-          exit 0
-        }
-        
         # Try to run PyFault
         timeout 300 pyfault test || {
           echo "PyFault test execution completed with issues (expected for some external projects)"
