@@ -76,7 +76,7 @@ echo "==> Added BugsInPy tools to PATH: $BUGSINPY_BIN"
 
 # Checkout FastAPI buggy version
 echo "==> Checking out FastAPI buggy version (issue 11)"
-bugsinpy-checkout -p fastapi -v 0 -i 11 -w "./"
+bugsinpy-checkout -p fastapi -v 0 -i 11 -w "$SCRIPT_DIR"
 
 # Install FastAPI deps and package
 REQ_FILE="fastapi/bugsinpy_requirements.txt"
