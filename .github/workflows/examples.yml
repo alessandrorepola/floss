@@ -44,9 +44,19 @@ jobs:
         import json
         with open('test_report.json') as f:
             report = json.load(f)
-        assert 'metadata' in report
-        assert 'results' in report
-        assert len(report['results']) > 0
+        assert 'meta' in report
+        assert 'files' in report
+        assert 'fl_metadata' in report
+        assert len(report['files']) > 0
+        
+        # Check that fault localization results are present
+        for file_path, file_data in report['files'].items():
+            if 'suspiciousness' in file_data:
+                print(f'✓ Found suspiciousness data for {file_path}')
+                break
+        else:
+            raise AssertionError('No suspiciousness data found in any file')
+        
         print('✓ Dummy example test passed')
         "
 
@@ -112,8 +122,22 @@ jobs:
         import json
         with open('report.json') as f:
             report = json.load(f)
-        assert 'metadata' in report
-        assert 'results' in report
+        assert 'meta' in report
+        assert 'files' in report
+        assert 'fl_metadata' in report
+        assert len(report['files']) > 0
+        
+        # Check that fault localization results are present
+        files_with_suspiciousness = 0
+        for file_path, file_data in report['files'].items():
+            if 'suspiciousness' in file_data:
+                files_with_suspiciousness += 1
+        
+        if files_with_suspiciousness == 0:
+            print('Warning: No suspiciousness data found, but basic structure is valid')
+        else:
+            print(f'✓ Found suspiciousness data for {files_with_suspiciousness} files')
+        
         print('✓ FastAPI ${{ matrix.bug }} test passed')
         "
       timeout-minutes: 8
@@ -281,26 +305,29 @@ jobs:
         # Check report file  
         with open('report.json') as f:
             report = json.load(f)
-        assert 'metadata' in report
-        assert 'results' in report
-        assert len(report['results']) > 0
+        assert 'meta' in report
+        assert 'files' in report
+        assert 'fl_metadata' in report
+        assert len(report['files']) > 0
         
         # Verify the bug is detected (line 10 in equilateral.py should have high suspiciousness)
-        results = report['results']
         found_bug = False
-        for result in results:
-            if 'equilateral.py' in result.get('file', '') and result.get('line') == 10:
-                # Check if suspiciousness is reasonably high for any formula
-                for formula_result in result.get('suspiciousness', {}).values():
-                    if formula_result > 0.5:  # Threshold for 'high' suspiciousness
-                        found_bug = True
-                        break
-                break
+        for file_path, file_data in report['files'].items():
+            if 'equilateral.py' in file_path and 'suspiciousness' in file_data:
+                suspiciousness_data = file_data['suspiciousness']
+                # Check line 10 for high suspiciousness with any formula
+                if '10' in suspiciousness_data:
+                    line_suspiciousness = suspiciousness_data['10']
+                    for formula, score in line_suspiciousness.items():
+                        if score > 0.5:  # Threshold for 'high' suspiciousness
+                            found_bug = True
+                            print(f'✓ Bug correctly identified: line 10, formula {formula}, score {score}')
+                            break
+                if found_bug:
+                    break
         
         if not found_bug:
             print('Warning: Bug not clearly identified with high suspiciousness')
-        else:
-            print('✓ Bug correctly identified with high suspiciousness')
-        
+            # Still consider test passed if basic structure is correct        
         print('✓ Integration test passed')
         "
