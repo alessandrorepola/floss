@@ -100,20 +100,8 @@ jobs:
       run: |
         cd examples/fastapi/${{ matrix.bug }}/fastapi
         # Run PyFault with timeout to prevent hanging
-        timeout 300 pyfault test --source-dir fastapi --test-dir tests --output coverage.json || {
-          echo "PyFault test execution timed out for ${{ matrix.bug }}"
-          exit 1
-        }
-        
-        # Verify coverage file was generated
-        if [ ! -f coverage.json ]; then
-          echo "Coverage file not generated for ${{ matrix.bug }}"
-          exit 1
-        fi
-        
-        # Run fault localization
-        timeout 120 pyfault fl --input coverage.json --output report.json --formulas ochiai tarantula || {
-          echo "PyFault FL execution timed out for ${{ matrix.bug }}"
+        timeout 300 pyfault run || {
+          echo "PyFault run execution timed out for ${{ matrix.bug }}"
           exit 1
         }
         
@@ -183,8 +171,8 @@ jobs:
           exit 0
         }
         
-        # Try to run PyFault test
-        timeout 300 pyfault test --source-dir graphistry --test-dir tests --output coverage.json || {
+        # Try to run PyFault
+        timeout 300 pyfault test || {
           echo "PyFault test execution completed with issues (expected for some external projects)"
           # Create a minimal coverage file for FL testing
           echo '{"files": {}, "tests": {}}' > coverage.json
@@ -192,7 +180,7 @@ jobs:
         
         # If we have any coverage data, test fault localization
         if [ -f coverage.json ] && [ -s coverage.json ]; then
-          timeout 120 pyfault fl --input coverage.json --output report.json --formulas ochiai || {
+          timeout 120 pyfault || {
             echo "PyFault FL execution completed"
           }
         fi
