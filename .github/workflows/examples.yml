@@ -165,23 +165,12 @@ jobs:
     - name: Test PyFault on PyGraphistry
       run: |
         cd examples/pygraphistry/pygraphistry
+        ls
         # Try to run PyFault
-        timeout 300 pyfault test || {
+        timeout 300 pyfault run || {
           echo "PyFault test execution completed with issues (expected for some external projects)"
-          # Create a minimal coverage file for FL testing
-          echo '{"files": {}, "tests": {}}' > coverage.json
+          exit 1
         }
-        
-        # If we have any coverage data, test fault localization
-        if [ -f coverage.json ] && [ -s coverage.json ]; then
-          timeout 120 pyfault fl || {
-            echo "PyFault FL execution completed"
-            # Create a minimal coverage file for FL testing
-            echo '{"files": {}, "tests": {}}' > coverage.json
-          }
-        fi
-
-        echo "✓ PyGraphistry example setup and execution completed"
 
         # Verify report was generated and contains expected structure
         python -c "
