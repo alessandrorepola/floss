@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
+set -x
+trap 'status=$?; echo "ERROR: command failed: ${BASH_COMMAND} (exit ${status}) at ${BASH_SOURCE[0]}:${LINENO}" >&2; exit ${status}' ERR
 
 # Setup script for the FastAPI project (bug 11) using Python 3.8.x
 
 # Ensure we run from the script directory (stabilizes relative paths)
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 cd "$SCRIPT_DIR"
+echo "==> Working directory: $SCRIPT_DIR"
 
 VENV_NAME="fastapi-bug11"
 REQUIRED_PY="3.8"
@@ -22,6 +26,7 @@ if [[ -z "$PY" ]]; then
   echo "Python 3.8 not found. Please install Python 3.8 and try again." >&2
   exit 1
 fi
+echo "==> Using Python interpreter: $PY ($($PY --version 2>&1))"
 
 # Verify Python is 3.8.x
 if ! "$PY" - <<'PYCODE'
@@ -34,22 +39,27 @@ then
 fi
 
 # Create venv
+echo "==> Creating virtual environment: $VENV_NAME"
 "$PY" -m venv "$VENV_NAME"
 
 # Activate venv
 if [[ -f "$VENV_NAME/bin/activate" ]]; then
+  echo "==> Activating virtual environment"
   source "$VENV_NAME/bin/activate"
 else
   echo "Virtualenv activation script not found." >&2
   exit 1
 fi
 
-$PY -m pip install -q --upgrade pip setuptools wheel
+echo "==> Upgrading pip, setuptools, wheel"
+$PY -m pip install --upgrade pip setuptools wheel
 
 # Install PyFault
-$PY -m pip install -q -e ../../../
+echo "==> Installing PyFault (editable) from repository root"
+$PY -m pip install -e ../../../
 
 # Clone or update BugsInPy
+echo "==> Ensuring BugsInPy repository is present"
 if [[ -d BugsInPy/.git ]]; then
   git -C BugsInPy pull --ff-only
 else
@@ -62,8 +72,10 @@ case ":$PATH:" in
   *":$BUGSINPY_BIN:"*) ;;
   *) export PATH="$PATH:$BUGSINPY_BIN" ;;
 esac
+echo "==> Added BugsInPy tools to PATH: $BUGSINPY_BIN"
 
 # Checkout FastAPI buggy version
+echo "==> Checking out FastAPI buggy version (issue 11)"
 bugsinpy-checkout -p fastapi -v 0 -i 11 -w "./"
 
 # Install FastAPI deps and package
@@ -72,11 +84,14 @@ if [[ ! -f "$REQ_FILE" ]]; then
   echo "Requirements file not found: $REQ_FILE" >&2
   exit 1
 fi
-$PY -m pip install -q -r "$REQ_FILE"
-$PY -m pip install -q -e fastapi
+echo "==> Installing FastAPI dependencies from $REQ_FILE"
+$PY -m pip install -r "$REQ_FILE"
+echo "==> Installing FastAPI in editable mode"
+$PY -m pip install -e fastapi
 
 # Copy pyfault.conf if present
 if [[ -f "pyfault.conf" ]]; then
+  echo "==> Copying pyfault.conf into fastapi/"
   cp -f "pyfault.conf" "fastapi/"
 else
   echo "Warning: pyfault.conf not found, skipping copy." >&2

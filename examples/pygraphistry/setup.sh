@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
+set -x
+trap 'status=$?; echo "ERROR: command failed: ${BASH_COMMAND} (exit ${status}) at ${BASH_SOURCE[0]}:${LINENO}" >&2; exit ${status}' ERR
 
 # Setup script for the PyGraphistry project
+
+# Ensure we run from the script directory (stabilizes relative paths)
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+cd "$SCRIPT_DIR"
+echo "==> Working directory: $SCRIPT_DIR"
 
 VENV_NAME="pygraphistry"
 
@@ -15,17 +23,21 @@ else
   echo "Python not found. Please install Python and try again." >&2
   exit 1
 fi
+echo "==> Using Python interpreter: $PY ($($PY --version 2>&1))"
 
 # Create venv
 $PY -m venv "$VENV_NAME"
+echo "==> Activating virtual environment"
 source "$VENV_NAME/bin/activate"
 
-$PY -m pip install -q --upgrade pip setuptools wheel
+$PY -m pip install --upgrade pip setuptools wheel
 
 # Install PyFault
-$PY -m pip install -q -e ../../
+echo "==> Installing PyFault (editable) from repository root"
+$PY -m pip install -e ../../
 
 # Clone PyGraphistry
+echo "==> Ensuring PyGraphistry repository is present"
 if [[ -d pygraphistry/.git ]]; then
   git -C pygraphistry pull --ff-only
 else
@@ -34,13 +46,16 @@ fi
 
 # Checkout buggy version identified with BugSwarm
 cd pygraphistry
+echo "==> Checking out buggy commit 856839d7"
 git checkout 856839d7fa6b21bec4924fe8d09b422bc8c7f9b4
+echo "==> Installing PyGraphistry and test extras"
 $PY -m pip install -e .
 $PY -m pip install -e .[test]
 cd ..
 
 # Copy pyfault.conf if present
 if [[ -f "pyfault.conf" ]]; then
+  echo "==> Copying pyfault.conf into pygraphistry/"
   cp -f "pyfault.conf" "pygraphistry/"
 else
   echo "Warning: pyfault.conf not found, skipping copy." >&2
