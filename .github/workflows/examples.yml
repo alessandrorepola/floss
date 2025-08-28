@@ -305,7 +305,7 @@ jobs:
         
         # Test step-by-step workflow
         pyfault test --source-dir src --test-dir tests --output coverage.json
-        pyfault fl --input coverage.json --output report.json --formulas ochiai tarantula dstar2
+        pyfault fl --input coverage.json --output report.json --formulas "ochiai,tarantula,dstar2"
         
         # Verify outputs exist
         if [ ! -f "coverage.json" ] || [ ! -f "report.json" ]; then
