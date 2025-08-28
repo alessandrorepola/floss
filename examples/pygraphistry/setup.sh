@@ -11,7 +11,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 cd "$SCRIPT_DIR"
 echo "==> Working directory: $SCRIPT_DIR"
 
-VENV_NAME="pygraphistry"
+VENV_NAME="venv"
 
 # Pick a Python interpreter
 PY=""
