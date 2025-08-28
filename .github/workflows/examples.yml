@@ -98,7 +98,10 @@ jobs:
 
     - name: Test PyFault on FastAPI ${{ matrix.bug }}
       run: |
-        cd examples/fastapi/${{ matrix.bug }}/fastapi
+        cd examples/fastapi/${{ matrix.bug }}
+        # Activate the virtual environment created in setup
+        source fastapi-${{ matrix.bug }}/bin/activate
+        cd fastapi
         # Run PyFault with timeout to prevent hanging
         timeout 300 pyfault run || {
           echo "PyFault run execution timed out for ${{ matrix.bug }}"
@@ -164,9 +167,9 @@ jobs:
     - name: Test PyFault on PyGraphistry
       run: |
         cd examples/pygraphistry
+        # Activate the virtual environment created in setup
         source venv/bin/activate
         cd pygraphistry
-        pytest ./graphistry/tests --ignore=graphistry/tests/test_bolt_util.py --ignore=graphistry/tests/test_gremlin.py --ignore=graphistry/tests/test_ipython.py --ignore=graphistry/tests/test_nodexl.py --ignore=graphistry/tests/test_tigergraph.py --ignore=graphistry/tests/test_feature_utils.py --ignore=graphistry/tests/test_umap_utils.py --ignore=graphistry/tests/test_dgl_utils.py --ignore=graphistry/tests/test_embed_utils.py
         # Try to run PyFault
         timeout 300 pyfault run || {
           echo "PyFault test execution completed with issues (expected for some external projects)"
