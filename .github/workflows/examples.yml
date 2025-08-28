@@ -163,9 +163,9 @@ jobs:
 
     - name: Test PyFault on PyGraphistry
       run: |
-        cd examples/pygraphistry/pygraphistry
-        ls
-        pip install pandas
+        cd examples/pygraphistry
+        source venv/bin/activate
+        cd pygraphistry
         pytest ./graphistry/tests --ignore=graphistry/tests/test_bolt_util.py --ignore=graphistry/tests/test_gremlin.py --ignore=graphistry/tests/test_ipython.py --ignore=graphistry/tests/test_nodexl.py --ignore=graphistry/tests/test_tigergraph.py --ignore=graphistry/tests/test_feature_utils.py --ignore=graphistry/tests/test_umap_utils.py --ignore=graphistry/tests/test_dgl_utils.py --ignore=graphistry/tests/test_embed_utils.py
         # Try to run PyFault
         timeout 300 pyfault run || {
