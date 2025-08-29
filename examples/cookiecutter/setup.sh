@@ -6,12 +6,12 @@ trap 'status=$?; echo "ERROR: command failed: ${BASH_COMMAND} (exit ${status}) a
 
 # Setup script for the FastAPI project using Python 3.8.x
 # Usage: ./setup.sh <bug_number>
-# Example: ./setup.sh 11
+# Example: ./setup.sh 1
 
 # Check if bug number is provided
 if [[ $# -ne 1 ]]; then
   echo "Usage: $0 <bug_number>" >&2
-  echo "Example: $0 11" >&2
+  echo "Example: $0 1" >&2
   echo "Available bugs: 1 and 2" >&2
   exit 1
 fi
