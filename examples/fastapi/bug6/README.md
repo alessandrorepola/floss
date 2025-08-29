@@ -19,8 +19,7 @@ The bug occurs in FastAPI's dependency injection mechanism where dependencies ar
 
 ## Files Included
 
-- `setup.sh`: Automated setup script that downloads FastAPI v0.6 and configures the test environment
-- `pyfault.conf`: Pre-configured PyFault settings optimized for FastAPI's structure
+- `README.md`: This file with bug-specific documentation
 - `report.json`: Pre-generated fault localization results showing the most suspicious lines
 
 ## Setup Instructions
@@ -32,7 +31,106 @@ The bug occurs in FastAPI's dependency injection mechanism where dependencies ar
 
 ### Quick Setup
 ```bash
-# Navigate to this directory
+# Navigate to the fastapi examples directory
+cd examples/fastapi
+
+# Run the centralized setup script for bug 6
+./setup.sh 6
+```
+
+### Manual Setup (Alternative)
+If the automated setup fails:
+
+```bash
+# From the fastapi directory
+cd examples/fastapi
+
+# Create virtual environment with Python 3.8.3
+python3.8 -m venv fastapi-bug6
+source fastapi-bug6/bin/activate
+
+# Install PyFault
+pip install -e ../../
+
+# Clone BugsInPy
+git clone https://github.com/soarsmu/BugsInPy.git
+export PATH="$PATH:$(pwd)/BugsInPy/framework/bin"
+
+# Checkout FastAPI buggy version
+bugsinpy-checkout -p fastapi -v 0 -i 6 -w "./"
+
+# Install dependencies
+cd fastapi && pip install -r bugsinpy_requirements.txt && pip install -e .
+```
+
+## Running PyFault
+
+After setup completes:
+
+```bash
+# Activate environment (if not already active)
+source fastapi-bug6/bin/activate
+
+# Navigate to the FastAPI project directory
+cd fastapi
+
+# Run fault localization
+pyfault run
+```
+
+## Expected Results
+
+The fault localization should identify suspicious code in:
+
+| Priority | Component | Expected Files |
+|----------|-----------|----------------|
+| **High** | Dependency resolution | `fastapi/dependencies/`, `fastapi/routing.py` |
+| **Medium** | Dependency injection | `fastapi/utils.py`, DI container code |
+| **Low** | Dependency caching | Memoization and lifecycle management |
+
+## Bug Analysis
+
+**Nature of the Bug**: Incorrect dependency injection behavior
+
+**What to Look For**:
+- Dependency resolution failures
+- Incorrect dependency lifecycle management
+- Issues with dependency scoping and caching
+
+**Key Concepts**:
+- **Dependency Injection**: Automatic provision of dependencies to functions
+- **Dependency Graph**: Relationships and dependencies between components
+- **Dependency Scoping**: Request-level vs application-level dependencies
+
+## Viewing Results
+
+Launch the interactive dashboard:
+```bash
+pyfault ui --report report.json
+```
+
+The dashboard provides:
+- **Treemap view**: Visual file suspiciousness
+- **Source code view**: Line-by-line analysis
+- **Coverage matrix**: Test execution patterns
+- **Formula comparison**: Multiple SBFL formula results
+
+## Analysis Tips
+
+When analyzing the results:
+1. **Focus on dependency resolution code** - examine how dependencies are discovered and instantiated
+2. **Look for injection points** - understand where and how dependencies are injected
+3. **Examine dependency graphs** - trace complex dependency relationships
+4. **Check lifecycle management** - understand how dependencies are created, cached, and cleaned up
+
+### Quick Setup
+```bash
+# Navigate to the fastapi examples directory
+cd examples/fastapi
+
+# Run the centralized setup script for bug 6
+./setup.sh 6
+```
 cd examples/fastapi/bug6
 
 # Run setup script (this will take a few minutes)

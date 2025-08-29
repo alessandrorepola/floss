@@ -7,10 +7,23 @@ This directory contains real-world examples demonstrating PyFault's fault locali
 ### FastAPI Examples
 Real bugs from the FastAPI web framework, sourced from the [BugsInPy](https://github.com/soarsmu/BugsInPy) dataset.
 
+**Features:**
+- **Centralized Setup**: Single parametrized script for all bugs (`./setup.sh <bug_number>`)
+- **Shared Configuration**: Common `pyfault.conf` for consistent analysis
+- **Isolated Environments**: Separate virtual environments per bug
+
+**Available Bugs:**
 - **[bug2](fastapi/bug2/)**: FastAPI Bug #2 - OpenAPI schema generation issue
 - **[bug3](fastapi/bug3/)**: FastAPI Bug #3 - Request validation problem  
 - **[bug6](fastapi/bug6/)**: FastAPI Bug #6 - Dependency injection error
 - **[bug11](fastapi/bug11/)**: FastAPI Bug #11 - Response model validation issue
+
+**Quick Start:**
+```bash
+cd examples/fastapi
+./setup.sh 11  # Setup bug 11
+cd fastapi && pyfault run
+```
 
 ### PyGraphistry Example
 Real-world data visualization library example.
@@ -24,16 +37,38 @@ Simple synthetic example for testing and demonstration purposes.
 
 ## Quick Start
 
-Each example includes:
-- `setup.sh`: Automated setup script that downloads the project and configures the environment
-- `pyfault.conf`: Pre-configured PyFault settings optimized for the specific project
-- `report.json`: Pre-generated fault localization results (when available)
+Each example includes setup automation and pre-configured PyFault settings:
+
+### FastAPI Examples
+```bash
+cd examples/fastapi
+./setup.sh <bug_number>  # e.g., ./setup.sh 11
+cd fastapi && pyfault run
+```
+
+### Other Examples
+Each has its own setup script:
+```bash
+cd examples/<example-name>
+./setup.sh
+# Follow example-specific instructions
+```
+
+## Example Structure
+
+- **FastAPI**: Centralized setup with shared configuration
+- **PyGraphistry**: Individual setup with project-specific configuration  
+- **Dummy**: Simple setup for testing purposes
 
 ### Running an Example
 
 1. **Navigate to the example directory:**
    ```bash
-   cd examples/fastapi/bug6
+   # For FastAPI (centralized)
+   cd examples/fastapi
+   
+   # For others (individual)
+   cd examples/pygraphistry
    ```
 
 2. **Run the setup script:**

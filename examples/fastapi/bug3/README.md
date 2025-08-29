@@ -19,8 +19,7 @@ The bug occurs during request parameter validation when FastAPI incorrectly hand
 
 ## Files Included
 
-- `setup.sh`: Automated setup script that downloads FastAPI v0.3 and configures the test environment
-- `pyfault.conf`: Pre-configured PyFault settings optimized for FastAPI's structure
+- `README.md`: This file with bug-specific documentation
 - `report.json`: Pre-generated fault localization results showing the most suspicious lines
 
 ## Setup Instructions
@@ -32,23 +31,97 @@ The bug occurs during request parameter validation when FastAPI incorrectly hand
 
 ### Quick Setup
 ```bash
-# Navigate to this directory
-cd examples/fastapi/bug3
+# Navigate to the fastapi examples directory
+cd examples/fastapi
 
-# Run setup script (this will take a few minutes)
-./setup.sh
-
-# The script will:
-# 1. Create a Python 3.8.3 virtual environment
-# 2. Install PyFault
-# 3. Clone BugsInPy framework
-# 4. Download FastAPI v0.3 with the bug
-# 5. Install dependencies
-# 6. Copy configuration files
+# Run the centralized setup script for bug 3
+./setup.sh 3
 ```
 
-### Manual Setup
-If the automated setup fails, you can set up manually:
+### Manual Setup (Alternative)
+If the automated setup fails:
+
+```bash
+# From the fastapi directory
+cd examples/fastapi
+
+# Create virtual environment with Python 3.8.3
+python3.8 -m venv fastapi-bug3
+source fastapi-bug3/bin/activate
+
+# Install PyFault
+pip install -e ../../
+
+# Clone BugsInPy
+git clone https://github.com/soarsmu/BugsInPy.git
+export PATH="$PATH:$(pwd)/BugsInPy/framework/bin"
+
+# Checkout FastAPI buggy version
+bugsinpy-checkout -p fastapi -v 0 -i 3 -w "./"
+
+# Install dependencies
+cd fastapi && pip install -r bugsinpy_requirements.txt && pip install -e .
+```
+
+## Running PyFault
+
+After setup completes:
+
+```bash
+# Activate environment (if not already active)
+source fastapi-bug3/bin/activate
+
+# Navigate to the FastAPI project directory
+cd fastapi
+
+# Run fault localization
+pyfault run
+```
+
+## Expected Results
+
+The fault localization should identify suspicious code in:
+
+| Priority | Component | Expected Files |
+|----------|-----------|----------------|
+| **High** | Request validation logic | `fastapi/params.py`, `fastapi/dependencies/` |
+| **Medium** | Parameter parsing | `fastapi/routing.py`, `fastapi/utils.py` |
+| **Low** | Type conversion | Pydantic validation code |
+
+## Bug Analysis
+
+**Nature of the Bug**: Incorrect request parameter validation for specific types
+
+**What to Look For**:
+- Parameter validation failures for valid inputs
+- Acceptance of invalid parameter combinations
+- Issues in type coercion and constraint checking
+
+**Key Concepts**:
+- **Request Validation**: Checking incoming request parameters against defined schemas
+- **Parameter Types**: Query, path, header, and body parameters
+- **Constraint Validation**: Min/max values, regex patterns, custom validators
+
+## Viewing Results
+
+Launch the interactive dashboard:
+```bash
+pyfault ui --report report.json
+```
+
+The dashboard provides:
+- **Treemap view**: Visual file suspiciousness
+- **Source code view**: Line-by-line analysis
+- **Coverage matrix**: Test execution patterns
+- **Formula comparison**: Multiple SBFL formula results
+
+## Analysis Tips
+
+When analyzing the results:
+1. **Focus on parameter validation code** - examine how different parameter types are processed
+2. **Look for constraint checking logic** - understand validation rule implementation
+3. **Compare passing vs failing tests** - identify which parameter combinations cause issues
+4. **Examine type conversion paths** - trace how parameters are converted and validated
 
 ```bash
 # Create virtual environment with Python 3.8.3
