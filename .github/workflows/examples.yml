@@ -227,7 +227,7 @@ jobs:
         fi
         
         # Check individual example READMEs
-        for example in dummy-example fastapi/bug2 fastapi/bug3 fastapi/bug6 fastapi/bug11 pygraphistry; do
+        for example in dummy-example fastapi pygraphistry; do
           if [ ! -f "examples/$example/README.md" ]; then
             echo "Missing examples/$example/README.md"
             exit 1
@@ -238,7 +238,7 @@ jobs:
     - name: Check setup scripts exist
       run: |
         # Check setup scripts for examples that need them
-        for example in fastapi/bug2 fastapi/bug3 fastapi/bug6 fastapi/bug11 pygraphistry; do
+        for example in fastapi pygraphistry; do
           if [ ! -f "examples/$example/setup.sh" ]; then
             echo "Missing examples/$example/setup.sh"
             exit 1
@@ -253,7 +253,7 @@ jobs:
     - name: Check configuration files exist
       run: |
         # Check pyfault.conf files
-        for example in dummy-example fastapi/bug2 fastapi/bug3 fastapi/bug6 fastapi/bug11 pygraphistry; do
+        for example in dummy-example fastapi pygraphistry; do
           if [ ! -f "examples/$example/pyfault.conf" ]; then
             echo "Missing examples/$example/pyfault.conf"
             exit 1
