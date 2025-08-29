@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
-set -x
+# PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
+# set -x
 trap 'status=$?; echo "ERROR: command failed: ${BASH_COMMAND} (exit ${status}) at ${BASH_SOURCE[0]}:${LINENO}" >&2; exit ${status}' ERR
 
 # Setup script for the FastAPI project using Python 3.8.x
@@ -12,7 +12,7 @@ trap 'status=$?; echo "ERROR: command failed: ${BASH_COMMAND} (exit ${status}) a
 if [[ $# -ne 1 ]]; then
   echo "Usage: $0 <bug_number>" >&2
   echo "Example: $0 11" >&2
-  echo "Available bugs: 2, 3, 6, 11" >&2
+  echo "Available bugs: 1 to 16" >&2
   exit 1
 fi
 
@@ -20,11 +20,11 @@ BUG_NUMBER="$1"
 
 # Validate bug number
 case "$BUG_NUMBER" in
-  2|3|6|11)
+  [1-9]|1[0-6])
     echo "==> Setting up FastAPI bug $BUG_NUMBER"
     ;;
   *)
-    echo "Error: Invalid bug number '$BUG_NUMBER'. Available bugs: 2, 3, 6, 11" >&2
+    echo "Error: Invalid bug number '$BUG_NUMBER'. Available bugs: 1 to 16" >&2
     exit 1
     ;;
 esac
@@ -103,6 +103,7 @@ bugsinpy-checkout -p fastapi -v 0 -i "$BUG_NUMBER" -w "$SCRIPT_DIR"
 
 # Install FastAPI deps and package
 echo "==> Installing FastAPI in editable mode"
+$PY -m pip install python-multipart
 $PY -m pip install -e fastapi
 $PY -m pip install -e fastapi[test]
 
