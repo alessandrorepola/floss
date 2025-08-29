@@ -12,7 +12,7 @@ trap 'status=$?; echo "ERROR: command failed: ${BASH_COMMAND} (exit ${status}) a
 if [[ $# -ne 1 ]]; then
   echo "Usage: $0 <bug_number>" >&2
   echo "Example: $0 11" >&2
-  echo "Available bugs: 1 to 16" >&2
+  echo "Available bugs: 1 and 2" >&2
   exit 1
 fi
 
@@ -20,7 +20,7 @@ BUG_NUMBER="$1"
 
 # Validate bug number
 case "$BUG_NUMBER" in
-  [1-9]|1[0-6])
+  1|2)
     echo "==> Setting up Cookiecutter bug $BUG_NUMBER"
     ;;
   *)
