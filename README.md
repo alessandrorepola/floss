@@ -422,10 +422,20 @@ PyFault includes comprehensive real-world examples that demonstrate fault locali
 #### 🌐 FastAPI Framework Examples
 Real bugs from the FastAPI web framework, sourced from the [BugsInPy](https://github.com/soarsmu/BugsInPy) dataset:
 
-- **[Bug #2](examples/fastapi/bug2/)** - OpenAPI schema generation issue
-- **[Bug #3](examples/fastapi/bug3/)** - Request validation problem  
-- **[Bug #6](examples/fastapi/bug6/)** - Dependency injection error
-- **[Bug #11](examples/fastapi/bug11/)** - Response model validation issue
+**16 comprehensive bugs covering diverse scenarios:**
+- **Input/Output Validation**: [Bug #3](examples/fastapi/bug3/), [Bug #4](examples/fastapi/bug4/), [Bug #9](examples/fastapi/bug9/), [Bug #11](examples/fastapi/bug11/)
+- **Middleware & Dependencies**: [Bug #6](examples/fastapi/bug6/), [Bug #8](examples/fastapi/bug8/), [Bug #13](examples/fastapi/bug13/)
+- **Schema & Documentation**: [Bug #2](examples/fastapi/bug2/), [Bug #7](examples/fastapi/bug7/)
+- **Response Handling**: [Bug #1](examples/fastapi/bug1/), [Bug #5](examples/fastapi/bug5/)
+- **Advanced Features**: [Bug #10](examples/fastapi/bug10/), [Bug #12](examples/fastapi/bug12/), [Bug #15](examples/fastapi/bug15/), [Bug #16](examples/fastapi/bug16/)
+- **Error Handling**: [Bug #14](examples/fastapi/bug14/)
+- **Multi-bug Scenarios**: [Multi-bugs](examples/fastapi/multi-bugs/) - Complex scenarios with multiple issues
+
+#### 🏗️ Template Engine Examples
+Real bugs from the Cookiecutter project templating tool:
+
+- **[Bug #1](examples/cookiecutter/bug1/)** - File encoding issue in context parsing
+- **[Bug #2](examples/cookiecutter/bug2/)** - Template variable substitution error
 
 #### 📊 Data Science Examples
 - **[PyGraphistry](examples/pygraphistry/)** - Graph visualization library fault localization
@@ -436,19 +446,26 @@ Real bugs from the FastAPI web framework, sourced from the [BugsInPy](https://gi
 ### Quick Example Walkthrough
 
 ```bash
-# Navigate to any example
-cd examples/fastapi/bug6
+# FastAPI examples (centralized setup)
+cd examples/fastapi
+./setup.sh 6  # Setup specific bug (1-16 available)
+cd fastapi && pyfault run
 
-# Run automated setup (downloads project, creates environment)
-./setup.sh
-
-# Execute PyFault on the real bug
-cd fastapi  # Project directory created by setup
-pyfault run
+# Cookiecutter examples
+cd examples/cookiecutter  
+./setup.sh 1  # Setup bug 1 or 2
+cd cookiecutter && pyfault run
 
 # View interactive results
 pyfault ui --report report.json
 ```
+
+### Key Features of Examples
+
+**🔧 Patch Files**: Every bug includes a `bug_patch.txt` file showing the exact fix
+**📊 Pre-generated Reports**: Compare your results with expected outputs  
+**🛠️ Automated Setup**: One-command environment preparation
+**📖 Comprehensive Documentation**: Detailed bug descriptions and analysis
 
 ### Example Categories
 

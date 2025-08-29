@@ -10,7 +10,6 @@ source fastapi-bugs/bin/activate
 cd fastapi
 pyfault run
 cd ..
-mkdir multi-bugs
-mv fastapi/report.json ./multi-bugs/
+mv fastapi/report.json ./
 rm -rf fastapi fastapi-bugs bugsinpy-mf
 exec bash

@@ -66,11 +66,21 @@ pyfault ui --report report.json
 Actual bugs from popular Python frameworks:
 ```bash
 # FastAPI dependency injection bug
-cd examples/fastapi/bug6
-./setup.sh  # Downloads FastAPI with the bug
+cd examples/fastapi
+./setup.sh 6  # Setup bug 6 specifically
 cd fastapi
 pyfault run
 pyfault ui --report report.json
+
+# FastAPI with multiple bug examples (1-16 available)
+./setup.sh 11  # Response model validation issue
+./setup.sh 8   # Authentication middleware issue
+
+# Cookiecutter template engine bugs
+cd examples/cookiecutter
+./setup.sh 1   # File encoding issue
+cd cookiecutter
+pyfault run
 ```
 
 #### 📊 Data Science Examples
@@ -86,13 +96,23 @@ pyfault test --source-dir graphistry --test-dir tests
 ### Example Learning Path
 
 1. **Start Here**: `examples/dummy-example` - Learn basic concepts
-2. **Web Frameworks**: `examples/fastapi/bug6` - Dependency injection issues
-3. **API Validation**: `examples/fastapi/bug2` - Schema generation bugs
+2. **Web Frameworks**: `examples/fastapi/` - 16 different FastAPI bugs covering various scenarios
+3. **Template Engines**: `examples/cookiecutter/` - Template generation and file handling bugs
 4. **Data Processing**: `examples/pygraphistry` - Scientific computing bugs
+
+#### FastAPI Bug Categories
+- **Input/Output Validation**: bugs 3, 4, 9, 11 (request/response validation issues)
+- **Middleware & Dependencies**: bugs 6, 8, 13 (dependency injection, authentication, middleware)
+- **Schema & Documentation**: bugs 2, 7 (OpenAPI schema, response serialization)
+- **Advanced Features**: bugs 10, 12, 15, 16 (file upload, WebSocket, static files, background tasks)
+- **Error Handling**: bug 14 (exception handling problems)
+- **Multi-bug Scenarios**: `multi-bugs/` (complex scenarios with multiple issues)
 
 Each example includes:
 - ✅ Detailed README with bug description
 - ✅ Automated setup scripts
+- ✅ **Bug patch files** showing the exact fix
+- ✅ Pre-generated PyFault reports for comparison
 - ✅ Pre-configured PyFault settings
 - ✅ Expected results and analysis guides
 

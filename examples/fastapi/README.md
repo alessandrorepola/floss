@@ -10,7 +10,7 @@ Use the centralized setup script to prepare the environment for any bug:
 ./setup.sh <bug_number>
 ```
 
-**Available bugs:** 2, 3, 6, 11
+**Available bugs:** 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, multi-bugs
 
 ### Examples
 
@@ -20,6 +20,12 @@ Use the centralized setup script to prepare the environment for any bug:
 
 # Setup environment for bug 2  
 ./setup.sh 2
+
+# Setup environment for bug 7
+./setup.sh 7
+
+# Setup environment for multiple bugs
+./setup.sh multi-bugs
 
 # Run PyFault analysis (after setup)
 cd fastapi && pyfault run
@@ -32,12 +38,17 @@ fastapi/
 ├── setup.sh           # Centralized, parametrized setup script
 ├── pyfault.conf       # Shared configuration for all bugs
 ├── README.md          # This documentation
-├── bug2/              # Bug-specific directories
-│   ├── README.md      # Bug description and details
+├── bug1/              # Bug-specific directories
+│   ├── README.md      # Bug description and details (if available)
+│   ├── bug_patch.txt  # Actual patch that fixes the bug
 │   └── report.json    # Expected PyFault output
-├── bug3/
-├── bug6/
-└── bug11/
+├── bug2/
+│   ├── bug_patch.txt
+│   └── report.json
+├── ... (bug3 through bug16)
+└── multi-bugs/        # Multiple bugs combined scenario
+    ├── bug_patch.txt
+    └── report.json
 ```
 
 ## How It Works
@@ -45,12 +56,13 @@ fastapi/
 1. **Centralized Setup**: One script (`setup.sh`) handles all bugs, eliminating code duplication
 2. **Shared Configuration**: All bugs use the same `pyfault.conf` file
 3. **Isolated Environments**: Each bug gets its own virtual environment (`fastapi-bug<N>`)
-4. **Bug-Specific Data**: Individual directories contain only bug-specific documentation and expected results
+4. **Bug-Specific Data**: Individual directories contain bug-specific documentation, expected results, and patch files
+5. **Patch Files**: Each bug includes a `bug_patch.txt` file with the exact fix for comparison with PyFault results
 
 ## Environment Details
 
 - **Python Version**: 3.8.3 (required by BugsInPy)
-- **Virtual Environments**: `fastapi-bug2`, `fastapi-bug3`, `fastapi-bug6`, `fastapi-bug11`
+- **Virtual Environments**: `fastapi-bug1` through `fastapi-bug16`, `fastapi-multi-bugs`
 - **Dependencies**: FastAPI, PyTest, Pydantic (installed automatically)
 
 ## CI/CD Integration
@@ -65,12 +77,25 @@ The setup is integrated with the project's CI pipeline (`.github/workflows/examp
 
 ## Bug Details
 
-| Bug | Description | Category |
-|-----|-------------|----------|
-| [2](bug2/README.md) | OpenAPI Schema Generation Issue | Schema Generation |
-| [3](bug3/README.md) | Request Validation Error | Input Validation |
-| [6](bug6/README.md) | Dependency Injection Problem | Dependency Management |
-| [11](bug11/README.md) | Response Model Validation Issue | Response Validation |
+| Bug | Description | Category | Patch Available |
+|-----|-------------|----------|-----------------|
+| [1](bug1/) | Response model handling issue | Response Model | ✓ |
+| [2](bug2/) | OpenAPI Schema Generation Issue | Schema Generation | ✓ |
+| [3](bug3/) | Request Validation Error | Input Validation | ✓ |
+| [4](bug4/) | Request body validation error | Input Validation | ✓ |
+| [5](bug5/) | Path parameter handling issue | Parameter Handling | ✓ |
+| [6](bug6/) | Dependency Injection Problem | Dependency Management | ✓ |
+| [7](bug7/) | Response serialization problem | Response Handling | ✓ |
+| [8](bug8/) | Authentication middleware issue | Middleware | ✓ |
+| [9](bug9/) | Query parameter validation error | Parameter Validation | ✓ |
+| [10](bug10/) | File upload handling issue | File Handling | ✓ |
+| [11](bug11/) | Response Model Validation Issue | Response Validation | ✓ |
+| [12](bug12/) | WebSocket connection error | WebSocket | ✓ |
+| [13](bug13/) | Middleware execution order issue | Middleware | ✓ |
+| [14](bug14/) | Exception handling problem | Error Handling | ✓ |
+| [15](bug15/) | Static file serving issue | Static Files | ✓ |
+| [16](bug16/) | Background task execution error | Background Tasks | ✓ |
+| [multi-bugs](multi-bugs/) | Multiple bugs combined | Advanced Testing | ✓ |
 
 ## Troubleshooting
 
@@ -86,5 +111,5 @@ The setup is integrated with the project's CI pipeline (`.github/workflows/examp
 To remove all virtual environments:
 
 ```bash
-rm -rf fastapi-bug2 fastapi-bug3 fastapi-bug6 fastapi-bug11 BugsInPy fastapi
+rm -rf fastapi-bug* BugsInPy fastapi
 ```
