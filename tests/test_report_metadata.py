@@ -14,9 +14,7 @@ def test_fl_report_contains_expected_sections_and_order():
     # Minimal but valid coverage input
     coverage_json = {
         "meta": {"format": 3, "version": "7.9.2"},
-        "files": {
-            "file.py": {"contexts": {"1": ["t1|run"]}}
-        },
+        "files": {"file.py": {"contexts": {"1": ["t1|run"]}}},
         "tests": {"passed": ["t1"], "failed": [], "skipped": []},
         "totals": {"covered_lines": 1},
     }
@@ -25,7 +23,10 @@ def test_fl_report_contains_expected_sections_and_order():
     cfg.formulas = ["ochiai"]
     engine = FLEngine(cfg)
 
-    with NamedTemporaryFile(mode="w", suffix=".json", delete=False) as fin, NamedTemporaryFile(mode="w", suffix=".json", delete=False) as fout:
+    with (
+        NamedTemporaryFile(mode="w", suffix=".json", delete=False) as fin,
+        NamedTemporaryFile(mode="w", suffix=".json", delete=False) as fout,
+    ):
         json.dump(coverage_json, fin)
         fin.flush()
 

@@ -8,7 +8,7 @@ formulas used in automated debugging and fault localization.
 from .base import SBFLFormula
 from .sbfl_formulas import (
     OchiaiFormula,
-    TarantulaFormula, 
+    TarantulaFormula,
     JaccardFormula,
     DStarFormula,
     Kulczynski2Formula,
@@ -22,11 +22,11 @@ __all__ = [
     "SBFLFormula",
     "OchiaiFormula",
     "TarantulaFormula",
-    "JaccardFormula", 
+    "JaccardFormula",
     "DStarFormula",
     "Kulczynski2Formula",
     "Naish1Formula",
     "RussellRaoFormula",
-    "SorensenDiceFormula", 
+    "SorensenDiceFormula",
     "SBIFormula",
 ]

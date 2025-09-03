@@ -36,7 +36,8 @@ class TestUICLI:
 
         fake_module.launch_dashboard = fake_launch_dashboard
 
-        # Inject the fake module so the from ..ui.dashboard import launch_dashboard works
+        # Inject the fake module so the
+        # from ..ui.dashboard import launch_dashboard works
         monkeypatch.setitem(
             sys.modules,
             "pyfault.ui.dashboard",

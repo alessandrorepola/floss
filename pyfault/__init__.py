@@ -13,6 +13,6 @@ from pyfault.core.fl import FLEngine, FLConfig
 __all__ = [
     "TestRunner",
     "TestConfig",
-    "FLEngine", 
+    "FLEngine",
     "FLConfig",
 ]

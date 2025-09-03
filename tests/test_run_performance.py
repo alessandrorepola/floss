@@ -15,19 +15,20 @@ from pyfault.core.cli.main import main
 
 class TestRunCommandPerformance:
     """Performance tests for the run command."""
-    
+
     def test_run_command_timing(self):
         """Test that run command completes in reasonable time."""
         runner = CliRunner()
-        
+
         with runner.isolated_filesystem():
-            os.makedirs('src')
-            os.makedirs('tests')
-            
+            os.makedirs("src")
+            os.makedirs("tests")
+
             # Create multiple source files
             for i in range(5):
-                with open(f'src/module_{i}.py', 'w') as f:
-                    f.write(f'''
+                with open(f"src/module_{i}.py", "w") as f:
+                    f.write(
+                        f"""
 def function_{i}_1(x):
     if x > {i}:
         return x * 2
@@ -40,12 +41,14 @@ def function_{i}_3(x):
     if x == {i}:
         return True
     return False
-''')
-            
+"""
+                    )
+
             # Create corresponding test files
             for i in range(5):
-                with open(f'tests/test_module_{i}.py', 'w') as f:
-                    f.write(f'''
+                with open(f"tests/test_module_{i}.py", "w") as f:
+                    f.write(
+                        f"""
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from module_{i} import function_{i}_1, function_{i}_2, function_{i}_3
@@ -71,57 +74,61 @@ def test_function_{i}_fail():
         assert function_{i}_1(5) == 999  # This will fail
     else:
         assert function_{i}_1(5) >= 0  # This will pass
-''')
-            
+"""
+                    )
+
             # Measure execution time
             start_time = time.time()
-            
-            result = runner.invoke(main, [
-                'run',
-                '--source-dir', 'src',
-                '--output', 'perf_report.json'
-            ])
-            
+
+            result = runner.invoke(
+                main, ["run", "--source-dir", "src", "--output", "perf_report.json"]
+            )
+
             end_time = time.time()
             execution_time = end_time - start_time
-            
+
             # Verify success
             assert result.exit_code == 0
-            assert os.path.exists('perf_report.json')
-            
-            # Verify reasonable execution time (should be under 30 seconds for this small project)
-            assert execution_time < 30, f"Execution took too long: {execution_time} seconds"
-            
+            assert os.path.exists("perf_report.json")
+
+            # Verify reasonable execution time
+            # (should be under 30 seconds for this small project)
+            assert (
+                execution_time < 30
+            ), f"Execution took too long: {execution_time} seconds"
+
             # Verify all tests were found and executed
             assert "Total tests: 30" in result.output  # 5 modules * 6 tests each
-            
+
             # Verify report contains all modules
-            with open('perf_report.json', 'r') as f:
+            with open("perf_report.json", "r") as f:
                 report = json.load(f)
-            
+
             # Should have data for all 5 modules
             module_count = 0
-            for file_path in report['files']:
-                if 'module_' in file_path and '.py' in file_path:
+            for file_path in report["files"]:
+                if "module_" in file_path and ".py" in file_path:
                     module_count += 1
-            
+
             assert module_count == 5
-    
+
     def test_run_command_memory_usage(self):
-        """Test that run command handles multiple files without excessive memory usage."""
+        """Test that run command handles multiple files
+        without excessive memory usage."""
         runner = CliRunner()
-        
+
         with runner.isolated_filesystem():
-            os.makedirs('src')
-            os.makedirs('tests')
-            
+            os.makedirs("src")
+            os.makedirs("tests")
+
             # Create larger source files with more functions
             for i in range(3):
                 lines = []
-                lines.append(f'# Module {i} with many functions')
-                
+                lines.append(f"# Module {i} with many functions")
+
                 for j in range(20):  # 20 functions per module
-                    lines.append(f'''
+                    lines.append(
+                        f'''
 def function_{i}_{j}(param):
     """Function {j} in module {i}."""
     if param > {j}:
@@ -133,24 +140,29 @@ def function_{i}_{j}(param):
         return param ** 2
     else:
         return param + {j}
-''')
-                
-                with open(f'src/large_module_{i}.py', 'w') as f:
-                    f.write('\n'.join(lines))
-            
+'''
+                    )
+
+                with open(f"src/large_module_{i}.py", "w") as f:
+                    f.write("\n".join(lines))
+
             # Create comprehensive test files
             for i in range(3):
                 lines = []
-                lines.append(f'''
+                lines.append(
+                    f"""
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from large_module_{i} import *
-''')
-                
+"""
+                )
+
                 for j in range(20):
-                    lines.append(f'''
+                    lines.append(
+                        f"""
 def test_function_{i}_{j}_case1():
-    assert function_{i}_{j}({j+5}) == {j+5} * {j+1} - 50 if ({j+5} * {j+1}) > 100 else {j+5} * {j+1}
+    expected = {j+5} * {j+1} - 50 if ({j+5} * {j+1}) > 100 else {j+5} * {j+1}
+    assert function_{i}_{j}({j+5}) == expected
 
 def test_function_{i}_{j}_case2():
     assert function_{i}_{j}({j}) == {j} ** 2
@@ -164,46 +176,46 @@ def test_function_{i}_{j}_fail():
         assert function_{i}_{j}(0) == 999  # This will fail
     else:
         assert function_{i}_{j}(0) >= 0  # This will pass
-''')
-                
-                with open(f'tests/test_large_module_{i}.py', 'w') as f:
-                    f.write('\n'.join(lines))
-            
+"""
+                    )
+
+                with open(f"tests/test_large_module_{i}.py", "w") as f:
+                    f.write("\n".join(lines))
+
             # Run the command
-            result = runner.invoke(main, [
-                'run',
-                '--source-dir', 'src',
-                '--output', 'large_report.json'
-            ])
-            
+            result = runner.invoke(
+                main, ["run", "--source-dir", "src", "--output", "large_report.json"]
+            )
+
             # Should complete successfully
             assert result.exit_code == 0
-            
+
             # Should handle all tests (3 modules * 20 functions * 4 tests = 240 tests)
             assert "Total tests: 240" in result.output
-            
+
             # Report should be created and contain data
-            assert os.path.exists('large_report.json')
-            
-            with open('large_report.json', 'r') as f:
+            assert os.path.exists("large_report.json")
+
+            with open("large_report.json", "r") as f:
                 report = json.load(f)
-            
+
             # Verify structure is intact
-            assert 'files' in report
-            assert 'fl_metadata' in report
-            assert len(report['files']) >= 3  # At least our 3 modules
-    
+            assert "files" in report
+            assert "fl_metadata" in report
+            assert len(report["files"]) >= 3  # At least our 3 modules
+
     def test_run_command_with_many_formulas(self):
         """Test run command performance with multiple SBFL formulas."""
         runner = CliRunner()
-        
+
         with runner.isolated_filesystem():
-            os.makedirs('src')
-            os.makedirs('tests')
-            
+            os.makedirs("src")
+            os.makedirs("tests")
+
             # Create source with mixed passing/failing scenarios
-            with open('src/mixed_results.py', 'w') as f:
-                f.write('''
+            with open("src/mixed_results.py", "w") as f:
+                f.write(
+                    """
 def good_function(x):
     return x * 2
 
@@ -219,10 +231,12 @@ def another_buggy(x):
     if x < 0:
         return 0  # Bug: should handle negative numbers properly
     return x - 1
-''')
-            
-            with open('tests/test_mixed_results.py', 'w') as f:
-                f.write('''
+"""
+                )
+
+            with open("tests/test_mixed_results.py", "w") as f:
+                f.write(
+                    """
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from mixed_results import good_function, buggy_function, another_good, another_buggy
@@ -244,53 +258,65 @@ def test_another_buggy_positive():
 
 def test_another_buggy_negative():
     assert another_buggy(-1) == -2  # Will fail due to bug
-''')
-            
+"""
+                )
+
             # Test with all available formulas
             start_time = time.time()
-            
-            result = runner.invoke(main, [
-                'run',
-                '--source-dir', 'src',
-                '--formulas', 'ochiai',
-                '--formulas', 'tarantula', 
-                '--formulas', 'jaccard',
-                '--formulas', 'dstar2',
-                '--output', 'multi_formula_report.json'
-            ])
-            
+
+            result = runner.invoke(
+                main,
+                [
+                    "run",
+                    "--source-dir",
+                    "src",
+                    "--formulas",
+                    "ochiai",
+                    "--formulas",
+                    "tarantula",
+                    "--formulas",
+                    "jaccard",
+                    "--formulas",
+                    "dstar2",
+                    "--output",
+                    "multi_formula_report.json",
+                ],
+            )
+
             end_time = time.time()
             execution_time = end_time - start_time
-            
+
             assert result.exit_code == 0
             assert "Formulas: ochiai, tarantula, jaccard, dstar2" in result.output
-            
+
             # Should complete in reasonable time even with multiple formulas
-            assert execution_time < 15, f"Multiple formulas took too long: {execution_time} seconds"
-            
+            assert (
+                execution_time < 15
+            ), f"Multiple formulas took too long: {execution_time} seconds"
+
             # Verify report contains all formulas
-            with open('multi_formula_report.json', 'r') as f:
+            with open("multi_formula_report.json", "r") as f:
                 report = json.load(f)
-            
-            formulas = report['fl_metadata']['formulas_used']
-            assert 'ochiai' in formulas
-            assert 'tarantula' in formulas
-            assert 'jaccard' in formulas
-            assert 'dstar2' in formulas
-            
+
+            formulas = report["fl_metadata"]["formulas_used"]
+            assert "ochiai" in formulas
+            assert "tarantula" in formulas
+            assert "jaccard" in formulas
+            assert "dstar2" in formulas
+
             # Verify suspiciousness scores exist for all formulas
             file_data = None
-            for file_path, data in report['files'].items():
-                if 'mixed_results.py' in file_path:
+            for file_path, data in report["files"].items():
+                if "mixed_results.py" in file_path:
                     file_data = data
                     break
-            
+
             assert file_data is not None
-            suspiciousness = file_data['suspiciousness']
-            
+            suspiciousness = file_data["suspiciousness"]
+
             # Check that scores exist for all formulas on covered lines
             for line, scores in suspiciousness.items():
-                assert 'ochiai' in scores
-                assert 'tarantula' in scores
-                assert 'jaccard' in scores
-                assert 'dstar2' in scores
+                assert "ochiai" in scores
+                assert "tarantula" in scores
+                assert "jaccard" in scores
+                assert "dstar2" in scores

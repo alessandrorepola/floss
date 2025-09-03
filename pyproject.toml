@@ -1,15 +1,14 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0", "wheel", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyfault"
-version = "0.1.0"
 description = "A Python framework for Spectrum-Based Fault Localization (SBFL)"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "PyFault Contributors"}
+    {name = "Alessandro Repola"}
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -33,17 +32,19 @@ dependencies = [
     "pytest-cov>=4.0.0",
 ]
 
+dynamic = ["version"]
+
 [project.optional-dependencies]
-dev = [
-    "mypy",
-    "black",
-    "flake8",
-    "pre-commit",
-]
 ui = [
     "streamlit>=1.45.0; python_version >= \"3.9\"",
     "plotly>=5.22.0; python_version >= \"3.9\"",
     "pandas>=2.0.3; python_version >= \"3.9\"",
+]
+dev = [
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
 ]
 
 [project.scripts]
@@ -59,12 +60,75 @@ where = [""]
 [tool.setuptools.package-dir]
 "" = "."
 
+[tool.setuptools_scm]
+version_scheme = "python-simplified-semver"
+local_scheme = "no-local-version"
+
 [tool.black]
 line-length = 88
 target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+(
+  /(
+      \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | __pycache__
+  )/
+)
+'''
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "docs/source/conf.py",
+    "old",
+    "build",
+    "dist",
+    ".venv",
+    ".tox",
+    ".mypy_cache"
+]
 
 [tool.mypy]
 python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+exclude = [
+    "build/",
+    "dist/",
+    "__pycache__/",
+    ".venv/",
+    ".tox/"
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "pytest.*",
+    "coverage.*",
+    "streamlit.*",
+    "plotly.*",
+    "pandas.*"
+]
+ignore_missing_imports = true
