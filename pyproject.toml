@@ -50,9 +50,8 @@ ui = [
 pyfault = "pyfault.core.cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/example/pyfault"
-Repository = "https://github.com/example/pyfault"
-Issues = "https://github.com/example/pyfault/issues"
+Repository = "https://github.com/alessandrorepola/pyfault"
+Issues = "https://github.com/alessandrorepola/pyfault/issues"
 
 [tool.setuptools.packages.find]
 where = [""]
