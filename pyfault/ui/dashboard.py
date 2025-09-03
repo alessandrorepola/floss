@@ -888,7 +888,8 @@ def show_treemap_tab(data: Dict[str, Any], formula: str):
             colorscale='Reds',  # Scala da bianco a rosso
             colorbar=dict(title="Suspiciousness Score"),
             line=dict(width=1),
-            cmid=0.5
+            cmin=0.0,  # Fissiamo il minimo della scala dei colori
+            cmax=1.0   # Fissiamo il massimo della scala dei colori
         ),
         hovertemplate="<b>%{label}</b><br>%{customdata}<br>Score: %{color:.3f}<extra></extra>",
         customdata=hierarchy_data['hover_info'],
@@ -950,7 +951,8 @@ def show_treemap(data: Dict[str, Any], formula: str):
             colorscale='Reds',  # Scala da bianco a rosso
             colorbar=dict(title="Suspiciousness Score"),
             line=dict(width=1),
-            cmid=0.5
+            cmin=0.0,  # Fissiamo il minimo della scala dei colori
+            cmax=1.0   # Fissiamo il massimo della scala dei colori
         ),
         hovertemplate="<b>%{label}</b><br>%{customdata}<br>Score: %{color:.3f}<extra></extra>",
         customdata=hierarchy_data['hover_info'],
@@ -1740,7 +1742,9 @@ def show_sunburst(data: Dict[str, Any], formula: str):
                 colors=hierarchy_data['colors'],
                 colorscale='Reds',  # Scala da bianco a rosso
                 colorbar=dict(title="Suspiciousness Score"),
-                line=dict(width=2, color="white")
+                line=dict(width=2, color="white"),
+                cmin=0.0,  # Fissiamo il minimo della scala dei colori
+                cmax=1.0   # Fissiamo il massimo della scala dei colori
             ),
             hovertemplate="<b>%{label}</b><br>%{customdata}<br>Score: %{color:.3f}<extra></extra>",
             customdata=hierarchy_data['hover_info']
