@@ -1,0 +1,196 @@
+{
+  "discrimination_analysis": {
+    "ochiai": {
+      "bugs_analyzed": 24,
+      "score_separation": {
+        "mean": 0.19233854908315218,
+        "median": 0.12612488905011193,
+        "std": 0.22953740883044277,
+        "min": -0.015421385388028952,
+        "max": 0.9390832349676141
+      },
+      "overlap_ratio": {
+        "mean": 0.5541334685248033,
+        "median": 0.8528432997577458,
+        "std": 0.45665722150581284,
+        "cases_no_overlap": 1,
+        "cases_high_overlap": 13
+      },
+      "auc_roc": {
+        "mean": 0.6266874721832806,
+        "median": 0.6904818053107542,
+        "std": 0.35538713736215344,
+        "cases_excellent": 9,
+        "cases_good": 1,
+        "cases_fair": 2,
+        "cases_poor": 12
+      },
+      "perfect_separation_rate": 0.041666666666666664,
+      "mean_scores": {
+        "buggy_lines": {
+          "mean": 0.24686204097571274,
+          "std": 0.2376439771691055
+        },
+        "non_buggy_lines": {
+          "mean": 0.05452349189256058,
+          "std": 0.07527184056523045
+        }
+      }
+    },
+    "tarantula": {
+      "bugs_analyzed": 24,
+      "score_separation": {
+        "mean": 0.42555711439939764,
+        "median": 0.3860240744517139,
+        "std": 0.3409793086052946,
+        "min": -0.09140183941758417,
+        "max": 0.949690269727014
+      },
+      "overlap_ratio": {
+        "mean": 0.5556155741110976,
+        "median": 0.8429618768328446,
+        "std": 0.453286600675664,
+        "cases_no_overlap": 1,
+        "cases_high_overlap": 13
+      },
+      "auc_roc": {
+        "mean": 0.6249891127106028,
+        "median": 0.6904818053107542,
+        "std": 0.3549193456118108,
+        "cases_excellent": 10,
+        "cases_good": 0,
+        "cases_fair": 2,
+        "cases_poor": 12
+      },
+      "perfect_separation_rate": 0.041666666666666664,
+      "mean_scores": {
+        "buggy_lines": {
+          "mean": 0.5632415955260998,
+          "std": 0.3334424392205719
+        },
+        "non_buggy_lines": {
+          "mean": 0.1376844811267022,
+          "std": 0.14113654117505528
+        }
+      }
+    },
+    "jaccard": {
+      "bugs_analyzed": 24,
+      "score_separation": {
+        "mean": 0.1169758205878742,
+        "median": 0.03927524543286409,
+        "std": 0.21146502285649907,
+        "min": -0.01456825669747118,
+        "max": 0.9624893130097687
+      },
+      "overlap_ratio": {
+        "mean": 0.5502961990466166,
+        "median": 0.84642037485656,
+        "std": 0.4578664881286318,
+        "cases_no_overlap": 1,
+        "cases_high_overlap": 13
+      },
+      "auc_roc": {
+        "mean": 0.6284752567589152,
+        "median": 0.6904818053107542,
+        "std": 0.3570599952933228,
+        "cases_excellent": 10,
+        "cases_good": 0,
+        "cases_fair": 2,
+        "cases_poor": 12
+      },
+      "perfect_separation_rate": 0.041666666666666664,
+      "mean_scores": {
+        "buggy_lines": {
+          "mean": 0.13597986141491158,
+          "std": 0.2154981491927259
+        },
+        "non_buggy_lines": {
+          "mean": 0.01900404082703739,
+          "std": 0.030685463087002728
+        }
+      }
+    },
+    "dstar2": {
+      "bugs_analyzed": 24,
+      "score_separation": {
+        "mean": 0.169796393720726,
+        "median": 0.056833297880420235,
+        "std": 0.39161050187576313,
+        "min": -0.38483197372161987,
+        "max": 1.6719050600422065
+      },
+      "overlap_ratio": {
+        "mean": 0.5914666603700729,
+        "median": 0.8780487308450781,
+        "std": 0.44673770842531196,
+        "cases_no_overlap": 1,
+        "cases_high_overlap": 14
+      },
+      "auc_roc": {
+        "mean": 0.5779908767025227,
+        "median": 0.6264278967751566,
+        "std": 0.36342496352200754,
+        "cases_excellent": 8,
+        "cases_good": 0,
+        "cases_fair": 2,
+        "cases_poor": 14
+      },
+      "perfect_separation_rate": 0.041666666666666664,
+      "mean_scores": {
+        "buggy_lines": {
+          "mean": 0.22188002006914775,
+          "std": 0.38128160028563807
+        },
+        "non_buggy_lines": {
+          "mean": 0.052083626348421806,
+          "std": 0.10696537392324806
+        }
+      }
+    }
+  },
+  "formula_comparison": {
+    "score_separation": {
+      "ochiai": 0.19233854908315218,
+      "tarantula": 0.42555711439939764,
+      "jaccard": 0.1169758205878742,
+      "dstar2": 0.169796393720726
+    },
+    "overlap_ratio": {
+      "ochiai": 0.5541334685248033,
+      "tarantula": 0.5556155741110976,
+      "jaccard": 0.5502961990466166,
+      "dstar2": 0.5914666603700729
+    },
+    "auc_roc": {
+      "ochiai": 0.6266874721832806,
+      "tarantula": 0.6249891127106028,
+      "jaccard": 0.6284752567589152,
+      "dstar2": 0.5779908767025227
+    },
+    "perfect_separation_rate": {
+      "ochiai": 0.041666666666666664,
+      "tarantula": 0.041666666666666664,
+      "jaccard": 0.041666666666666664,
+      "dstar2": 0.041666666666666664
+    }
+  },
+  "summary": {
+    "best_score_separation": {
+      "formula": "tarantula",
+      "value": 0.42555711439939764
+    },
+    "best_auc_roc": {
+      "formula": "jaccard",
+      "value": 0.6284752567589152
+    },
+    "least_overlap": {
+      "formula": "jaccard",
+      "value": 0.5502961990466166
+    },
+    "most_perfect_separations": {
+      "formula": "ochiai",
+      "value": 0.041666666666666664
+    }
+  }
+}

@@ -745,12 +745,7 @@ repos:
    - Version control configuration files
    - Document configuration choices
 
-2. **Environment-Specific Configs**:
-   - `pyfault.dev.conf` for development
-   - `pyfault.ci.conf` for CI/CD
-   - `pyfault.prod.conf` for production analysis
-
-3. **Pattern Management**:
+2. **Pattern Management**:
    - Be specific with ignore/omit patterns
    - Document why files are excluded
    - Regularly review exclusion patterns
@@ -816,13 +811,13 @@ repos:
 **Solutions**:
 ```bash
 # Check if tests are being discovered
-pyfault test --verbose
+pyfault test 
 
 # Verify source and test directories
-pyfault test --source-dir src --test-dir tests --verbose
+pyfault test --source-dir src --test-dir tests
 
 # Check ignore patterns
-pyfault test --ignore "*/__init__.py" --verbose
+pyfault test --ignore "*/__init__.py"
 ```
 
 #### 2. Tests Not Found
@@ -870,9 +865,6 @@ python -m json.tool report.json
 
 # Try different port
 pyfault ui --port 8080
-
-# Check for detailed error messages
-pyfault ui --verbose
 ```
 
 #### 5. Performance Issues

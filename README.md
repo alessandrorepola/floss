@@ -750,6 +750,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built on top of excellent Python tools: pytest, coverage.py, streamlit, plotly
 - Inspired by fault localization research and tools like GZoltar
 - SBFL formulas based on academic literature and industry best practices
+- Real project examples from BugsInPy and BugSwarm
 
 ---
 
