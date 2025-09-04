@@ -105,12 +105,12 @@ $PY -m pip install python-multipart
 $PY -m pip install -e black
 $PY -m pip install -e black[test]
 
-# Copy FLOSS.conf if present
-if [[ -f "FLOSS.conf" ]]; then
-  echo "==> Copying FLOSS.conf into black/"
-  cp -f "FLOSS.conf" "black/"
+# Copy floss.conf if present
+if [[ -f "floss.conf" ]]; then
+  echo "==> Copying floss.conf into black/"
+  cp -f "floss.conf" "black/"
 else
-  echo "Warning: FLOSS.conf not found, skipping copy." >&2
+  echo "Warning: floss.conf not found, skipping copy." >&2
 fi
 
 echo "Setup completed for black bug $BUG_NUMBER."

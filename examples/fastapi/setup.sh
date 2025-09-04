@@ -107,12 +107,12 @@ $PY -m pip install python-multipart
 $PY -m pip install -e fastapi
 $PY -m pip install -e fastapi[test]
 
-# Copy FLOSS.conf if present
-if [[ -f "FLOSS.conf" ]]; then
-  echo "==> Copying FLOSS.conf into fastapi/"
-  cp -f "FLOSS.conf" "fastapi/"
+# Copy floss.conf if present
+if [[ -f "floss.conf" ]]; then
+  echo "==> Copying floss.conf into fastapi/"
+  cp -f "floss.conf" "fastapi/"
 else
-  echo "Warning: FLOSS.conf not found, skipping copy." >&2
+  echo "Warning: floss.conf not found, skipping copy." >&2
 fi
 
 echo "Setup completed for FastAPI bug $BUG_NUMBER."

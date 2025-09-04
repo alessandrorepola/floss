@@ -106,12 +106,12 @@ echo "==> Installing Cookiecutter in editable mode"
 $PY -m pip install -e cookiecutter
 $PY -m pip install -r cookiecutter/test_requirements.txt
 
-# Copy FLOSS.conf if present
-if [[ -f "FLOSS.conf" ]]; then
-  echo "==> Copying FLOSS.conf into cookiecutter/"
-  cp -f "FLOSS.conf" "cookiecutter/"
+# Copy floss.conf if present
+if [[ -f "floss.conf" ]]; then
+  echo "==> Copying floss.conf into cookiecutter/"
+  cp -f "floss.conf" "cookiecutter/"
 else
-  echo "Warning: FLOSS.conf not found, skipping copy." >&2
+  echo "Warning: floss.conf not found, skipping copy." >&2
 fi
 
 echo "Setup completed for Cookiecutter bug $BUG_NUMBER."
