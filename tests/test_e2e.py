@@ -4,6 +4,8 @@ End-to-end integration tests for PyFault workflow.
 
 import json
 import os
+from typing import Any, Dict
+
 from click.testing import CliRunner
 
 from pyfault.core.cli.main import main
@@ -12,7 +14,7 @@ from pyfault.core.cli.main import main
 class TestE2EWorkflow:
     """End-to-end tests for complete PyFault workflow."""
 
-    def test_complete_workflow(self):
+    def test_complete_workflow(self) -> None:
         """Test complete test -> FL workflow."""
         runner = CliRunner()
 
@@ -206,7 +208,7 @@ formulas = ochiai, tarantula, dstar2
                 assert susp["13"]["ochiai"] == 0.0
                 assert susp["13"]["tarantula"] == 0.0
 
-    def test_workflow_with_custom_parameters(self):
+    def test_workflow_with_custom_parameters(self) -> None:
         """Test workflow with custom parameters and configuration."""
         runner = CliRunner()
 
@@ -260,7 +262,7 @@ formulas = ochiai, tarantula, dstar2
             assert susp["2"]["ochiai"] > susp["1"]["ochiai"]
             assert susp["2"]["jaccard"] > susp["1"]["jaccard"]
 
-    def test_error_handling_workflow(self):
+    def test_error_handling_workflow(self) -> None:
         """Test error handling in workflow scenarios."""
         runner = CliRunner()
 
@@ -289,13 +291,13 @@ formulas = ochiai, tarantula, dstar2
                 report = json.load(f)
             assert report["fl_metadata"]["total_lines_analyzed"] == 0
 
-    def test_workflow_preserves_all_original_data(self):
+    def test_workflow_preserves_all_original_data(self) -> None:
         """Test that FL workflow preserves all original coverage data."""
         runner = CliRunner()
 
         with runner.isolated_filesystem():
             # Create complex coverage data with many fields
-            original_data = {
+            original_data: Dict[str, Any] = {
                 "meta": {
                     "format": 3,
                     "version": "7.9.2",
@@ -406,7 +408,7 @@ formulas = ochiai, tarantula, dstar2
 class TestE2ERunCommand:
     """End-to-end tests for the 'pyfault run' command."""
 
-    def test_run_command_complete_workflow(self):
+    def test_run_command_complete_workflow(self) -> None:
         """Test complete workflow using the run command."""
         runner = CliRunner()
 
@@ -522,7 +524,7 @@ formulas = ochiai, tarantula
             assert "ochiai" in metadata["formulas_used"]
             assert "tarantula" in metadata["formulas_used"]
 
-    def test_run_command_custom_formulas(self):
+    def test_run_command_custom_formulas(self) -> None:
         """Test run command with custom formulas."""
         runner = CliRunner()
 
@@ -592,7 +594,7 @@ def test_negative():
             assert "jaccard" in formulas
             assert "tarantula" not in formulas  # Should not be included
 
-    def test_run_command_test_filter(self):
+    def test_run_command_test_filter(self) -> None:
         """Test run command with test filtering."""
         runner = CliRunner()
 
@@ -657,7 +659,7 @@ def test_subtract_negative():
             assert "Total tests: 3" in result.output
             assert os.path.exists("filtered_report.json")
 
-    def test_run_command_error_handling(self):
+    def test_run_command_error_handling(self) -> None:
         """Test run command error handling with invalid project."""
         runner = CliRunner()
 
@@ -701,7 +703,7 @@ def test_import():
                 # If it runs, it should show test failures
                 assert "Failed:" in result.output or "Total tests: 0" in result.output
 
-    def test_run_command_no_tests(self):
+    def test_run_command_no_tests(self) -> None:
         """Test run command with no test files."""
         runner = CliRunner()
 

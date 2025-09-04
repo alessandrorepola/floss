@@ -4,8 +4,8 @@ Abstract base class for SBFL formulas.
 This module defines the interface that all SBFL formula implementations must follow.
 """
 
-from abc import ABC, abstractmethod
 import math
+from abc import ABC, abstractmethod
 from typing import Optional
 
 

@@ -2,21 +2,23 @@
 Test suite for PyFault SBFL formulas.
 """
 
-import pytest
 import math
+
+import pytest
+
 from pyfault.core.formulas import (
+    DStarFormula,
+    JaccardFormula,
+    Kulczynski2Formula,
     OchiaiFormula,
     TarantulaFormula,
-    JaccardFormula,
-    DStarFormula,
-    Kulczynski2Formula,
 )
 
 
 class TestSBFLFormulas:
     """Test cases for SBFL formula implementations."""
 
-    def test_ochiai_formula(self):
+    def test_ochiai_formula(self) -> None:
         """Test Ochiai formula calculation."""
         formula = OchiaiFormula()
 
@@ -35,7 +37,7 @@ class TestSBFLFormulas:
         score = formula.calculate(n_cf=0, n_nf=0, n_cp=0, n_np=0)
         assert score == 0.0
 
-    def test_tarantula_formula(self):
+    def test_tarantula_formula(self) -> None:
         """Test Tarantula formula calculation."""
         formula = TarantulaFormula()
 
@@ -54,7 +56,7 @@ class TestSBFLFormulas:
         score = formula.calculate(n_cf=0, n_nf=0, n_cp=2, n_np=1)
         assert score == 0.0
 
-    def test_jaccard_formula(self):
+    def test_jaccard_formula(self) -> None:
         """Test Jaccard formula calculation."""
         formula = JaccardFormula()
 
@@ -67,7 +69,7 @@ class TestSBFLFormulas:
         score = formula.calculate(n_cf=0, n_nf=1, n_cp=0, n_np=2)
         assert score == 0.0
 
-    def test_dstar_formula(self):
+    def test_dstar_formula(self) -> None:
         """Test D* formula calculation."""
         formula = DStarFormula(star=2)
 
@@ -87,7 +89,7 @@ class TestSBFLFormulas:
         score = formula.calculate(n_cf=0, n_nf=2, n_cp=1, n_np=1)
         assert score == 0.0
 
-    def test_kulczynski2_formula(self):
+    def test_kulczynski2_formula(self) -> None:
         """Test Kulczynski2 formula calculation."""
         formula = Kulczynski2Formula()
 
@@ -102,7 +104,7 @@ class TestSBFLFormulas:
         score = formula.calculate(n_cf=0, n_nf=2, n_cp=1, n_np=1)
         assert score == 0.0
 
-    def test_formula_names(self):
+    def test_formula_names(self) -> None:
         """Test that formulas have correct names."""
         assert OchiaiFormula().name == "ochiai"
         assert TarantulaFormula().name == "tarantula"
@@ -111,7 +113,7 @@ class TestSBFLFormulas:
         assert DStarFormula(star=3).name == "dstar3"
         assert Kulczynski2Formula().name == "kulczynski2"
 
-    def test_formula_string_representation(self):
+    def test_formula_string_representation(self) -> None:
         """Test string representation of formulas."""
         formula = OchiaiFormula()
         assert "OchiaiFormula" in str(formula)

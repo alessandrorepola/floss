@@ -5,12 +5,13 @@ TestRunner (coverage JSON) and FLEngine (FL report JSON).
 
 import json
 from tempfile import NamedTemporaryFile
+from typing import Any, Dict
 
-from pyfault.core.fl.engine import FLEngine
 from pyfault.core.fl.config import FLConfig
+from pyfault.core.fl.engine import FLEngine
 
 
-def test_fl_report_contains_expected_sections_and_order():
+def test_fl_report_contains_expected_sections_and_order() -> None:
     # Minimal but valid coverage input
     coverage_json = {
         "meta": {"format": 3, "version": "7.9.2"},
@@ -54,15 +55,19 @@ def test_fl_report_contains_expected_sections_and_order():
     assert report["fl_metadata"]["formulas_used"] == ["ochiai"]
 
 
-def test_test_phase_metadata_fields_present_and_promoted():
+def test_test_phase_metadata_fields_present_and_promoted() -> None:
     # Build the structure runner._add_test_summary_info creates
     # Here we don't invoke pytest; we simulate the shape instead.
-    coverage_data = {
+    coverage_data: Dict[str, Any] = {
         "meta": {},
         "files": {"file.py": {"contexts": {}}},
         "totals": {},
     }
-    test_outcomes = {"failed": ["t_fail"], "passed": ["t_pass"], "skipped": []}
+    test_outcomes: dict[str, list[str]] = {
+        "failed": ["t_fail"],
+        "passed": ["t_pass"],
+        "skipped": [],
+    }
 
     # Import internal helpers directly
     from pyfault.core.test.config import TestConfig

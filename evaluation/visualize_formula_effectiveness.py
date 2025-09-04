@@ -4,18 +4,21 @@ Script to visualize SBFL formula effectiveness with detailed charts.
 """
 
 import json
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
 from pathlib import Path
+from typing import cast
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from matplotlib.container import BarContainer
 
 # Configura lo stile dei grafici
 plt.style.use("seaborn-v0_8")
 sns.set_palette("husl")
 
 
-def load_data():
+def load_data() -> tuple[dict, dict, pd.DataFrame]:
     """Load data from analysis"""
     # Load effectiveness data
     with open("pyfault_effectiveness_analysis.json", "r", encoding="utf-8") as f:
@@ -31,7 +34,7 @@ def load_data():
     return effectiveness_data, discrimination_data, csv_data
 
 
-def create_top_n_comparison():
+def create_top_n_comparison() -> None:
     """Create a Top-N comparison chart"""
     effectiveness_data, _, _ = load_data()
 
@@ -74,7 +77,7 @@ def create_top_n_comparison():
 
     # Aggiungi valori sulle barre
     for container in bar_plot.containers:
-        bar_plot.bar_label(container, fmt="%.1f%%", fontsize=10)
+        ax.bar_label(cast(BarContainer, container), fmt="%.1f%%", fontsize=10)
 
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)
@@ -83,7 +86,7 @@ def create_top_n_comparison():
     plt.show()
 
 
-def create_discrimination_comparison():
+def create_discrimination_comparison() -> None:
     """Create a discriminatory capability comparison chart"""
     _, discrimination_data, _ = load_data()
 
@@ -141,7 +144,7 @@ def create_discrimination_comparison():
     plt.show()
 
 
-def create_rank_distribution():
+def create_rank_distribution() -> None:
     """Crea un grafico della distribuzione dei rank"""
     effectiveness_data, _, _ = load_data()
 
@@ -196,7 +199,7 @@ def create_rank_distribution():
     plt.show()
 
 
-def create_project_performance():
+def create_project_performance() -> None:
     """Crea un grafico delle performance per progetto"""
     effectiveness_data, _, _ = load_data()
 
@@ -269,7 +272,7 @@ def create_project_performance():
     plt.show()
 
 
-def create_summary_radar():
+def create_summary_radar() -> None:
     """Crea un grafico radar di riepilogo"""
     effectiveness_data, discrimination_data, _ = load_data()
 
@@ -340,7 +343,7 @@ def create_summary_radar():
     plt.show()
 
 
-def main():
+def main() -> None:
     """Main function to generate all charts"""
     print("Generating effectiveness analysis charts...")
 

@@ -1,9 +1,9 @@
 """Configuration management for PyFault tests."""
 
-from dataclasses import dataclass
-from typing import List, Optional
 import configparser
 import os
+from dataclasses import dataclass
+from typing import List, Optional
 
 
 @dataclass
@@ -17,7 +17,7 @@ class TestConfig:
     ignore_patterns: Optional[List[str]] = None
     omit_patterns: Optional[List[str]] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.ignore_patterns is None:
             self.ignore_patterns = ["*/__init__.py"]
         if self.omit_patterns is None:

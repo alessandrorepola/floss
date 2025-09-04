@@ -1,7 +1,6 @@
 import math
 
 import pytest
-
 from src.isosceles import isosceles_area
 
 

@@ -4,11 +4,12 @@ Test suite for the new CLI implementation.
 This module tests the simplified CLI with only the 'test' command.
 """
 
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
+
 from click.testing import CliRunner
 
 from pyfault.core.cli import main
@@ -18,7 +19,7 @@ from pyfault.core.test.runner import TestResult
 class TestCLITestCommand:
     """Test cases for the 'pyfault test' command."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test environment."""
         self.runner = CliRunner()
         self.temp_dir = Path(tempfile.mkdtemp())
@@ -32,12 +33,12 @@ class TestCLITestCommand:
         # Create sample files
         self.create_sample_files()
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         """Cleanup."""
         if self.temp_dir.exists():
             shutil.rmtree(self.temp_dir)
 
-    def create_sample_files(self):
+    def create_sample_files(self) -> None:
         """Create sample source and test files."""
         # Sample source file
         (self.source_dir / "calculator.py").write_text(
@@ -73,13 +74,13 @@ output_file = test_coverage.json
 """
         )
 
-    def test_help_command(self):
+    def test_help_command(self) -> None:
         """Test that help command works."""
         result = self.runner.invoke(main, ["--help"])
         assert result.exit_code == 0
         assert "PyFault: Spectrum-Based Fault Localization" in result.output
 
-    def test_test_command_help(self):
+    def test_test_command_help(self) -> None:
         """Test that test command help works."""
         result = self.runner.invoke(main, ["test", "--help"])
         assert result.exit_code == 0
@@ -88,7 +89,7 @@ output_file = test_coverage.json
         assert "--output" in result.output
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
-    def test_test_command_basic(self, mock_run_tests):
+    def test_test_command_basic(self, mock_run_tests: Mock) -> None:
         """Test basic test command execution."""
         # Mock the test runner
         mock_result = TestResult(
@@ -115,7 +116,7 @@ output_file = test_coverage.json
             assert "Passed: 1" in result.output
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
-    def test_test_command_with_failures(self, mock_run_tests):
+    def test_test_command_with_failures(self, mock_run_tests: Mock) -> None:
         """Test test command with failed tests."""
         # Mock the test runner with failures
         mock_result = TestResult(
@@ -143,7 +144,7 @@ output_file = test_coverage.json
             assert "Failed tests:" in result.output
             assert "tests/test_calc.py::test_fail" in result.output
 
-    def test_test_command_with_custom_output(self):
+    def test_test_command_with_custom_output(self) -> None:
         """Test test command with custom output file."""
         with patch("pyfault.core.test.runner.TestRunner.run_tests") as mock_run_tests:
             mock_result = TestResult(
@@ -163,7 +164,7 @@ output_file = test_coverage.json
                 assert result.exit_code == 0
                 assert "Output file: custom.json" in result.output
 
-    def test_test_command_with_test_filter(self):
+    def test_test_command_with_test_filter(self) -> None:
         """Test test command with test filter."""
         with patch("pyfault.core.test.runner.TestRunner.run_tests") as mock_run_tests:
             mock_result = TestResult(
@@ -184,7 +185,7 @@ output_file = test_coverage.json
                 # Verify that test filter was passed to runner
                 mock_run_tests.assert_called_once_with("test_add")
 
-    def test_test_command_with_ignore_patterns(self):
+    def test_test_command_with_ignore_patterns(self) -> None:
         """Test test command with additional ignore patterns."""
         with patch("pyfault.core.test.runner.TestRunner.run_tests") as mock_run_tests:
             mock_result = TestResult(
@@ -212,7 +213,7 @@ output_file = test_coverage.json
 
                 assert result.exit_code == 0
 
-    def test_test_command_with_omit_patterns(self):
+    def test_test_command_with_omit_patterns(self) -> None:
         """Test test command with additional omit patterns."""
         with patch("pyfault.core.test.runner.TestRunner.run_tests") as mock_run_tests:
             mock_result = TestResult(
@@ -241,7 +242,7 @@ output_file = test_coverage.json
                 assert result.exit_code == 0
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
-    def test_test_command_error_handling(self, mock_run_tests):
+    def test_test_command_error_handling(self, mock_run_tests: Mock) -> None:
         """Test test command error handling."""
         # Mock an exception
         mock_run_tests.side_effect = RuntimeError("Test execution failed")
@@ -255,7 +256,7 @@ output_file = test_coverage.json
             assert "Test execution failed" in result.output
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
-    def test_test_command_verbose_error(self, mock_run_tests):
+    def test_test_command_verbose_error(self, mock_run_tests: Mock) -> None:
         """Test test command error handling with verbose mode."""
         # Mock an exception
         mock_run_tests.side_effect = RuntimeError("Test execution failed")
@@ -269,7 +270,7 @@ output_file = test_coverage.json
             assert result.exit_code == 1
             assert "Error:" in result.output
 
-    def test_configuration_file_loading(self):
+    def test_configuration_file_loading(self) -> None:
         """Test that configuration file is loaded correctly."""
         with patch("pyfault.core.test.runner.TestRunner.run_tests") as mock_run_tests:
             mock_result = TestResult(
@@ -298,7 +299,7 @@ output_file = app_coverage.json
                 assert "Source dir: app" in result.output
                 assert "Output file: app_coverage.json" in result.output
 
-    def test_command_line_override_config_file(self):
+    def test_command_line_override_config_file(self) -> None:
         """Test that command line arguments override config file."""
         with patch("pyfault.core.test.runner.TestRunner.run_tests") as mock_run_tests:
             mock_result = TestResult(
@@ -344,11 +345,11 @@ output_file = config_coverage.json
 class TestCLIMainGroup:
     """Test cases for the main CLI group."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test environment."""
         self.runner = CliRunner()
 
-    def test_main_group_help(self):
+    def test_main_group_help(self) -> None:
         """Test main group help output."""
         result = self.runner.invoke(main, ["--help"])
         assert result.exit_code == 0
@@ -356,18 +357,18 @@ class TestCLIMainGroup:
         assert "Commands:" in result.output
         assert "test" in result.output
 
-    def test_verbose_flag(self):
+    def test_verbose_flag(self) -> None:
         """Test verbose flag functionality."""
         result = self.runner.invoke(main, ["--verbose", "--help"])
         assert result.exit_code == 0
 
-    def test_unknown_command(self):
+    def test_unknown_command(self) -> None:
         """Test handling of unknown commands."""
         result = self.runner.invoke(main, ["unknown-command"])
         assert result.exit_code != 0
         assert "No such command" in result.output
 
-    def test_no_command(self):
+    def test_no_command(self) -> None:
         """Test behavior when no command is provided."""
         result = self.runner.invoke(main, [])
         # Click returns exit code 2 when no command is provided and shows help
@@ -377,13 +378,13 @@ class TestCLIMainGroup:
 class TestCLIIntegration:
     """Integration tests for CLI functionality."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test environment."""
         self.runner = CliRunner()
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
     @patch("builtins.open", create=True)
-    def test_full_workflow_mock(self, mock_open, mock_run_tests):
+    def test_full_workflow_mock(self, mock_open: Mock, mock_run_tests: Mock) -> None:
         """Test full workflow with mocked file operations."""
         # Mock the test result
         mock_coverage_data = {
@@ -428,7 +429,7 @@ class TestCLIIntegration:
             # Verify that JSON was written
             mock_open.assert_called_with("coverage.json", "w")
 
-    def test_config_file_precedence(self):
+    def test_config_file_precedence(self) -> None:
         """Test configuration file precedence and merging."""
         with patch("pyfault.core.test.runner.TestRunner.run_tests") as mock_run_tests:
             mock_result = TestResult(
@@ -477,7 +478,7 @@ omit = */__init__.py, */config_omit/*
 class TestCLIRunCommand:
     """Test cases for the 'pyfault run' command."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test environment."""
         self.runner = CliRunner()
         self.temp_dir = Path(tempfile.mkdtemp())
@@ -491,12 +492,12 @@ class TestCLIRunCommand:
         # Create sample files
         self.create_sample_files()
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         """Cleanup."""
         if self.temp_dir.exists():
             shutil.rmtree(self.temp_dir)
 
-    def create_sample_files(self):
+    def create_sample_files(self) -> None:
         """Create sample source and test files."""
         # Sample source file
         (self.source_dir / "calculator.py").write_text(
@@ -537,7 +538,7 @@ formulas = ochiai, tarantula
 """
         )
 
-    def test_run_command_help(self):
+    def test_run_command_help(self) -> None:
         """Test that run command help works."""
         result = self.runner.invoke(main, ["run", "--help"])
         assert result.exit_code == 0
@@ -548,7 +549,9 @@ formulas = ochiai, tarantula
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
     @patch("pyfault.core.fl.engine.FLEngine.calculate_suspiciousness")
-    def test_run_command_basic(self, mock_calculate, mock_run_tests):
+    def test_run_command_basic(
+        self, mock_calculate: Mock, mock_run_tests: Mock
+    ) -> None:
         """Test basic run command execution with failed tests."""
         # Mock the test runner with some failed tests to trigger FL
         mock_result = TestResult(
@@ -582,7 +585,9 @@ formulas = ochiai, tarantula
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
     @patch("pyfault.core.fl.engine.FLEngine.calculate_suspiciousness")
-    def test_run_command_with_failures(self, mock_calculate, mock_run_tests):
+    def test_run_command_with_failures(
+        self, mock_calculate: Mock, mock_run_tests: Mock
+    ) -> None:
         """Test run command with failed tests."""
         mock_result = TestResult(
             coverage_data={
@@ -611,7 +616,9 @@ formulas = ochiai, tarantula
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
     @patch("pyfault.core.fl.engine.FLEngine.calculate_suspiciousness")
-    def test_run_command_custom_output(self, mock_calculate, mock_run_tests):
+    def test_run_command_custom_output(
+        self, mock_calculate: Mock, mock_run_tests: Mock
+    ) -> None:
         """Test run command with custom output file."""
         mock_result = TestResult(
             coverage_data={
@@ -635,7 +642,9 @@ formulas = ochiai, tarantula
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
     @patch("pyfault.core.fl.engine.FLEngine.calculate_suspiciousness")
-    def test_run_command_custom_formulas(self, mock_calculate, mock_run_tests):
+    def test_run_command_custom_formulas(
+        self, mock_calculate: Mock, mock_run_tests: Mock
+    ) -> None:
         """Test run command with custom formulas."""
         mock_result = TestResult(
             coverage_data={"tests": {"failed": [], "passed": [], "skipped": []}},
@@ -665,7 +674,9 @@ formulas = ochiai, tarantula
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
     @patch("pyfault.core.fl.engine.FLEngine.calculate_suspiciousness")
-    def test_run_command_with_test_filter(self, mock_calculate, mock_run_tests):
+    def test_run_command_with_test_filter(
+        self, mock_calculate: Mock, mock_run_tests: Mock
+    ) -> None:
         """Test run command with test filter."""
         mock_result = TestResult(
             coverage_data={
@@ -689,7 +700,9 @@ formulas = ochiai, tarantula
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
     @patch("pyfault.core.fl.engine.FLEngine.calculate_suspiciousness")
-    def test_run_command_ignore_and_omit_patterns(self, mock_calculate, mock_run_tests):
+    def test_run_command_ignore_and_omit_patterns(
+        self, mock_calculate: Mock, mock_run_tests: Mock
+    ) -> None:
         """Test run command with ignore and omit patterns."""
         mock_result = TestResult(
             coverage_data={"tests": {"failed": [], "passed": [], "skipped": []}},
@@ -722,8 +735,8 @@ formulas = ochiai, tarantula
     @patch("pyfault.core.fl.engine.FLEngine.calculate_suspiciousness")
     @patch("os.remove")
     def test_run_command_intermediate_file_cleanup(
-        self, mock_remove, mock_calculate, mock_run_tests
-    ):
+        self, mock_remove: Mock, mock_calculate: Mock, mock_run_tests: Mock
+    ) -> None:
         """Test that intermediate files are cleaned up."""
         mock_result = TestResult(
             coverage_data={"tests": {"failed": [], "passed": [], "skipped": []}},
@@ -748,7 +761,7 @@ formulas = ochiai, tarantula
             mock_remove.assert_called_once_with("final_report_coverage.json")
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
-    def test_run_command_test_phase_error(self, mock_run_tests):
+    def test_run_command_test_phase_error(self, mock_run_tests: Mock) -> None:
         """Test run command handles test phase errors gracefully."""
         mock_run_tests.side_effect = Exception("Test execution failed")
 
@@ -761,7 +774,9 @@ formulas = ochiai, tarantula
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
     @patch("pyfault.core.fl.engine.FLEngine.calculate_suspiciousness")
-    def test_run_command_fl_phase_error(self, mock_calculate, mock_run_tests):
+    def test_run_command_fl_phase_error(
+        self, mock_calculate: Mock, mock_run_tests: Mock
+    ) -> None:
         """Test run command handles FL phase errors gracefully."""
         mock_result = TestResult(
             coverage_data={
@@ -783,7 +798,9 @@ formulas = ochiai, tarantula
 
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
     @patch("pyfault.core.fl.engine.FLEngine.calculate_suspiciousness")
-    def test_run_command_config_file_integration(self, mock_calculate, mock_run_tests):
+    def test_run_command_config_file_integration(
+        self, mock_calculate: Mock, mock_run_tests: Mock
+    ) -> None:
         """Test run command loads and merges configurations correctly."""
         mock_result = TestResult(
             coverage_data={"tests": {"failed": [], "passed": [], "skipped": []}},
@@ -830,8 +847,8 @@ formulas = ochiai, jaccard
     @patch("pyfault.core.test.runner.TestRunner.run_tests")
     @patch("pyfault.core.fl.engine.FLEngine.calculate_suspiciousness")
     def test_run_command_skips_fl_when_all_tests_pass(
-        self, mock_calculate, mock_run_tests
-    ):
+        self, mock_calculate: Mock, mock_run_tests: Mock
+    ) -> None:
         """Test that FL is skipped when all tests pass."""
         mock_result = TestResult(
             coverage_data={

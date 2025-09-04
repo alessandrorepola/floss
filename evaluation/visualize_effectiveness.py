@@ -5,14 +5,16 @@ Generates charts and tables to present results clearly.
 """
 
 import json
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from pathlib import Path
+from typing import Any, Dict
+
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import seaborn as sns
 
 
-def load_results():
+def load_results() -> tuple[pd.DataFrame, Dict[str, Any]]:
     """Load analysis results"""
     csv_path = "pyfault_effectiveness_summary.csv"
     json_path = "pyfault_effectiveness_analysis.json"
@@ -27,7 +29,7 @@ def load_results():
     return df, summary
 
 
-def create_effectiveness_charts(df, summary):
+def create_effectiveness_charts(df: pd.DataFrame, summary: Dict[str, Any]) -> None:
     """Create charts to show effectiveness"""
 
     # Configure style
@@ -126,7 +128,7 @@ def create_effectiveness_charts(df, summary):
     df_with_ranks = df[df["Best_Rank"].notna()]
 
     if len(df_with_ranks) > 0:
-        ranks = df_with_ranks["Best_Rank"].values
+        ranks = np.array(df_with_ranks["Best_Rank"].values)
         ax3.hist(ranks, bins=20, alpha=0.7, color="#45B7D1", edgecolor="black")
         ax3.axvline(
             np.median(ranks),
@@ -163,7 +165,7 @@ def create_effectiveness_charts(df, summary):
         if len(valid_ranks) > 0:
             formula_data.append(valid_ranks)
         else:
-            formula_data.append([])
+            formula_data.append(np.array([]))
 
     # Box plot per confrontare le formule
     bp = ax4.boxplot(formula_data, labels=formulas, patch_artist=True)
@@ -183,7 +185,7 @@ def create_effectiveness_charts(df, summary):
     plt.show()
 
 
-def create_detailed_table(df):
+def create_detailed_table(df: pd.DataFrame) -> None:
     """Create a detailed results table"""
 
     # Filter and organize data
@@ -227,7 +229,7 @@ def create_detailed_table(df):
     print(display_df.to_string(index=False))
 
 
-def generate_summary_statistics(df, summary):
+def generate_summary_statistics(df: pd.DataFrame, summary: Dict[str, Any]) -> None:
     """Genera statistiche riassuntive"""
 
     print("\\n" + "=" * 80)
@@ -266,7 +268,7 @@ def generate_summary_statistics(df, summary):
         # Rank statistics
         df_with_ranks = df[df["Best_Rank"].notna()]
         if len(df_with_ranks) > 0:
-            ranks = df_with_ranks["Best_Rank"].values
+            ranks = np.array(df_with_ranks["Best_Rank"].values)
             print("\\n📈 RANK STATISTICS:")
             print(f"   • Average rank: {np.mean(ranks):.1f}")
             print(f"   • Median rank: {np.median(ranks):.0f}")
@@ -295,13 +297,13 @@ def generate_summary_statistics(df, summary):
     ]
 
     for formula, col in zip(formulas, formula_cols):
-        valid_ranks = df[df[col].notna()][col].values
+        valid_ranks = np.array(df[df[col].notna()][col].values)
         if len(valid_ranks) > 0:
             avg_rank = np.mean(valid_ranks)
             print(f"   • {formula}: average rank {avg_rank:.1f}")
 
 
-def main():
+def main() -> None:
     """Main function"""
     print("PyFault Results Visualization")
     print("=" * 50)

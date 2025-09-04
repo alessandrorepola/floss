@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 
-def run_command(command, description):
+def run_command(command: str, description: str) -> bool:
     """Esegue un comando e stampa il risultato"""
     print(f"\n🔍 {description}")
     print("=" * 50)
@@ -30,7 +30,7 @@ def run_command(command, description):
         return False
 
 
-def main():
+def main() -> None:
     """Esegue tutti i controlli di qualità"""
     print("🚀 Avvio controlli di qualità del codice...")
 

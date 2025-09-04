@@ -3,9 +3,11 @@ Edge case and performance tests for fault localization.
 """
 
 import json
-import time
-import tempfile
 import os
+import tempfile
+import time
+from typing import Any, Dict
+
 from pyfault.core.fl.config import FLConfig
 from pyfault.core.fl.data import CoverageData
 from pyfault.core.fl.engine import FLEngine
@@ -14,7 +16,7 @@ from pyfault.core.fl.engine import FLEngine
 class TestFLEdgeCases:
     """Test edge cases for fault localization."""
 
-    def test_no_failed_tests(self):
+    def test_no_failed_tests(self) -> None:
         """Test FL when all tests pass."""
         coverage_json = {
             "tests": {"passed": ["test1", "test2"], "failed": []},
@@ -32,7 +34,7 @@ class TestFLEdgeCases:
         assert n_cp == 1  # test1 passed and covers
         assert n_np == 1  # test2 passed and doesn't cover
 
-    def test_no_passed_tests(self):
+    def test_no_passed_tests(self) -> None:
         """Test FL when all tests fail."""
         coverage_json = {
             "tests": {"passed": [], "failed": ["test1", "test2"]},
@@ -49,7 +51,7 @@ class TestFLEdgeCases:
         assert n_cp == 0  # no passed tests
         assert n_np == 0  # no passed tests
 
-    def test_line_covered_by_no_tests(self):
+    def test_line_covered_by_no_tests(self) -> None:
         """Test line that appears in contexts but with empty context list."""
         coverage_json = {
             "tests": {"passed": ["test1"], "failed": ["test2"]},
@@ -66,7 +68,7 @@ class TestFLEdgeCases:
         assert "file.py:1" not in data.line_coverage
         assert "file.py:2" in data.line_coverage
 
-    def test_malformed_context_strings(self):
+    def test_malformed_context_strings(self) -> None:
         """Test handling of malformed context strings."""
         coverage_json = {
             "tests": {"passed": ["test1"], "failed": []},
@@ -90,7 +92,7 @@ class TestFLEdgeCases:
         assert "file.py:3" not in data.line_coverage
         assert "file.py:4" in data.line_coverage
 
-    def test_missing_test_outcomes(self):
+    def test_missing_test_outcomes(self) -> None:
         """Test handling when test outcomes are missing."""
         coverage_json = {
             "files": {"file.py": {"contexts": {"1": ["unknown_test|run"]}}}
@@ -105,7 +107,7 @@ class TestFLEdgeCases:
         assert n_cf == 0  # no failed tests
         assert n_cp == 1  # unknown_test defaults to passed
 
-    def test_engine_with_no_formulas(self):
+    def test_engine_with_no_formulas(self) -> None:
         """Test engine behavior when no valid formulas are configured."""
         config = FLConfig()
         config.formulas = ["invalid_formula1", "invalid_formula2"]
@@ -115,7 +117,7 @@ class TestFLEdgeCases:
         # Should have empty formulas dict
         assert len(engine.formulas) == 0
 
-    def test_large_number_of_tests(self):
+    def test_large_number_of_tests(self) -> None:
         """Test performance with many tests."""
         # Create coverage data with many tests
         num_tests = 1000
@@ -152,7 +154,7 @@ class TestFLEdgeCases:
         elapsed = time.time() - start_time
         assert elapsed < 1.0  # Should be fast
 
-    def test_duplicate_test_names_in_contexts(self):
+    def test_duplicate_test_names_in_contexts(self) -> None:
         """Test handling of duplicate test names in same context."""
         coverage_json = {
             "tests": {"passed": ["test1"], "failed": []},
@@ -171,7 +173,7 @@ class TestFLEdgeCases:
         assert len(data.line_coverage["file.py:1"]) == 1
         assert "test1" in data.line_coverage["file.py:1"]
 
-    def test_unicode_file_paths(self):
+    def test_unicode_file_paths(self) -> None:
         """Test handling of unicode characters in file paths."""
         coverage_json = {
             "tests": {"passed": ["test1"], "failed": []},
@@ -190,7 +192,7 @@ class TestFLEdgeCases:
         assert "src\\测试文件.py:1" in data.line_coverage
         assert "src\\файл.py:1" in data.line_coverage
 
-    def test_very_large_line_numbers(self):
+    def test_very_large_line_numbers(self) -> None:
         """Test handling of very large line numbers."""
         coverage_json = {
             "tests": {"passed": ["test1"], "failed": []},
@@ -213,10 +215,10 @@ class TestFLEdgeCases:
 class TestFLPerformance:
     """Performance tests for fault localization."""
 
-    def test_performance_many_files(self):
+    def test_performance_many_files(self) -> None:
         """Test performance with many files."""
         num_files = 100
-        coverage_json = {
+        coverage_json: Dict[str, Any] = {
             "tests": {"passed": ["test_pass"], "failed": ["test_fail"]},
             "files": {},
         }
@@ -263,7 +265,7 @@ class TestFLPerformance:
                     except PermissionError:
                         pass  # Ignore permission errors on Windows
 
-    def test_performance_many_formulas(self):
+    def test_performance_many_formulas(self) -> None:
         """Test performance with all available formulas."""
         coverage_json = {
             "tests": {"passed": ["test1", "test2"], "failed": ["test3", "test4"]},

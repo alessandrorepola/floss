@@ -5,32 +5,34 @@ This module tests TestConfig and TestRunner classes with focus on
 the new simplified implementation using pytest with coverage contexts.
 """
 
-import pytest
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
 from pathlib import Path
+from typing import Any, Dict
 from unittest.mock import Mock, patch
 
+import pytest
+
 from pyfault.core.test.config import TestConfig
-from pyfault.core.test.runner import TestRunner, TestResult
+from pyfault.core.test.runner import TestResult, TestRunner
 
 
 class TestTestConfig:
     """Test cases for TestConfig class."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test environment."""
         self.temp_dir = Path(tempfile.mkdtemp())
         os.chdir(self.temp_dir)
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         """Cleanup."""
         os.chdir("/")
         if self.temp_dir.exists():
             shutil.rmtree(self.temp_dir)
 
-    def test_default_configuration(self):
+    def test_default_configuration(self) -> None:
         """Test default configuration values."""
         config = TestConfig()
 
@@ -40,7 +42,7 @@ class TestTestConfig:
         assert config.ignore_patterns == ["*/__init__.py"]
         assert config.omit_patterns == ["*/__init__.py"]
 
-    def test_configuration_from_nonexistent_file(self):
+    def test_configuration_from_nonexistent_file(self) -> None:
         """Test loading configuration when file doesn't exist."""
         config = TestConfig.from_file("nonexistent.conf")
 
@@ -51,7 +53,7 @@ class TestTestConfig:
         assert config.ignore_patterns == ["*/__init__.py"]
         assert config.omit_patterns == ["*/__init__.py"]
 
-    def test_configuration_from_file(self):
+    def test_configuration_from_file(self) -> None:
         """Test loading configuration from file."""
         config_content = """[test]
 source_dir = app
@@ -75,7 +77,7 @@ omit = */__init__.py, */test_utils.py
         assert "*/__init__.py" in config.omit_patterns
         assert "*/test_utils.py" in config.omit_patterns
 
-    def test_configuration_partial_file(self):
+    def test_configuration_partial_file(self) -> None:
         """Test loading configuration with only some values specified."""
         config_content = """[test]
 source_dir = custom_src
@@ -91,7 +93,7 @@ output_file = custom.json
         assert config.output_file == "custom.json"
         assert config.ignore_patterns == ["*/__init__.py"]  # Should remain default
 
-    def test_coveragerc_content_generation(self):
+    def test_coveragerc_content_generation(self) -> None:
         """Test generation of .coveragerc content."""
         config = TestConfig()
         config.omit_patterns = ["*/__init__.py", "*/test_*"]
@@ -103,7 +105,7 @@ output_file = custom.json
         assert "[json]" in content
         assert "show_contexts = True" in content
 
-    def test_write_coveragerc_file(self):
+    def test_write_coveragerc_file(self) -> None:
         """Test writing .coveragerc file."""
         config = TestConfig()
         config.omit_patterns = ["*/__init__.py", "*/migrations/*"]
@@ -120,7 +122,7 @@ output_file = custom.json
 class TestTestRunner:
     """Test cases for TestRunner class."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test environment."""
         self.temp_dir = Path(tempfile.mkdtemp())
         os.chdir(self.temp_dir)
@@ -139,13 +141,13 @@ class TestTestRunner:
         # Create sample files
         self.create_sample_files()
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         """Cleanup."""
         os.chdir("/")
         if self.temp_dir.exists():
             shutil.rmtree(self.temp_dir)
 
-    def create_sample_files(self):
+    def create_sample_files(self) -> None:
         """Create sample source and test files."""
         # Sample source file
         (self.src_dir / "calculator.py").write_text(
@@ -179,13 +181,13 @@ def test_subtract_normal():
 """
         )
 
-    def test_runner_initialization(self):
+    def test_runner_initialization(self) -> None:
         """Test TestRunner initialization."""
         runner = TestRunner(self.config)
         assert runner.config == self.config
 
     @patch("subprocess.run")
-    def test_build_pytest_command_basic(self, mock_run):
+    def test_build_pytest_command_basic(self, mock_run: Mock) -> None:
         """Test building basic pytest command."""
         runner = TestRunner(self.config)
 
@@ -211,7 +213,7 @@ def test_subtract_normal():
             assert element in cmd
 
     @patch("subprocess.run")
-    def test_build_pytest_command_with_test_dir(self, mock_run):
+    def test_build_pytest_command_with_test_dir(self, mock_run: Mock) -> None:
         """Test building pytest command with test directory."""
         self.config.test_dir = "tests"
         runner = TestRunner(self.config)
@@ -223,7 +225,7 @@ def test_subtract_normal():
         assert "tests" in cmd
 
     @patch("subprocess.run")
-    def test_build_pytest_command_with_filter(self, mock_run):
+    def test_build_pytest_command_with_filter(self, mock_run: Mock) -> None:
         """Test building pytest command with test filter."""
         runner = TestRunner(self.config)
 
@@ -235,7 +237,7 @@ def test_subtract_normal():
         assert "test_add" in cmd
 
     @patch("subprocess.run")
-    def test_build_pytest_command_with_ignore_patterns(self, mock_run):
+    def test_build_pytest_command_with_ignore_patterns(self, mock_run: Mock) -> None:
         """Test building pytest command with additional ignore patterns."""
         self.config.ignore_patterns = ["*/__init__.py", "*/migrations/*"]
         runner = TestRunner(self.config)
@@ -249,7 +251,7 @@ def test_subtract_normal():
         assert ignore_count == 2
         assert "*/migrations/*" in cmd
 
-    def test_convert_to_pytest_format(self):
+    def test_convert_to_pytest_format(self) -> None:
         """Test conversion from JUnit format to pytest format."""
         runner = TestRunner(self.config)
 
@@ -281,7 +283,7 @@ def test_subtract_normal():
         result = runner._convert_to_pytest_format("test_simple", "test_func")
         assert result == "test_simple::test_func"
 
-    def test_merge_test_outcomes(self):
+    def test_merge_test_outcomes(self) -> None:
         """Test merging test outcomes into coverage data."""
         runner = TestRunner(self.config)
 
@@ -311,7 +313,9 @@ def test_subtract_normal():
     @patch("pyfault.core.test.runner.TestRunner._load_coverage_data")
     @patch("pyfault.core.test.runner.TestRunner._parse_junit_xml")
     @patch("subprocess.run")
-    def test_run_tests_success(self, mock_run, mock_parse_xml, mock_load_coverage):
+    def test_run_tests_success(
+        self, mock_run: Mock, mock_parse_xml: Mock, mock_load_coverage: Mock
+    ) -> None:
         """Test successful test run."""
         runner = TestRunner(self.config)
 
@@ -343,7 +347,7 @@ def test_subtract_normal():
         assert "tests" in result.coverage_data
 
     @patch("subprocess.run")
-    def test_run_tests_pytest_failure(self, mock_run):
+    def test_run_tests_pytest_failure(self, mock_run: Mock) -> None:
         """Test handling of pytest execution failure."""
         runner = TestRunner(self.config)
 
@@ -356,7 +360,9 @@ def test_subtract_normal():
 
     @patch("pyfault.core.test.runner.TestRunner._parse_junit_xml")
     @patch("subprocess.run")
-    def test_run_tests_missing_coverage_file(self, mock_run, mock_parse_xml):
+    def test_run_tests_missing_coverage_file(
+        self, mock_run: Mock, mock_parse_xml: Mock
+    ) -> None:
         """Test handling when coverage file is missing."""
         runner = TestRunner(self.config)
 
@@ -366,7 +372,7 @@ def test_subtract_normal():
         with pytest.raises(RuntimeError, match="Coverage file .* not found"):
             runner.run_tests()
 
-    def test_parse_junit_xml_with_sample_data(self):
+    def test_parse_junit_xml_with_sample_data(self) -> None:
         """Test parsing JUnit XML with sample data."""
         runner = TestRunner(self.config)
 
@@ -381,15 +387,15 @@ def test_subtract_normal():
             '        <testcase classname="tests.test_calculator.TestCalculator" '
             'name="test_add_negative" time="0.002">\n'
             '            <failure message="assert False">Failure message</failure>\n'
-            '        </testcase>\n'
+            "        </testcase>\n"
             '        <testcase classname="tests.test_calculator.TestCalculator" '
             'name="test_skip_this" time="0.000">\n'
             '            <skipped message="skipped">Skip message</skipped>\n'
-            '        </testcase>\n'
+            "        </testcase>\n"
             '        <testcase classname="tests.test_calculator.TestAdvanced" '
             'name="test_complex_math" time="0.003"/>\n'
-            '    </testsuite>\n'
-            '</testsuites>'
+            "    </testsuite>\n"
+            "</testsuites>"
         )
 
         xml_file = self.temp_dir / "test_results.xml"
@@ -420,9 +426,9 @@ def test_subtract_normal():
 class TestTestResult:
     """Test cases for TestResult dataclass."""
 
-    def test_test_result_creation(self):
+    def test_test_result_creation(self) -> None:
         """Test TestResult creation and attributes."""
-        coverage_data = {"meta": {}, "files": {}}
+        coverage_data: Dict[str, Any] = {"meta": {}, "files": {}}
         failed_tests = ["test1", "test2"]
         passed_tests = ["test3", "test4", "test5"]
         skipped_tests = ["test6"]
@@ -439,7 +445,7 @@ class TestTestResult:
         assert result.passed_tests == passed_tests
         assert result.skipped_tests == skipped_tests
 
-    def test_test_result_empty_lists(self):
+    def test_test_result_empty_lists(self) -> None:
         """Test TestResult with empty test lists."""
         result = TestResult(
             coverage_data={}, failed_tests=[], passed_tests=[], skipped_tests=[]
@@ -453,7 +459,7 @@ class TestTestResult:
 class TestIntegration:
     """Integration tests for the test module."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test environment."""
         self.temp_dir = Path(tempfile.mkdtemp())
         os.chdir(self.temp_dir)
@@ -461,13 +467,13 @@ class TestIntegration:
         # Create realistic project structure
         self.create_realistic_project()
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         """Cleanup."""
         os.chdir("/")
         if self.temp_dir.exists():
             shutil.rmtree(self.temp_dir)
 
-    def create_realistic_project(self):
+    def create_realistic_project(self) -> None:
         """Create a realistic project structure for integration testing."""
         # Create directories
         (self.temp_dir / "src").mkdir()
@@ -535,7 +541,7 @@ output_file = integration_coverage.json
 """
         )
 
-    def test_full_workflow_with_config_file(self):
+    def test_full_workflow_with_config_file(self) -> None:
         """Test the complete workflow using configuration file."""
         config = TestConfig.from_file("pyfault.conf")
         runner = TestRunner(config)
@@ -546,7 +552,7 @@ output_file = integration_coverage.json
         assert config.output_file == "integration_coverage.json"
         assert runner.config == config
 
-    def test_config_override_precedence(self):
+    def test_config_override_precedence(self) -> None:
         """Test that command line arguments override config file."""
         # Load from file
         config = TestConfig.from_file("pyfault.conf")

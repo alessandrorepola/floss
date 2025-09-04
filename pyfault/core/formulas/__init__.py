@@ -7,15 +7,15 @@ formulas used in automated debugging and fault localization.
 
 from .base import SBFLFormula
 from .sbfl_formulas import (
-    OchiaiFormula,
-    TarantulaFormula,
-    JaccardFormula,
     DStarFormula,
+    JaccardFormula,
     Kulczynski2Formula,
     Naish1Formula,
+    OchiaiFormula,
     RussellRaoFormula,
-    SorensenDiceFormula,
     SBIFormula,
+    SorensenDiceFormula,
+    TarantulaFormula,
 )
 
 __all__ = [

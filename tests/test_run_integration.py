@@ -7,9 +7,10 @@ configuration handling, and file management.
 
 import json
 import os
-import tempfile
 import shutil
+import tempfile
 from pathlib import Path
+
 from click.testing import CliRunner
 
 from pyfault.core.cli.main import main
@@ -18,17 +19,17 @@ from pyfault.core.cli.main import main
 class TestRunCommandIntegration:
     """Integration tests for the run command."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test environment."""
         self.runner = CliRunner()
         self.temp_dir = Path(tempfile.mkdtemp())
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         """Cleanup."""
         if self.temp_dir.exists():
             shutil.rmtree(self.temp_dir)
 
-    def test_configuration_precedence(self):
+    def test_configuration_precedence(self) -> None:
         """Test that CLI arguments override configuration file settings."""
         with self.runner.isolated_filesystem():
             os.makedirs("src")
@@ -90,7 +91,7 @@ formulas = ochiai
             assert os.path.exists("cli_report.json")
             assert not os.path.exists("config_report.json")
 
-    def test_intermediate_file_management(self):
+    def test_intermediate_file_management(self) -> None:
         """Test proper handling of intermediate coverage files."""
         with self.runner.isolated_filesystem():
             os.makedirs("src")
@@ -129,7 +130,7 @@ def test_hello_fail(): assert hello() == "mars"  # This will fail to trigger FL
             assert result2.exit_code == 0
             assert os.path.exists("report.json")
 
-    def test_phase_separation_and_data_flow(self):
+    def test_phase_separation_and_data_flow(self) -> None:
         """Test that data flows correctly between test and FL phases."""
         with self.runner.isolated_filesystem():
             os.makedirs("src")
@@ -219,7 +220,7 @@ def test_multiply():
             # The important thing is that the structure is correct
             assert isinstance(susp, dict)  # Should be a dict even if empty
 
-    def test_error_propagation(self):
+    def test_error_propagation(self) -> None:
         """Test that errors in either phase are properly propagated."""
         with self.runner.isolated_filesystem():
             os.makedirs("src")
@@ -240,7 +241,7 @@ def func(): return 42
             assert result.exit_code == 1
             assert "Error:" in result.output
 
-    def test_large_number_of_failed_tests_display(self):
+    def test_large_number_of_failed_tests_display(self) -> None:
         """Test display when there are many failed tests."""
         with self.runner.isolated_filesystem():
             os.makedirs("src")
@@ -289,7 +290,7 @@ def test_pass_2(): assert sometimes_work(7)
             assert "Failed tests:" in result.output
             assert "..." in result.output  # Truncation indicator
 
-    def test_empty_coverage_data_handling(self):
+    def test_empty_coverage_data_handling(self) -> None:
         """Test handling of empty or minimal coverage data."""
         with self.runner.isolated_filesystem():
             os.makedirs("src")

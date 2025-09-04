@@ -7,7 +7,7 @@ from pyfault.core.test.config import TestConfig
 from pyfault.core.test.runner import TestRunner
 
 
-def test_add_pyfault_metadata_and_summary_reorg():
+def test_add_pyfault_metadata_and_summary_reorg() -> None:
     config = TestConfig()
     config.source_dir = "src"
     runner = TestRunner(config)
@@ -17,7 +17,11 @@ def test_add_pyfault_metadata_and_summary_reorg():
         "files": {"f.py": {"contexts": {}}},
         "totals": {},
     }
-    test_outcomes = {"failed": ["t_fail"], "passed": ["t_pass"], "skipped": []}
+    test_outcomes: dict[str, list[str]] = {
+        "failed": ["t_fail"],
+        "passed": ["t_pass"],
+        "skipped": [],
+    }
 
     updated = runner._add_pyfault_metadata(coverage_data, test_outcomes)
     assert updated["meta"]["tool"] == "PyFault"

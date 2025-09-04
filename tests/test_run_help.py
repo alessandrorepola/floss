@@ -12,7 +12,7 @@ from pyfault.core.cli.main import main
 class TestRunCommandDocumentation:
     """Tests for run command help and documentation."""
 
-    def test_main_help_includes_run_command(self):
+    def test_main_help_includes_run_command(self) -> None:
         """Test that main help lists the run command."""
         runner = CliRunner()
         result = runner.invoke(main, ["--help"])
@@ -21,7 +21,7 @@ class TestRunCommandDocumentation:
         assert "run" in result.output
         assert "Run complete fault localization pipeline" in result.output
 
-    def test_run_command_help_completeness(self):
+    def test_run_command_help_completeness(self) -> None:
         """Test that run command help is complete and informative."""
         runner = CliRunner()
         result = runner.invoke(main, ["run", "--help"])
@@ -74,7 +74,7 @@ class TestRunCommandDocumentation:
         )  # output default (may be on multiple lines)
         assert "(default: pyfault.conf)" in result.output  # config default
 
-    def test_run_command_examples_in_help(self):
+    def test_run_command_examples_in_help(self) -> None:
         """Test that help includes usage examples or clear descriptions."""
         runner = CliRunner()
         result = runner.invoke(main, ["run", "--help"])
@@ -85,7 +85,7 @@ class TestRunCommandDocumentation:
         assert "Options:" in result.output
         assert "--help" in result.output
 
-    def test_all_commands_listed_in_main_help(self):
+    def test_all_commands_listed_in_main_help(self) -> None:
         """Test that all three commands (test, fl, run) are listed."""
         runner = CliRunner()
         result = runner.invoke(main, ["--help"])
@@ -102,7 +102,7 @@ class TestRunCommandDocumentation:
         assert "Calculate fault localization suspiciousness scores" in result.output
         assert "Run complete fault localization pipeline" in result.output
 
-    def test_run_command_option_consistency(self):
+    def test_run_command_option_consistency(self) -> None:
         """Test that run command options are consistent with test and fl commands."""
         runner = CliRunner()
 
@@ -146,7 +146,7 @@ class TestRunCommandDocumentation:
         assert "--output" in run_help.output
         assert "--input" not in run_help.output  # This is handled internally
 
-    def test_verbose_output_with_run_command(self):
+    def test_verbose_output_with_run_command(self) -> None:
         """Test that verbose flag works with run command."""
         runner = CliRunner()
 

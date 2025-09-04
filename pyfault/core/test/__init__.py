@@ -1,6 +1,6 @@
 """Test execution module for PyFault."""
 
-from .runner import TestRunner
 from .config import TestConfig
+from .runner import TestRunner
 
 __all__ = ["TestRunner", "TestConfig"]

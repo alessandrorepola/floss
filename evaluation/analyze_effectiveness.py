@@ -4,12 +4,12 @@ Script to analyze PyFault's effectiveness in bug identification.
 Analyzes fault localization reports and compares them with real bug patches.
 """
 
+import csv
 import json
 import re
-from pathlib import Path
-from typing import Dict, List, Tuple, Optional
-import csv
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 
 @dataclass
@@ -135,8 +135,8 @@ def extract_bug_info(
         print(f"Report not found for {project}/{bug_id}")
         return None
 
-    buggy_files = []
-    buggy_lines = []
+    buggy_files: list[str] = []
+    buggy_lines: list[Tuple[str, int]] = []
 
     if patch_path.exists():
         buggy_files, buggy_lines = parse_patch_file(patch_path)
@@ -232,8 +232,8 @@ def parse_patch_file(patch_path: Path) -> Tuple[List[str], List[Tuple[str, int]]
                     print(f"    Linea aggiunta trovata: {line}")
         else:
             print(f"✅ Trovate {len(buggy_lines)} linee buggy in {patch_path.name}")
-            for file, line in buggy_lines[:3]:  # Mostra solo le prime 3
-                print(f"    {file}:{line}")
+            for file, line_num in buggy_lines[:3]:  # Mostra solo le prime 3
+                print(f"    {file}:{line_num}")
 
     except Exception as e:
         print(f"Errore nel parsing del patch {patch_path}: {e}")
@@ -349,7 +349,7 @@ def analyze_report_effectiveness(bug_info: BugInfo) -> Optional[EffectivenessMet
     total_lines = len(suspicious_lines)
     buggy_lines_found = 0
     ranks = []
-    formula_ranks = {formula: [] for formula in formulas}
+    formula_ranks: dict[str, list[int]] = {formula: [] for formula in formulas}
 
     # Controlla quante linee buggy sono state trovate
     for buggy_file, buggy_line in bug_info.buggy_lines:
@@ -414,7 +414,7 @@ def find_line_rank(
     return None
 
 
-def generate_summary_report(metrics_list: List[EffectivenessMetrics]) -> Dict:
+def generate_summary_report(metrics_list: List[EffectivenessMetrics]) -> Dict[str, Any]:
     """Generate a summary report of effectiveness"""
     total_bugs = len(metrics_list)
 
@@ -425,7 +425,7 @@ def generate_summary_report(metrics_list: List[EffectivenessMetrics]) -> Dict:
     bugs_with_patches = [m for m in metrics_list if m.buggy_lines_found > 0]
     analyzable_bugs = len(bugs_with_patches)
 
-    summary = {
+    summary: Dict[str, Any] = {
         "total_bugs": total_bugs,
         "analyzable_bugs": analyzable_bugs,
         "bugs_by_project": {},
@@ -540,7 +540,9 @@ def generate_summary_report(metrics_list: List[EffectivenessMetrics]) -> Dict:
     return summary
 
 
-def save_results(metrics_list: List[EffectivenessMetrics], summary: Dict):
+def save_results(
+    metrics_list: List[EffectivenessMetrics], summary: Dict[str, Any]
+) -> None:
     """Save results to CSV and JSON files"""
 
     # Save detailed metrics to CSV
@@ -596,7 +598,7 @@ def save_results(metrics_list: List[EffectivenessMetrics], summary: Dict):
     print(f"  - {json_path}")
 
 
-def main():
+def main() -> None:
     """Main function"""
     print("PyFault Effectiveness Analysis")
     print("=" * 50)

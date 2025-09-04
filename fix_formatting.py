@@ -5,7 +5,7 @@ Script per correggere automaticamente i problemi di formattazione
 import subprocess
 
 
-def run_command(command, description):
+def run_command(command: str, description: str) -> bool:
     """Esegue un comando e stampa il risultato"""
     print(f"\n🔧 {description}")
     print("=" * 50)
@@ -29,7 +29,7 @@ def run_command(command, description):
         return False
 
 
-def main():
+def main() -> None:
     """Applica le correzioni automatiche"""
     print("🔧 Avvio correzioni automatiche...")
 

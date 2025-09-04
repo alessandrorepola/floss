@@ -14,7 +14,12 @@ repos:
     rev: v1.8.0
     hooks:
       - id: mypy
-        additional_dependencies: [types-all]
+        additional_dependencies: [
+          types-click,
+          types-requests,
+          mypy-extensions
+        ]
+        exclude: ^(examples/|evaluation/)
 
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2

@@ -5,6 +5,7 @@ Tests for fault localization functionality.
 import json
 import os
 import tempfile
+
 import pytest
 
 from pyfault.core.fl.config import FLConfig
@@ -15,21 +16,21 @@ from pyfault.core.fl.engine import FLEngine
 class TestFLConfig:
     """Test FLConfig class."""
 
-    def test_default_config(self):
+    def test_default_config(self) -> None:
         """Test default configuration values."""
         config = FLConfig()
         assert config.input_file == "coverage.json"
         assert config.output_file == "report.json"
         assert config.formulas == ["ochiai", "tarantula", "jaccard", "dstar2"]
 
-    def test_from_file_nonexistent(self):
+    def test_from_file_nonexistent(self) -> None:
         """Test loading config from non-existent file."""
         config = FLConfig.from_file("nonexistent.conf")
         assert config.input_file == "coverage.json"
         assert config.output_file == "report.json"
         assert config.formulas == ["ochiai", "tarantula", "jaccard", "dstar2"]
 
-    def test_from_file_with_fl_section(self):
+    def test_from_file_with_fl_section(self) -> None:
         """Test loading config from file with FL section."""
         config_content = """
 [fl]
@@ -52,7 +53,7 @@ formulas = ochiai, dstar2
         except PermissionError:
             pass  # Ignore permission errors on Windows
 
-    def test_from_file_without_fl_section(self):
+    def test_from_file_without_fl_section(self) -> None:
         """Test loading config from file without FL section."""
         config_content = """
 [test]
@@ -77,7 +78,7 @@ source_dir = src
 class TestCoverageData:
     """Test CoverageData class."""
 
-    def test_from_json_simple(self):
+    def test_from_json_simple(self) -> None:
         """Test creating CoverageData from simple JSON."""
         coverage_json = {
             "tests": {"passed": ["test1", "test2"], "failed": ["test3"]},
@@ -102,7 +103,7 @@ class TestCoverageData:
         assert "file1.py:2" in data.line_coverage
         assert "test3" in data.line_coverage["file1.py:2"]
 
-    def test_from_json_empty_contexts(self):
+    def test_from_json_empty_contexts(self) -> None:
         """Test handling empty contexts."""
         coverage_json = {
             "tests": {"passed": ["test1"], "failed": []},
@@ -121,7 +122,7 @@ class TestCoverageData:
         assert "file1.py:2" in data.line_coverage
         assert "test1" in data.line_coverage["file1.py:2"]
 
-    def test_get_sbfl_params(self):
+    def test_get_sbfl_params(self) -> None:
         """Test SBFL parameter calculation."""
         data = CoverageData(
             line_coverage={
@@ -152,7 +153,7 @@ class TestCoverageData:
         assert n_cp == 0  # no passed tests cover
         assert n_np == 2  # test1, test4 passed and don't cover
 
-    def test_get_sbfl_params_nonexistent_line(self):
+    def test_get_sbfl_params_nonexistent_line(self) -> None:
         """Test SBFL parameters for non-existent line."""
         data = CoverageData(
             line_coverage={}, test_outcomes={"test1": True, "test2": False}
@@ -168,7 +169,7 @@ class TestCoverageData:
 class TestFLEngine:
     """Test FLEngine class."""
 
-    def test_init_default_formulas(self):
+    def test_init_default_formulas(self) -> None:
         """Test initialization with default formulas."""
         config = FLConfig()
         engine = FLEngine(config)
@@ -176,7 +177,7 @@ class TestFLEngine:
         expected_formulas = ["ochiai", "tarantula", "jaccard", "dstar2"]
         assert list(engine.formulas.keys()) == expected_formulas
 
-    def test_init_custom_formulas(self):
+    def test_init_custom_formulas(self) -> None:
         """Test initialization with custom formulas."""
         config = FLConfig()
         config.formulas = ["ochiai", "dstar3"]
@@ -184,7 +185,7 @@ class TestFLEngine:
 
         assert list(engine.formulas.keys()) == ["ochiai", "dstar3"]
 
-    def test_init_invalid_formulas_filtered(self):
+    def test_init_invalid_formulas_filtered(self) -> None:
         """Test that invalid formulas are filtered out."""
         config = FLConfig()
         config.formulas = ["ochiai", "invalid_formula", "tarantula"]
@@ -192,7 +193,7 @@ class TestFLEngine:
 
         assert list(engine.formulas.keys()) == ["ochiai", "tarantula"]
 
-    def test_calculate_suspiciousness_integration(self):
+    def test_calculate_suspiciousness_integration(self) -> None:
         """Test complete suspiciousness calculation."""
         # Create test coverage data
         coverage_json = {
@@ -252,7 +253,7 @@ class TestFLEngine:
                     except PermissionError:
                         pass  # Ignore permission errors on Windows
 
-    def test_calculate_suspiciousness_multiple_formulas(self):
+    def test_calculate_suspiciousness_multiple_formulas(self) -> None:
         """Test with multiple formulas."""
         coverage_json = {
             "tests": {"passed": ["test1"], "failed": ["test2"]},
@@ -300,7 +301,7 @@ class TestFLEngine:
                     except PermissionError:
                         pass  # Ignore permission errors on Windows
 
-    def test_calculate_suspiciousness_file_not_found(self):
+    def test_calculate_suspiciousness_file_not_found(self) -> None:
         """Test error handling for missing input file."""
         config = FLConfig()
         engine = FLEngine(config)
@@ -308,7 +309,7 @@ class TestFLEngine:
         with pytest.raises(FileNotFoundError):
             engine.calculate_suspiciousness("nonexistent.json", "output.json")
 
-    def test_calculate_suspiciousness_preserves_original_data(self):
+    def test_calculate_suspiciousness_preserves_original_data(self) -> None:
         """Test that original coverage data is preserved in output."""
         coverage_json = {
             "meta": {"version": "7.9.2"},
@@ -364,7 +365,7 @@ class TestFLEngine:
 class TestFLIntegration:
     """Integration tests for fault localization."""
 
-    def test_real_world_scenario(self):
+    def test_real_world_scenario(self) -> None:
         """Test with a realistic coverage scenario."""
         # Simulate a scenario where:
         # - Line 5: covered by 1 passing test and 1 failing test

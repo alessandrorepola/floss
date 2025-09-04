@@ -6,6 +6,7 @@ SBFL formulas, including those supported by GZoltar.
 """
 
 from typing import Optional
+
 from .base import SBFLFormula, safe_divide, safe_sqrt
 
 

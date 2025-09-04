@@ -7,13 +7,15 @@ Covers help, successful launch with mocked dashboard, and ImportError path.
 import builtins
 import sys
 import types
+from typing import Any, Optional
+
 from click.testing import CliRunner
 
 from pyfault.core.cli.main import main
 
 
 class TestUICLI:
-    def test_ui_command_help(self):
+    def test_ui_command_help(self) -> None:
         runner = CliRunner()
         result = runner.invoke(main, ["ui", "--help"])
         assert result.exit_code == 0
@@ -22,14 +24,14 @@ class TestUICLI:
         assert "--port" in result.output
         assert "--no-open" in result.output
 
-    def test_ui_command_success_with_mock_dashboard(self, monkeypatch):
+    def test_ui_command_success_with_mock_dashboard(self, monkeypatch: Any) -> None:
         runner = CliRunner()
 
         # Create a fake module pyfault.ui.dashboard with a mock launch_dashboard
         fake_module = types.SimpleNamespace()
-        calls = {}
+        calls: dict[str, Any] = {}
 
-        def fake_launch_dashboard(report_file: str, port: int, auto_open: bool):
+        def fake_launch_dashboard(report_file: str, port: int, auto_open: bool) -> None:
             calls["report_file"] = report_file
             calls["port"] = port
             calls["auto_open"] = auto_open
@@ -62,12 +64,18 @@ class TestUICLI:
         assert calls["port"] == 9000
         assert calls["auto_open"] is False
 
-    def test_ui_command_import_error(self, monkeypatch):
+    def test_ui_command_import_error(self, monkeypatch: Any) -> None:
         runner = CliRunner()
 
         real_import = builtins.__import__
 
-        def raising_import(name, globals=None, locals=None, fromlist=(), level=0):
+        def raising_import(
+            name: str,
+            globals: Optional[dict[str, Any]] = None,
+            locals: Optional[dict[str, Any]] = None,
+            fromlist: tuple = (),
+            level: int = 0,
+        ) -> Any:
             # Raise only for the dashboard import used by the ui command
             target = "pyfault.ui.dashboard"
             if name == target or (fromlist and target.endswith("." + name)):

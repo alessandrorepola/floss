@@ -2,17 +2,18 @@
 Clean and minimal PyFault dashboard for fault localization visualization.
 """
 
-import streamlit as st
-import plotly.express as px
-import plotly.graph_objects as go
-import pandas as pd
 import json
-import numpy as np
-from pathlib import Path
-from typing import Dict, List, Any, Optional, NamedTuple
 import os
 import tkinter as tk
+from pathlib import Path
 from tkinter import filedialog
+from typing import Any, Dict, List, NamedTuple, Optional
+
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import streamlit as st
 
 
 class FormulaStats(NamedTuple):
@@ -515,7 +516,7 @@ def launch_dashboard(
     subprocess.run(cmd)
 
 
-def main():
+def main() -> None:
     """Main Streamlit application."""
     st.set_page_config(page_title="PyFault Dashboard", page_icon="🔍", layout="wide")
 
@@ -593,7 +594,7 @@ def main():
         show_formula_performance(data, formulas)
 
 
-def show_overview(data: Dict[str, Any], formula: str):
+def show_overview(data: Dict[str, Any], formula: str) -> None:
     """Show comprehensive overview with key metrics for fault localization."""
     st.header("Fault Localization Overview")
 
@@ -997,7 +998,7 @@ def show_overview(data: Dict[str, Any], formula: str):
         st.write(f"{i}. {rec}")
 
 
-def show_treemap_tab(data: Dict[str, Any], formula: str):
+def show_treemap_tab(data: Dict[str, Any], formula: str) -> None:
     """Show dedicated treemap tab with detailed hierarchical view."""
     st.header("Hierarchical Treemap")
 
@@ -1080,7 +1081,7 @@ def show_treemap_tab(data: Dict[str, Any], formula: str):
     )
 
 
-def show_treemap(data: Dict[str, Any], formula: str):
+def show_treemap(data: Dict[str, Any], formula: str) -> None:
     """Create hierarchical treemap visualization based on Python project structure."""
 
     hierarchy_data = build_hierarchical_data(
@@ -1125,7 +1126,7 @@ def show_treemap(data: Dict[str, Any], formula: str):
     st.plotly_chart(fig, use_container_width=True)
 
 
-def show_ranking_table(susp_data: List[Dict]):
+def show_ranking_table(susp_data: List[Dict]) -> None:
     """Show ranking table of suspicious lines."""
     if not susp_data:
         return
@@ -1172,7 +1173,7 @@ def get_most_suspicious_file(data: Dict[str, Any], formula: str) -> Optional[str
     return sorted_files[0].file_path
 
 
-def show_source_code(data: Dict[str, Any], formula: str):
+def show_source_code(data: Dict[str, Any], formula: str) -> None:
     """Show source code with suspiciousness highlighting."""
     st.header("Source Code")
 
@@ -1262,7 +1263,7 @@ def show_file_with_highlighting(
     filter_enabled: bool = False,
     threshold: float = 0.0,
     top_n: int = 0,
-):
+) -> None:
     """Show file content with line highlighting based on suspiciousness."""
     suspiciousness = file_data.get("suspiciousness", {})
 
@@ -1417,7 +1418,7 @@ def show_file_with_highlighting(
     )
 
 
-def show_coverage_matrix(data: Dict[str, Any], formula: str):
+def show_coverage_matrix(data: Dict[str, Any], formula: str) -> None:
     """Show intuitive test-to-fault relationship analysis."""
     st.header("Test-to-Fault Analysis")
     st.markdown(
@@ -1556,7 +1557,7 @@ def show_test_fault_insights(
     test_coverage_data: Dict,
     failed_tests: set,
     passed_tests: set,
-):
+) -> None:
     """Show key insights about test-to-fault relationships."""
     st.subheader("Key Insights")
 
@@ -1662,7 +1663,7 @@ def show_test_fault_insights(
             st.plotly_chart(fig_bar, use_container_width=True)
 
 
-def show_suspicious_lines_breakdown(line_analysis: List[Dict], formula: str):
+def show_suspicious_lines_breakdown(line_analysis: List[Dict], formula: str) -> None:
     """Show detailed breakdown of suspicious lines."""
     st.subheader("Suspicious Lines Details")
 
@@ -1758,7 +1759,7 @@ def show_suspicious_lines_breakdown(line_analysis: List[Dict], formula: str):
             st.metric("Files Involved", unique_files)
 
 
-def show_file_summary_heatmap(df: pd.DataFrame, max_rows: int, max_cols: int):
+def show_file_summary_heatmap(df: pd.DataFrame, max_rows: int, max_cols: int) -> None:
     """Show file-level aggregated coverage heatmap."""
     st.subheader("File-Level Coverage Summary")
 
@@ -1851,7 +1852,9 @@ def show_file_summary_heatmap(df: pd.DataFrame, max_rows: int, max_cols: int):
             st.write(f"{i}. `{file}`: {susp:.3f} avg score")
 
 
-def show_test_clustering_heatmap(df: pd.DataFrame, max_rows: int, max_cols: int):
+def show_test_clustering_heatmap(
+    df: pd.DataFrame, max_rows: int, max_cols: int
+) -> None:
     """Show test clustering based on coverage patterns."""
     st.subheader("Test Clustering by Coverage Patterns")
 
@@ -1936,7 +1939,7 @@ def show_test_clustering_heatmap(df: pd.DataFrame, max_rows: int, max_cols: int)
             st.write("No passed tests found")
 
 
-def show_coverage_statistics(df: pd.DataFrame, tests_info: Dict[str, Any]):
+def show_coverage_statistics(df: pd.DataFrame, tests_info: Dict[str, Any]) -> None:
     """Show comprehensive coverage statistics."""
     st.divider()
     st.subheader("Coverage Statistics")
@@ -1985,7 +1988,7 @@ def show_coverage_statistics(df: pd.DataFrame, tests_info: Dict[str, Any]):
         st.plotly_chart(fig2, use_container_width=True)
 
 
-def show_sunburst(data: Dict[str, Any], formula: str):
+def show_sunburst(data: Dict[str, Any], formula: str) -> None:
     """Show sunburst visualization with hierarchical Python project structure."""
     st.header("Sunburst View")
 
@@ -2176,7 +2179,7 @@ def get_top_suspicious_lines_for_formula(
     return all_suspicious[:top_n]
 
 
-def show_formula_comparison(data: Dict[str, Any], formulas: List[str]):
+def show_formula_comparison(data: Dict[str, Any], formulas: List[str]) -> None:
     """Show comparison between different SBFL formulas."""
     st.header("Formula Comparison")
     st.markdown(
@@ -2268,7 +2271,6 @@ def show_formula_comparison(data: Dict[str, Any], formulas: List[str]):
                 and formula2 in suspiciousness[line_str]
                 and has_test_coverage
             ):
-
                 score1 = float(suspiciousness[line_str][formula1])
                 score2 = float(suspiciousness[line_str][formula2])
 
@@ -2425,7 +2427,7 @@ def filter_failed_tests(all_tests: List[str]) -> List[str]:
     return failed_tests
 
 
-def show_formula_performance(data: Dict[str, Any], formulas: List[str]):
+def show_formula_performance(data: Dict[str, Any], formulas: List[str]) -> None:
     """Show comprehensive performance analysis for all SBFL formulas."""
     st.header("Formula Performance Analysis")
     st.markdown(
@@ -2460,12 +2462,12 @@ def show_formula_performance(data: Dict[str, Any], formulas: List[str]):
 
         # Calculate score distribution percentiles
         if stats.all_scores:
-            p95 = np.percentile(stats.all_scores, 95)
-            p90 = np.percentile(stats.all_scores, 90)
-            p75 = np.percentile(stats.all_scores, 75)
-            median = np.percentile(stats.all_scores, 50)
+            p95 = float(np.percentile(stats.all_scores, 95))
+            p90 = float(np.percentile(stats.all_scores, 90))
+            p75 = float(np.percentile(stats.all_scores, 75))
+            median = float(np.percentile(stats.all_scores, 50))
         else:
-            p95 = p90 = p75 = median = 0
+            p95 = p90 = p75 = median = 0.0
 
         # Calculate concentration metric (how concentrated are high scores)
         high_score_threshold = max_score * 0.8 if max_score > 0 else 0

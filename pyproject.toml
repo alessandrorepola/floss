@@ -1,9 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel", "setuptools-scm>=8"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyfault"
+version = "0.1.0"
 description = "A Python framework for Spectrum-Based Fault Localization (SBFL)"
 readme = "README.md"
 license = {text = "MIT"}
@@ -32,8 +33,6 @@ dependencies = [
     "pytest-cov>=4.0.0",
 ]
 
-dynamic = ["version"]
-
 [project.optional-dependencies]
 ui = [
     "streamlit>=1.45.0; python_version >= \"3.9\"",
@@ -45,6 +44,7 @@ dev = [
     "flake8>=6.0.0",
     "mypy>=1.0.0",
     "pre-commit>=3.0.0",
+    "types-seaborn"
 ]
 
 [project.scripts]
@@ -59,10 +59,6 @@ where = [""]
 
 [tool.setuptools.package-dir]
 "" = "."
-
-[tool.setuptools_scm]
-version_scheme = "python-simplified-semver"
-local_scheme = "no-local-version"
 
 [tool.black]
 line-length = 88
@@ -118,6 +114,7 @@ strict_equality = true
 exclude = [
     "build/",
     "dist/",
+    "examples/",
     "__pycache__/",
     ".venv/",
     ".tox/"

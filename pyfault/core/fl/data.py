@@ -3,8 +3,9 @@ Coverage data structures for fault localization.
 """
 
 from __future__ import annotations
-from typing import Dict, Set
+
 from dataclasses import dataclass
+from typing import Dict, Set
 
 
 @dataclass
@@ -19,8 +20,8 @@ class CoverageData:
     @classmethod
     def from_json(cls, coverage_json: dict) -> "CoverageData":
         """Create coverage data from coverage.json format."""
-        line_coverage = {}
-        test_outcomes = {}
+        line_coverage: Dict[str, Set[str]] = {}
+        test_outcomes: Dict[str, bool] = {}
 
         # Extract test outcomes
         if "tests" in coverage_json:

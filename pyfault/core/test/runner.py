@@ -1,13 +1,13 @@
 """Test runner for PyFault using pytest with coverage context."""
 
-import subprocess
 import json
+import os
+import subprocess
+import tempfile
 import uuid
 import xml.etree.ElementTree as ET
-import tempfile
-import os
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 from .config import TestConfig
 
@@ -130,7 +130,8 @@ class TestRunner:
         """Load coverage data from JSON file."""
         try:
             with open(self.config.output_file, "r") as f:
-                return json.load(f)
+                data = json.load(f)
+                return data if isinstance(data, dict) else {}
         except FileNotFoundError:
             raise RuntimeError(f"Coverage file {self.config.output_file} not found")
         except json.JSONDecodeError:
@@ -140,7 +141,7 @@ class TestRunner:
 
     def _parse_junit_xml(self, xml_path: str) -> Dict[str, List[str]]:
         """Parse JUnit XML to extract test outcomes."""
-        outcomes = {"failed": [], "passed": [], "skipped": []}
+        outcomes: Dict[str, List[str]] = {"failed": [], "passed": [], "skipped": []}
 
         try:
             tree = ET.parse(xml_path)

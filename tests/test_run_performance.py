@@ -8,6 +8,7 @@ larger codebases appropriately.
 import json
 import os
 import time
+
 from click.testing import CliRunner
 
 from pyfault.core.cli.main import main
@@ -16,7 +17,7 @@ from pyfault.core.cli.main import main
 class TestRunCommandPerformance:
     """Performance tests for the run command."""
 
-    def test_run_command_timing(self):
+    def test_run_command_timing(self) -> None:
         """Test that run command completes in reasonable time."""
         runner = CliRunner()
 
@@ -112,7 +113,7 @@ def test_function_{i}_fail():
 
             assert module_count == 5
 
-    def test_run_command_memory_usage(self):
+    def test_run_command_memory_usage(self) -> None:
         """Test that run command handles multiple files
         without excessive memory usage."""
         runner = CliRunner()
@@ -204,7 +205,7 @@ def test_function_{i}_{j}_fail():
             assert "fl_metadata" in report
             assert len(report["files"]) >= 3  # At least our 3 modules
 
-    def test_run_command_with_many_formulas(self):
+    def test_run_command_with_many_formulas(self) -> None:
         """Test run command performance with multiple SBFL formulas."""
         runner = CliRunner()
 

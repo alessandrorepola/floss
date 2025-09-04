@@ -3,20 +3,22 @@ Fault Localization Engine.
 """
 
 from __future__ import annotations
+
 import json
-from .data import CoverageData
-from .config import FLConfig
+
 from ..formulas import (
-    OchiaiFormula,
-    TarantulaFormula,
-    JaccardFormula,
     DStarFormula,
+    JaccardFormula,
     Kulczynski2Formula,
     Naish1Formula,
+    OchiaiFormula,
     RussellRaoFormula,
-    SorensenDiceFormula,
     SBIFormula,
+    SorensenDiceFormula,
+    TarantulaFormula,
 )
+from .config import FLConfig
+from .data import CoverageData
 
 
 class FLEngine:

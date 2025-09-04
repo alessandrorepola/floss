@@ -6,10 +6,11 @@ Analyzes how well each formula can distinguish faulty lines from other lines.
 
 import json
 import os
-from typing import Dict, List, Tuple
-from dataclasses import dataclass
-import numpy as np
 from collections import defaultdict
+from dataclasses import dataclass
+from typing import Any, Dict, List, Tuple
+
+import numpy as np
 
 
 @dataclass
@@ -182,7 +183,11 @@ def generate_discrimination_report(all_metrics: List[DiscriminationMetrics]) -> 
     for metric in all_metrics:
         formula_metrics[metric.formula].append(metric)
 
-    report = {"discrimination_analysis": {}, "formula_comparison": {}, "summary": {}}
+    report: Dict[str, Any] = {
+        "discrimination_analysis": {},
+        "formula_comparison": {},
+        "summary": {},
+    }
 
     # Analisi per formula
     for formula, metrics in formula_metrics.items():
@@ -237,7 +242,7 @@ def generate_discrimination_report(all_metrics: List[DiscriminationMetrics]) -> 
 
     # Confronto tra formule
     formulas = list(formula_metrics.keys())
-    comparison = {}
+    comparison: Dict[str, Any] = {}
 
     for metric_name in [
         "score_separation",
@@ -291,7 +296,7 @@ def generate_discrimination_report(all_metrics: List[DiscriminationMetrics]) -> 
     return report
 
 
-def main():
+def main() -> None:
     """Main function for discrimination analysis"""
     print("SBFL Formula Discriminatory Capability Analysis")
     print("=" * 60)

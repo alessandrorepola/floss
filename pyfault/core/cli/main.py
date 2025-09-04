@@ -4,22 +4,22 @@ Command-line interface for PyFault.
 This module provides a CLI for fault localization tasks.
 """
 
-import sys
-import logging
 import json
+import logging
 import os
-from typing import List, Optional, Callable
+import sys
+from typing import Callable, List, Optional
 
 import click
-from rich.markup import escape
 from rich.console import Console
 from rich.logging import RichHandler
+from rich.markup import escape
 from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 
-from ..test.runner import TestResult, TestRunner
-from ..test.config import TestConfig
-from ..fl.engine import FLEngine
 from ..fl.config import FLConfig
+from ..fl.engine import FLEngine
+from ..test.config import TestConfig
+from ..test.runner import TestResult, TestRunner
 
 console = Console()
 

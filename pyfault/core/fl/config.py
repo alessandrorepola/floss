@@ -4,8 +4,8 @@ Configuration for Fault Localization.
 
 import configparser
 import os
-from typing import List, Optional
 from dataclasses import dataclass
+from typing import List, Optional
 
 
 @dataclass
@@ -16,7 +16,7 @@ class FLConfig:
     output_file: str = "report.json"
     formulas: Optional[List[str]] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.formulas is None:
             self.formulas = ["ochiai", "tarantula", "jaccard", "dstar2"]
 
