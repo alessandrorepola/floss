@@ -759,7 +759,6 @@ All quality checks must pass before code can be merged. The CI pipeline runs:
 - Import sorting validation (isort)
 - Style checking (Flake8)
 - Type checking (MyPy)
-- Security scanning (Bandit)
 - Test execution
 
 ### Adding New SBFL Formulas
