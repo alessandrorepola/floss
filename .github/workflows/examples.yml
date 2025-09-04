@@ -5,13 +5,13 @@ on:
     branches: [ "main" ]
     paths:
       - 'examples/**'
-      - 'FLOSS/**'
+      - 'floss/**'
       - '.github/workflows/examples.yml'
   pull_request:
     branches: [ "main" ]
     paths:
       - 'examples/**'
-      - 'FLOSS/**'
+      - 'floss/**'
       - '.github/workflows/examples.yml'
   workflow_dispatch:
 
@@ -38,7 +38,7 @@ jobs:
     - name: Test dummy example
       run: |
         cd examples/dummy-example
-        FLOSS run --source-dir src --test-dir tests --output test_report.json
+        floss run --source-dir src --test-dir tests --output test_report.json
         # Verify report was generated and contains expected structure
         python -c "
         import json
@@ -103,9 +103,9 @@ jobs:
         # Activate the virtual environment created in setup
         source fastapi-${{ matrix.bug }}/bin/activate
         cd fastapi
-        # Run FLOSS with timeout to prevent hanging
-        timeout 300 FLOSS run || {
-          echo "FLOSS run execution timed out for ${{ matrix.bug }}"
+        # Run floss with timeout to prevent hanging
+        timeout 300 floss run || {
+          echo "floss run execution timed out for ${{ matrix.bug }}"
           exit 1
         }
 
@@ -171,8 +171,8 @@ jobs:
         # Activate the virtual environment created in setup
         source venv/bin/activate
         cd pygraphistry
-        # Try to run FLOSS (allow failures since external projects may have issues)
-        timeout 300 FLOSS run || echo "FLOSS run completed with exit code $?"
+        # Try to run floss (allow failures since external projects may have issues)
+        timeout 300 floss run || echo "floss run completed with exit code $?"
 
         # Check if report was generated, if not, this is expected for some external projects
         if [ -f "report.json" ]; then
@@ -252,13 +252,13 @@ jobs:
 
     - name: Check configuration files exist
       run: |
-        # Check FLOSS.conf files
+        # Check floss.conf files
         for example in dummy-example fastapi pygraphistry; do
-          if [ ! -f "examples/$example/FLOSS.conf" ]; then
-            echo "Missing examples/$example/FLOSS.conf"
+          if [ ! -f "examples/$example/floss.conf" ]; then
+            echo "Missing examples/$example/floss.conf"
             exit 1
           fi
-          echo "✓ Found examples/$example/FLOSS.conf"
+          echo "✓ Found examples/$example/floss.conf"
         done
 
     - name: Validate README content
@@ -305,8 +305,8 @@ jobs:
         fi
 
         # Test step-by-step workflow
-        FLOSS test --source-dir src --test-dir tests --output coverage.json
-        FLOSS fl --input coverage.json --output report.json --formulas "ochiai,tarantula,dstar2"
+        floss test --source-dir src --test-dir tests --output coverage.json
+        floss fl --input coverage.json --output report.json --formulas "ochiai,tarantula,dstar2"
 
         # Verify outputs exist
         if [ ! -f "coverage.json" ] || [ ! -f "report.json" ]; then

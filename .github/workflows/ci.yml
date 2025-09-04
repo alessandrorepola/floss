@@ -28,19 +28,19 @@ jobs:
 
     - name: Check code formatting with Black
       run: |
-        black --check --diff FLOSS/
+        black --check --diff floss/
 
     - name: Check import sorting with isort
       run: |
-        isort --check-only --diff FLOSS/
+        isort --check-only --diff floss/
 
     - name: Check code style with Flake8
       run: |
-        flake8 FLOSS/
+        flake8 floss/
 
     - name: Check type hints with MyPy
       run: |
-        mypy FLOSS/
+        mypy floss/
 
   build-and-test:
     name: Build and Test
