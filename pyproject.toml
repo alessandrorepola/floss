@@ -1,25 +1,25 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0", "wheel", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "floss"
-version = "0.1.0"
 description = "FLOSS: Fault Localization with Spectrum-based Scoring - A Python framework for Spectrum-Based Fault Localization (SBFL)"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
+dynamic = ["version"]
 authors = [
     {name = "Alessandro Repola"}
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Testing",
     "Topic :: Software Development :: Debuggers",
 ]
@@ -149,3 +149,7 @@ skip_glob = [
     ".venv/*",
     ".tox/*"
 ]
+
+[tool.setuptools_scm]
+version_scheme = "release-branch-semver"
+local_scheme = "no-local-version"
