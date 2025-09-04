@@ -4,10 +4,10 @@ This example provides a simple, synthetic demonstration of PyFault's fault local
 
 ## Example Description
 
-**Type**: Synthetic/Educational Example  
-**Category**: Mathematical Computation  
-**Language**: Python  
-**Complexity**: Beginner-friendly  
+**Type**: Synthetic/Educational Example
+**Category**: Mathematical Computation
+**Language**: Python
+**Complexity**: Beginner-friendly
 
 ### Purpose
 This example serves as:
@@ -45,7 +45,7 @@ The calculation of equilateral triangle area contains a mathematical error:
 # BUGGY CODE (Line 10)
 area = const + term  # Incorrect: addition instead of multiplication
 
-# CORRECT CODE  
+# CORRECT CODE
 area = const * term  # Should be multiplication
 ```
 

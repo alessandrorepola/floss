@@ -1,4 +1,19 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
   - repo: https://github.com/psf/black
     rev: 23.12.1
     hooks:
@@ -17,12 +32,7 @@ repos:
         additional_dependencies: [
           types-click,
           types-requests,
+          types-seaborn,
           mypy-extensions
         ]
         exclude: ^(examples/|evaluation/)
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]

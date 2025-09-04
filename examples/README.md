@@ -27,7 +27,7 @@ Real bugs from the FastAPI web framework, sourced from the [BugsInPy](https://gi
 **Available Bugs:**
 - **[bug1](fastapi/bug1/)**: FastAPI Bug #1 - Response model handling issue
 - **[bug2](fastapi/bug2/)**: FastAPI Bug #2 - OpenAPI schema generation issue
-- **[bug3](fastapi/bug3/)**: FastAPI Bug #3 - Request validation problem  
+- **[bug3](fastapi/bug3/)**: FastAPI Bug #3 - Request validation problem
 - **[bug4](fastapi/bug4/)**: FastAPI Bug #4 - Request body validation error
 - **[bug5](fastapi/bug5/)**: FastAPI Bug #5 - Path parameter handling issue
 - **[bug6](fastapi/bug6/)**: FastAPI Bug #6 - Dependency injection error
@@ -96,7 +96,7 @@ cd examples/<example-name>
 
 - **FastAPI**: Centralized setup with shared configuration (16 bugs + multi-bug scenarios)
 - **Cookiecutter**: Individual setup with project-specific configuration (2 bugs)
-- **PyGraphistry**: Individual setup with project-specific configuration  
+- **PyGraphistry**: Individual setup with project-specific configuration
 - **Dummy**: Simple setup for testing purposes
 
 All examples now include patch files (`bug_patch.txt`) showing the exact fix for each bug.
@@ -107,7 +107,7 @@ All examples now include patch files (`bug_patch.txt`) showing the exact fix for
    ```bash
    # For FastAPI (centralized)
    cd examples/fastapi
-   
+
    # For others (individual)
    cd examples/pygraphistry
    ```

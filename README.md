@@ -452,7 +452,7 @@ cd examples/fastapi
 cd fastapi && pyfault run
 
 # Cookiecutter examples
-cd examples/cookiecutter  
+cd examples/cookiecutter
 ./setup.sh 1  # Setup bug 1 or 2
 cd cookiecutter && pyfault run
 
@@ -463,7 +463,7 @@ pyfault ui --report report.json
 ### Key Features of Examples
 
 **🔧 Patch Files**: Every bug includes a `bug_patch.txt` file showing the exact fix
-**📊 Pre-generated Reports**: Compare your results with expected outputs  
+**📊 Pre-generated Reports**: Compare your results with expected outputs
 **🛠️ Automated Setup**: One-command environment preparation
 **📖 Comprehensive Documentation**: Detailed bug descriptions and analysis
 
@@ -486,7 +486,7 @@ pyfault ui --report report.json
 
 Each example includes:
 - ✅ **Automated setup scripts** - One-command environment preparation
-- ✅ **Pre-configured settings** - Optimized PyFault configurations  
+- ✅ **Pre-configured settings** - Optimized PyFault configurations
 - ✅ **Detailed documentation** - Bug descriptions and analysis guides
 - ✅ **Expected results** - Clear guidance on what to look for
 - ✅ **Learning objectives** - Educational goals and takeaways
@@ -684,7 +684,7 @@ cd examples/fastapi/bug6
 cd fastapi
 pyfault run
 
-# Test PyGraphistry example (requires setup)  
+# Test PyGraphistry example (requires setup)
 cd examples/pygraphistry
 ./setup.sh
 cd PyGraphistry
@@ -712,16 +712,55 @@ The examples workflow automatically:
 
 ### Code Quality
 
+PyFault uses several tools to maintain code quality. All these checks are enforced in the CI pipeline.
+
+#### Quick Commands
+
 ```bash
-# Type checking
-mypy src/pyfault
+# Alternative: Use the dev script (Windows PowerShell)
+.\dev.ps1 quality
 
-# Code formatting
-black src/ tests/
-
-# Linting
-flake8 src/ tests/
+# Alternative: Use make (Linux/macOS)
+make quality
 ```
+
+#### Individual Tools
+
+```bash
+# Code formatting
+black --check --diff pyfault/
+black pyfault/  # to apply fixes
+
+# Import sorting
+isort --check-only --diff pyfault/
+isort pyfault/  # to apply fixes
+
+# Code linting
+flake8 pyfault/
+
+# Type checking
+mypy pyfault/
+
+# Run tests
+pytest tests/ -v
+```
+
+#### Pre-commit Hooks
+
+To automatically run quality checks before each commit:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+All quality checks must pass before code can be merged. The CI pipeline runs:
+- Code formatting validation (Black)
+- Import sorting validation (isort)
+- Style checking (Flake8)
+- Type checking (MyPy)
+- Security scanning (Bandit)
+- Test execution
 
 ### Adding New SBFL Formulas
 

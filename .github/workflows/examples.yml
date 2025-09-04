@@ -19,7 +19,7 @@ jobs:
   test-dummy-example:
     name: Test Dummy Example
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -48,7 +48,7 @@ jobs:
         assert 'files' in report
         assert 'fl_metadata' in report
         assert len(report['files']) > 0
-        
+
         # Check that fault localization results are present
         for file_path, file_data in report['files'].items():
             if 'suspiciousness' in file_data:
@@ -56,7 +56,7 @@ jobs:
                 break
         else:
             raise AssertionError('No suspiciousness data found in any file')
-        
+
         print('✓ Dummy example test passed')
         "
 
@@ -67,7 +67,7 @@ jobs:
       matrix:
         bug: [bug2, bug3, bug6, bug11]
       fail-fast: false
-      
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -108,7 +108,7 @@ jobs:
           echo "PyFault run execution timed out for ${{ matrix.bug }}"
           exit 1
         }
-        
+
         # Verify report was generated and contains expected structure
         python -c "
         import json
@@ -118,26 +118,26 @@ jobs:
         assert 'files' in report
         assert 'fl_metadata' in report
         assert len(report['files']) > 0
-        
+
         # Check that fault localization results are present
         files_with_suspiciousness = 0
         for file_path, file_data in report['files'].items():
             if 'suspiciousness' in file_data:
                 files_with_suspiciousness += 1
-        
+
         if files_with_suspiciousness == 0:
             print('Warning: No suspiciousness data found, but basic structure is valid')
         else:
             print(f'✓ Found suspiciousness data for {files_with_suspiciousness} files')
-        
+
         print('✓ FastAPI ${{ matrix.bug }} test passed')
         "
       timeout-minutes: 8
 
   test-pygraphistry-example:
-    name: Test PyGraphistry Example  
+    name: Test PyGraphistry Example
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -173,13 +173,13 @@ jobs:
         cd pygraphistry
         # Try to run PyFault (allow failures since external projects may have issues)
         timeout 300 pyfault run || echo "PyFault run completed with exit code $?"
-        
+
         # Check if report was generated, if not, this is expected for some external projects
         if [ -f "report.json" ]; then
           python -c "
         import json
         import sys
-        
+
         try:
             with open('report.json') as f:
                 report = json.load(f)
@@ -187,18 +187,18 @@ jobs:
             assert 'files' in report
             assert 'fl_metadata' in report
             assert len(report['files']) > 0
-            
+
             # Check that fault localization results are present
             files_with_suspiciousness = 0
             for file_path, file_data in report['files'].items():
                 if 'suspiciousness' in file_data:
                     files_with_suspiciousness += 1
-            
+
             if files_with_suspiciousness == 0:
                 print('Warning: No suspiciousness data found, but basic structure is valid')
             else:
                 print(f'✓ Found suspiciousness data for {files_with_suspiciousness} files')
-            
+
             print('✓ PyGraphistry test passed - report generated successfully')
         except Exception as e:
             print(f'Report validation failed: {e}')
@@ -213,7 +213,7 @@ jobs:
   validate-documentation:
     name: Validate Example Documentation
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -225,7 +225,7 @@ jobs:
           echo "Missing examples/README.md"
           exit 1
         fi
-        
+
         # Check individual example READMEs
         for example in dummy-example fastapi pygraphistry; do
           if [ ! -f "examples/$example/README.md" ]; then
@@ -278,7 +278,7 @@ jobs:
     name: Integration Test - Full Example Workflow
     runs-on: ubuntu-latest
     needs: [test-dummy-example]
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -297,28 +297,28 @@ jobs:
     - name: Test complete workflow with dummy example
       run: |
         cd examples/dummy-example
-        
+
         # Check if required directories exist
         if [ ! -d "src" ] || [ ! -d "tests" ]; then
           echo "Missing required directories in dummy-example"
           exit 1
         fi
-        
+
         # Test step-by-step workflow
         pyfault test --source-dir src --test-dir tests --output coverage.json
         pyfault fl --input coverage.json --output report.json --formulas "ochiai,tarantula,dstar2"
-        
+
         # Verify outputs exist
         if [ ! -f "coverage.json" ] || [ ! -f "report.json" ]; then
           echo "Output files not generated properly"
           exit 1
         fi
-        
+
         # Verify outputs
         python -c "
         import json
         import sys
-        
+
         try:
             # Check coverage file
             with open('coverage.json') as f:
@@ -326,8 +326,8 @@ jobs:
             assert 'files' in coverage
             assert 'tests' in coverage
             print('✓ Coverage file validated')
-            
-            # Check report file  
+
+            # Check report file
             with open('report.json') as f:
                 report = json.load(f)
             assert 'meta' in report
@@ -335,7 +335,7 @@ jobs:
             assert 'fl_metadata' in report
             assert len(report['files']) > 0
             print('✓ Report file structure validated')
-            
+
             # Try to verify bug detection (optional, don't fail if not found)
             found_bug = False
             for file_path, file_data in report['files'].items():
@@ -353,12 +353,12 @@ jobs:
                             break
                 if found_bug:
                     break
-            
+
             if not found_bug:
                 print('⚠ Bug detection not clearly identified, but basic functionality works')
-            
+
             print('✓ Integration test passed')
-            
+
         except Exception as e:
             print(f'Integration test failed: {e}')
             sys.exit(1)

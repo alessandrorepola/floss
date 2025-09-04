@@ -4,7 +4,7 @@ index 37365a4..c526b97 100644
 +++ b/cookiecutter/generate.py
 @@ -82,7 +82,7 @@ def generate_context(
      context = OrderedDict([])
- 
+
      try:
 -        with open(context_file) as file_handle:
 +        with open(context_file, encoding='utf-8') as file_handle:

@@ -18,7 +18,7 @@ Use the centralized setup script to prepare the environment for any bug:
 # Setup environment for bug 1
 ./setup.sh 1
 
-# Setup environment for bug 2  
+# Setup environment for bug 2
 ./setup.sh 2
 
 # Run PyFault analysis (after setup)

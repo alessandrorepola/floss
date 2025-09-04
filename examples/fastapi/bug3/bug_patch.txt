@@ -4,8 +4,8 @@ index b361048..b90935e 100644
 +++ b/fastapi/routing.py
 @@ -48,6 +48,28 @@ except ImportError:  # pragma: nocover
      from pydantic.fields import Field as ModelField  # type: ignore
- 
- 
+
+
 +def _prepare_response_content(
 +    res: Any, *, by_alias: bool = True, exclude_unset: bool
 +) -> Any:

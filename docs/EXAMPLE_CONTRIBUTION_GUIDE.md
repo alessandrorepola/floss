@@ -93,7 +93,7 @@ Clear description of what the bug does wrong.
 
 ### Expected vs Actual Behavior
 - **Expected**: What should happen
-- **Actual**: What actually happens  
+- **Actual**: What actually happens
 - **Impact**: Why this matters
 
 ## Files Included
@@ -207,7 +207,7 @@ Add your example to `.github/workflows/examples.yml`:
 test-your-example:
   name: Test Your Example
   runs-on: ubuntu-latest
-  
+
   steps:
   - name: Checkout repository
     uses: actions/checkout@v4
@@ -243,7 +243,7 @@ test-your-example:
 - ✅ Troubleshooting section
 - ✅ Proper markdown formatting
 
-### Technical Quality  
+### Technical Quality
 - ✅ Reproducible setup process
 - ✅ Reasonable execution time (< 10 minutes)
 - ✅ Clear failing tests (not all tests should pass)
@@ -252,7 +252,7 @@ test-your-example:
 
 ### Educational Value
 - ✅ Demonstrates specific fault localization concepts
-- ✅ Shows realistic debugging scenarios  
+- ✅ Shows realistic debugging scenarios
 - ✅ Provides learning progression (beginner → advanced)
 - ✅ Includes analysis tips and interpretation guidance
 
@@ -266,7 +266,7 @@ Before submitting your example:
 - [ ] Python version requirements are documented
 - [ ] Setup completes within reasonable time (< 10 minutes)
 
-### PyFault Execution  
+### PyFault Execution
 - [ ] PyFault test execution succeeds
 - [ ] At least one test fails (demonstrating the bug)
 - [ ] Coverage data is collected properly

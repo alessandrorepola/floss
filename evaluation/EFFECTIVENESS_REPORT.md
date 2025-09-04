@@ -160,7 +160,7 @@ Discriminatory capability measures how effectively each formula distinguishes li
   - bugs_17-18-19-20: rank 81
   - bugs_19-22-23: rank 174
 
-### Cookiecutter Project  
+### Cookiecutter Project
 - **2 analyzable bugs** out of 2 total
 - **100% success rate** in top-10
 - **Consistent performance**: bug1 (rank 4), bug2 (rank 1)
@@ -179,7 +179,7 @@ Discriminatory capability measures how effectively each formula distinguishes li
 
 ### Performance Ranking (average ranks)
 1. **Tarantula**: 160.3
-2. **Jaccard**: 160.3  
+2. **Jaccard**: 160.3
 3. **Ochiai**: 162.5
 4. **DStar2**: 179.3
 
@@ -194,7 +194,7 @@ Discriminatory capability measures how effectively each formula distinguishes li
 Multi-bug scenarios generally show **degraded performance** compared to individual bugs:
 
 - **Black bugs_17-18-19-20**: rank 81 vs individual ranks 1-12
-- **Black bugs_19-22-23**: rank 174 vs individual ranks 10-400  
+- **Black bugs_19-22-23**: rank 174 vs individual ranks 10-400
 - **FastAPI multi-1-9-12-13-15-16**: rank 1 (positive exception)
 
 ### Interpretation
@@ -210,7 +210,7 @@ Interference between multiple bugs can:
 - **Project diversity**: Variety in size and complexity
 - **Artificial vs real bugs**: Mix of bug types
 
-### Methodological Limitations  
+### Methodological Limitations
 - **Classic SBFL formulas**: Not optimized for multi-bug
 - **Static coverage**: Based only on test execution
 - **Missing baseline**: Lack of comparison with other tools
@@ -238,5 +238,5 @@ Interference between multiple bugs can:
 ---
 
 **Analysis Date**: September 3, 2025
-**Tool Versions**: PyFault v0.1.0, Python 3.12  
+**Tool Versions**: PyFault v0.1.0, Python 3.12
 **Dataset**: 30 bugs, 4 projects, 3 multi-bug scenarios

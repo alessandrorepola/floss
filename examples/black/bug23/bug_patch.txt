@@ -4,8 +4,8 @@ index bb8ec2e..7935cdc 100644
 +++ b/black.py
 @@ -235,23 +235,36 @@ def format_str(src_contents: str, line_length: int) -> FileContent:
      return dst_contents
- 
- 
+
+
 +GRAMMARS = [
 +    pygram.python_grammar_no_print_statement_no_exec_statement,
 +    pygram.python_grammar_no_print_statement,
@@ -46,13 +46,13 @@ index bb8ec2e..7935cdc 100644
 +            exc = ValueError(f"Cannot parse: {lineno}:{column}: {faulty_line}")
 +    else:
 +        raise exc from None
- 
+
      if isinstance(result, Leaf):
          result = Node(syms.file_input, [result])
 @@ -903,6 +916,17 @@ def whitespace(leaf: Leaf) -> str:  # noqa C901
          ):
              return NO
- 
+
 +        elif (
 +            prevp.type == token.RIGHTSHIFT
 +            and prevp.parent
@@ -66,7 +66,7 @@ index bb8ec2e..7935cdc 100644
 +
      elif prev.type in OPENING_BRACKETS:
          return NO
- 
+
 @@ -1538,7 +1562,12 @@ def assert_equivalent(src: str, dst: str) -> None:
      try:
          src_ast = ast.parse(src)
@@ -78,7 +78,7 @@ index bb8ec2e..7935cdc 100644
 +            f"with Python {major}.{minor}'s builtin AST. Re-run with --fast "
 +            f"or stop using deprecated Python 2 syntax. AST error message: {exc}"
 +        )
- 
+
      try:
          dst_ast = ast.parse(dst)
 diff --git a/blib2to3/pygram.py b/blib2to3/pygram.py
@@ -88,7 +88,7 @@ index c4ff9d1..bf55ab4 100644
 @@ -36,5 +36,12 @@ python_symbols = Symbols(python_grammar)
  python_grammar_no_print_statement = python_grammar.copy()
  del python_grammar_no_print_statement.keywords["print"]
- 
+
 +python_grammar_no_exec_statement = python_grammar.copy()
 +del python_grammar_no_exec_statement.keywords["exec"]
 +
@@ -116,11 +116,11 @@ index 7fa6866..888ef9f 100644
 @@ -93,10 +94,11 @@ def func_no_args():
          print(i)
          continue
- 
+
 +    exec("new-style exec", {}, {})
      return None
- 
- 
+
+
 -async def coroutine(arg):
 +async def coroutine(arg, exec=False):
      "Single-line docstring. Multiline is harder to reformat."

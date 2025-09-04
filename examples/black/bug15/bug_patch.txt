@@ -12,8 +12,8 @@ index 7682f7c..7e39c92 100644
      cast,
 @@ -90,34 +89,6 @@ class CannotSplit(Exception):
      """
- 
- 
+
+
 -class FormatError(Exception):
 -    """Base exception for `# fmt: on` and `# fmt: off` handling.
 -
@@ -47,12 +47,12 @@ index 7682f7c..7e39c92 100644
      YES = 1
 @@ -759,13 +730,15 @@ class DebugVisitor(Visitor[T]):
              out(f" {node.value!r}", fg="blue", bold=False)
- 
+
      @classmethod
 -    def show(cls, code: str) -> None:
 +    def show(cls, code: Union[str, Leaf, Node]) -> None:
          """Pretty-print the lib2to3 AST of a given string of `code`.
- 
+
          Convenience method for debugging.
          """
          v: DebugVisitor[None] = DebugVisitor()
@@ -60,13 +60,13 @@ index 7682f7c..7e39c92 100644
 +        if isinstance(code, str):
 +            code = lib2to3_parse(code)
 +        list(v.visit(code))
- 
- 
+
+
  KEYWORDS = set(keyword.kwlist)
 @@ -1306,55 +1279,6 @@ class Line:
          return bool(self.leaves or self.comments)
- 
- 
+
+
 -class UnformattedLines(Line):
 -    """Just like :class:`Line` but stores lines which aren't reformatted."""
 -
@@ -132,11 +132,11 @@ index 7682f7c..7e39c92 100644
 @@ -1482,7 +1403,7 @@ class LineGenerator(Visitor[Line]):
      current_line: Line = Factory(Line)
      remove_u_prefix: bool = False
- 
+
 -    def line(self, indent: int = 0, type: Type[Line] = Line) -> Iterator[Line]:
 +    def line(self, indent: int = 0) -> Iterator[Line]:
          """Generate a line.
- 
+
          If the line is empty, only emit if it makes sense.
 @@ -1491,67 +1412,39 @@ class LineGenerator(Visitor[Line]):
          If any lines were generated, set up a new current_line.
@@ -148,12 +148,12 @@ index 7682f7c..7e39c92 100644
 -                self.current_line = type(depth=self.current_line.depth + indent)
 +            self.current_line.depth += indent
              return  # Line is empty, don't emit. Creating a new one unnecessary.
- 
+
          complete_line = self.current_line
 -        self.current_line = type(depth=complete_line.depth + indent)
 +        self.current_line = Line(depth=complete_line.depth + indent)
          yield complete_line
- 
+
 -    def visit(self, node: LN) -> Iterator[Line]:
 -        """Main method to visit `node` and its children.
 -
@@ -205,7 +205,7 @@ index 7682f7c..7e39c92 100644
 +                    # regular trailing comment
 +                    self.current_line.append(comment)
 +                    yield from self.line()
- 
+
 -            else:
 -                normalize_prefix(node, inside_brackets=any_open_brackets)
 -                if self.normalize_strings and node.type == token.STRING:
@@ -227,12 +227,12 @@ index 7682f7c..7e39c92 100644
 +            if node.type not in WHITESPACE:
 +                self.current_line.append(node)
          yield from super().visit_default(node)
- 
+
      def visit_INDENT(self, node: Node) -> Iterator[Line]:
 @@ -1648,23 +1541,10 @@ class LineGenerator(Visitor[Line]):
          yield from self.visit_default(leaf)
          yield from self.line()
- 
+
 -    def visit_unformatted(self, node: LN) -> Iterator[Line]:
 -        """Used when file contained a `# fmt: off`."""
 -        if isinstance(node, Node):
@@ -254,19 +254,19 @@ index 7682f7c..7e39c92 100644
 +        if not self.current_line.bracket_tracker.any_open_brackets():
 +            yield from self.line()
 +        yield from self.visit_default(leaf)
- 
+
      def __attrs_post_init__(self) -> None:
          """You are in a twisty little maze of passages."""
 @@ -1969,6 +1849,9 @@ def container_of(leaf: Leaf) -> LN:
          if parent.children[0].prefix != same_prefix:
              break
- 
+
 +        if parent.type == syms.file_input:
 +            break
 +
          if parent.type in SURROUNDED_BY_BRACKETS:
              break
- 
+
 @@ -2106,16 +1989,6 @@ def generate_comments(leaf: LN) -> Iterator[Leaf]:
      """
      for pc in list_comments(leaf.prefix, is_endmarker=leaf.type == token.ENDMARKER):
@@ -281,8 +281,8 @@ index 7682f7c..7e39c92 100644
 -            prev = preceding_leaf(leaf)
 -            if not prev or prev.type in WHITESPACE:  # standalone comment in disguise
 -                raise FormatOff(pc.consumed)
- 
- 
+
+
  @dataclass
 @@ -2188,7 +2061,7 @@ def split_line(
      If `py36` is True, splitting may generate syntax that is only compatible
@@ -292,10 +292,10 @@ index 7682f7c..7e39c92 100644
 +    if line.is_comment:
          yield line
          return
- 
+
 @@ -2680,28 +2553,29 @@ def normalize_invisible_parens(node: Node, parens_after: Set[str]) -> None:
- 
- 
+
+
  def normalize_fmt_off(node: Node) -> None:
 -    """Allow `# fmt: off`/`# fmt: on` within bracket pairs.
 -
@@ -309,8 +309,8 @@ index 7682f7c..7e39c92 100644
      while try_again:
 -        try_again = hide_fmt_off(node)
 +        try_again = convert_one_fmt_off_pair(node)
- 
- 
+
+
 -def hide_fmt_off(node: Node) -> bool:
 -    bt = BracketTracker()
 -    for leaf in node.leaves():
@@ -319,7 +319,7 @@ index 7682f7c..7e39c92 100644
 -            continue
 +def convert_one_fmt_off_pair(node: Node) -> bool:
 +    """Convert content of a single `# fmt: off`/`# fmt: on` into a standalone comment.
- 
+
 +    Returns True if a pair was converted.
 +    """
 +    for leaf in node.leaves():
@@ -349,8 +349,8 @@ index 7682f7c..7e39c92 100644
                  for ignored in ignored_nodes:
                      index = ignored.remove()
 @@ -2733,8 +2611,12 @@ def hide_fmt_off(node: Node) -> bool:
- 
- 
+
+
  def generate_ignored_nodes(leaf: Leaf) -> Iterator[LN]:
 +    """Starting from the container of `leaf`, generate all leaves until `# fmt: on`.
 +

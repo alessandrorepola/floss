@@ -4,10 +4,10 @@ This example demonstrates PyFault's fault localization capabilities on PyGraphis
 
 ## Project Description
 
-**Project**: PyGraphistry  
-**Category**: Data Visualization & Graph Analytics  
-**Language**: Python  
-**Domain**: Scientific Computing, Data Science  
+**Project**: PyGraphistry
+**Category**: Data Visualization & Graph Analytics
+**Language**: Python
+**Domain**: Scientific Computing, Data Science
 
 ### Project Summary
 PyGraphistry is a Python library that provides powerful graph visualization and analytics capabilities. It enables users to create interactive visualizations of network data, perform graph analytics, and integrate with various data sources.
@@ -16,7 +16,7 @@ PyGraphistry is a Python library that provides powerful graph visualization and 
 PyGraphistry represents a different class of software compared to web frameworks like FastAPI:
 - **Scientific computing focus**: Complex mathematical operations and data processing
 - **Visualization algorithms**: Graphics and rendering logic
-- **Data pipeline architecture**: ETL and transformation operations  
+- **Data pipeline architecture**: ETL and transformation operations
 - **External integrations**: Database connectors and API clients
 
 ## Files Included
@@ -104,7 +104,7 @@ PyFault will analyze various components:
 
 ### Core Modules
 1. **Graph processing**: Node and edge manipulation algorithms
-2. **Visualization engines**: Rendering and layout algorithms  
+2. **Visualization engines**: Rendering and layout algorithms
 3. **Data connectors**: Database and API integration modules
 4. **Analytics functions**: Graph metrics and analysis algorithms
 

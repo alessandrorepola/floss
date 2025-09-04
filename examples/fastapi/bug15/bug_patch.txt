@@ -10,6 +10,6 @@ index 6d252d8..67619bd 100644
 +                self.add_websocket_route(
 +                    prefix + route.path, route.endpoint, name=route.name
 +                )
- 
+
      def get(
          self,

@@ -2457,8 +2457,8 @@ def show_formula_performance(data: Dict[str, Any], formulas: List[str]) -> None:
         max_score = stats.max_score
         min_score = stats.min_score
         score_range = stats.range_score
-        avg_score = np.mean(stats.all_scores) if stats.all_scores else 0
-        std_score = np.std(stats.all_scores) if stats.all_scores else 0
+        avg_score = float(np.mean(stats.all_scores) if stats.all_scores else 0.0)
+        std_score = float(np.std(stats.all_scores) if stats.all_scores else 0.0)
 
         # Calculate score distribution percentiles
         if stats.all_scores:

@@ -289,8 +289,8 @@ index 1ec0b69..3ac420e 100644
 --- a/fastapi/routing.py
 +++ b/fastapi/routing.py
 @@ -49,22 +49,43 @@ except ImportError:  # pragma: nocover
- 
- 
+
+
  def _prepare_response_content(
 -    res: Any, *, by_alias: bool = True, exclude_unset: bool
 +    res: Any,
@@ -401,7 +401,7 @@ index 1ec0b69..3ac420e 100644
 +        self.response_model_exclude_none = response_model_exclude_none
          self.include_in_schema = include_in_schema
          self.response_class = response_class
- 
+
 @@ -352,6 +389,8 @@ class APIRoute(routing.Route):
              response_model_exclude=self.response_model_exclude,
              response_model_by_alias=self.response_model_by_alias,
@@ -410,7 +410,7 @@ index 1ec0b69..3ac420e 100644
 +            response_model_exclude_none=self.response_model_exclude_none,
              dependency_overrides_provider=self.dependency_overrides_provider,
          )
- 
+
 @@ -400,6 +439,8 @@ class APIRouter(routing.Router):
          response_model_by_alias: bool = True,
          response_model_skip_defaults: bool = None,
@@ -605,7 +605,7 @@ index c9a85a3..ed84df6 100644
 --- a/tests/test_skip_defaults.py
 +++ b/tests/test_skip_defaults.py
 @@ -18,11 +18,53 @@ class Model(BaseModel):
- 
+
  class ModelSubclass(Model):
      y: int
 +    z: int = 0
@@ -617,8 +617,8 @@ index c9a85a3..ed84df6 100644
 +    x: Optional[str] = None
 +    y: str = "y"
 +    z: str = "z"
- 
- 
+
+
  @app.get("/", response_model=Model, response_model_exclude_unset=True)
  def get() -> ModelSubclass:
 -    return ModelSubclass(sub={}, y=1)
@@ -656,8 +656,8 @@ index c9a85a3..ed84df6 100644
 +)
 +def get() -> ModelDefaults:
 +    return ModelDefaults(x=None, y="y")
- 
- 
+
+
  client = TestClient(app)
 @@ -31,3 +73,23 @@ client = TestClient(app)
  def test_return_defaults():

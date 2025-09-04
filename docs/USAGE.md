@@ -62,7 +62,7 @@ pyfault run --source-dir src --test-dir tests
 pyfault ui --report report.json
 ```
 
-#### Real Framework Bugs  
+#### Real Framework Bugs
 Actual bugs from popular Python frameworks:
 ```bash
 # FastAPI dependency injection bug
@@ -87,7 +87,7 @@ pyfault run
 Fault localization on scientific computing code:
 ```bash
 # PyGraphistry visualization library
-cd examples/pygraphistry  
+cd examples/pygraphistry
 ./setup.sh  # Downloads PyGraphistry
 cd pygraphistry
 pyfault test --source-dir graphistry --test-dir tests
@@ -199,7 +199,7 @@ pyfault run \
 # Check if report was generated
 if [ -f "fl_report.json" ]; then
     echo "✓ Fault localization completed successfully"
-    
+
     # Optional: Extract summary statistics
     python -c "
 import json
@@ -601,30 +601,30 @@ on:
 jobs:
   fault-localization:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-        
+
     - name: Install dependencies
       run: |
         pip install -e .
         pip install pyfault
-        
+
     - name: Run fault localization
       run: |
         pyfault run --source-dir src --test-dir tests --output fl_report.json
-        
+
     - name: Upload fault localization report
       uses: actions/upload-artifact@v3
       with:
         name: fault-localization-report
         path: fl_report.json
-        
+
     - name: Comment PR with results
       if: github.event_name == 'pull_request'
       run: |
@@ -637,21 +637,21 @@ jobs:
 // Jenkinsfile
 pipeline {
     agent any
-    
+
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-        
+
         stage('Install Dependencies') {
             steps {
                 sh 'pip install -e .'
                 sh 'pip install pyfault'
             }
         }
-        
+
         stage('Fault Localization') {
             steps {
                 sh 'pyfault run --config .pyfault.ci.conf --output fl_report.json'
@@ -662,7 +662,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Analysis') {
             steps {
                 script {
@@ -811,7 +811,7 @@ repos:
 **Solutions**:
 ```bash
 # Check if tests are being discovered
-pyfault test 
+pyfault test
 
 # Verify source and test directories
 pyfault test --source-dir src --test-dir tests

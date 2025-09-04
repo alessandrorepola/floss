@@ -17,8 +17,8 @@ index 6572c7c..a045bdf 100644
      properties: Optional[Dict[str, SchemaBase]] = None
 -    additionalProperties: Optional[Union[bool, SchemaBase]] = None
 +    additionalProperties: Optional[Union[SchemaBase, bool]] = None
- 
- 
+
+
  class Example(BaseModel):
 @@ -220,7 +220,7 @@ class Operation(BaseModel):
      operationId: Optional[str] = None

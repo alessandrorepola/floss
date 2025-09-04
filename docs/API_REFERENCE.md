@@ -23,20 +23,20 @@ from pyfault.test import TestRunner, TestConfig
 
 class TestRunner:
     """Executes tests with pytest and coverage collection."""
-    
+
     def __init__(self, config: TestConfig) -> None:
         """Initialize test runner with configuration."""
-        
+
     def run_tests(self, test_filter: Optional[str] = None) -> TestResult:
         """
         Run tests and collect coverage with context information.
-        
+
         Args:
             test_filter: Optional pytest -k filter pattern
-            
+
         Returns:
             TestResult object containing coverage data and test outcomes
-            
+
         Raises:
             RuntimeError: If pytest execution fails
         """
@@ -75,7 +75,7 @@ from pyfault.fl import FLEngine, FLConfig
 
 class FLEngine:
     """Engine for calculating fault localization suspiciousness scores."""
-    
+
     # Available formulas registry
     AVAILABLE_FORMULAS = {
         "ochiai": OchiaiFormula(),
@@ -89,18 +89,18 @@ class FLEngine:
         "sorensendice": SorensenDiceFormula(),
         "sbi": SBIFormula(),
     }
-    
+
     def __init__(self, config: FLConfig) -> None:
         """Initialize FL engine with configuration."""
-        
+
     def calculate_suspiciousness(self, input_file: str, output_file: str) -> None:
         """
         Calculate suspiciousness scores and generate report.
-        
+
         Args:
             input_file: Path to coverage JSON file
             output_file: Path to output report JSON file
-            
+
         Raises:
             FileNotFoundError: If input file doesn't exist
             json.JSONDecodeError: If input file is malformed
@@ -137,7 +137,7 @@ from pyfault.test.config import TestConfig
 
 class TestConfig:
     """Configuration for test execution."""
-    
+
     def __init__(
         self,
         source_dir: str = ".",
@@ -148,7 +148,7 @@ class TestConfig:
     ) -> None:
         """
         Initialize test configuration.
-        
+
         Args:
             source_dir: Source code directory to analyze
             test_dir: Test directory (auto-detected if None)
@@ -156,27 +156,27 @@ class TestConfig:
             ignore_patterns: File patterns to ignore for test discovery
             omit_patterns: File patterns to omit from coverage
         """
-        
+
     @classmethod
     def from_file(cls, config_file: str) -> "TestConfig":
         """
         Load configuration from file.
-        
+
         Args:
             config_file: Path to configuration file
-            
+
         Returns:
             TestConfig instance
-            
+
         Raises:
             FileNotFoundError: If config file doesn't exist
             ValueError: If config file is malformed
         """
-        
+
     def write_coveragerc(self, filename: str) -> None:
         """
         Write coverage configuration file.
-        
+
         Args:
             filename: Path to coverage config file
         """
@@ -213,7 +213,7 @@ from pyfault.fl.config import FLConfig
 
 class FLConfig:
     """Configuration for fault localization."""
-    
+
     def __init__(
         self,
         input_file: str = "coverage.json",
@@ -222,21 +222,21 @@ class FLConfig:
     ) -> None:
         """
         Initialize FL configuration.
-        
+
         Args:
             input_file: Input coverage file
             output_file: Output report file
             formulas: List of SBFL formulas to use
         """
-        
+
     @classmethod
     def from_file(cls, config_file: str) -> "FLConfig":
         """
         Load configuration from file.
-        
+
         Args:
             config_file: Path to configuration file
-            
+
         Returns:
             FLConfig instance
         """
@@ -274,25 +274,25 @@ from pyfault.formulas.base import SBFLFormula
 
 class SBFLFormula(ABC):
     """Abstract base class for SBFL formulas."""
-    
+
     def __init__(self, name: Optional[str] = None) -> None:
         """Initialize formula with optional custom name."""
-        
+
     @property
     def name(self) -> str:
         """Get the formula name."""
-        
+
     @abstractmethod
     def calculate(self, n_cf: int, n_nf: int, n_cp: int, n_np: int) -> float:
         """
         Calculate suspiciousness score for a code element.
-        
+
         Args:
             n_cf: Number of failed tests covering the element
             n_nf: Number of failed tests NOT covering the element
             n_cp: Number of passed tests covering the element
             n_np: Number of passed tests NOT covering the element
-            
+
         Returns:
             Suspiciousness score (typically between 0 and 1)
         """
@@ -369,20 +369,20 @@ from pyfault.formulas.base import SBFLFormula, safe_divide
 
 class CustomFormula(SBFLFormula):
     """Custom SBFL formula implementation."""
-    
+
     def __init__(self, parameter: float = 1.0):
         super().__init__("custom")
         self.parameter = parameter
-    
+
     def calculate(self, n_cf: int, n_nf: int, n_cp: int, n_np: int) -> float:
         """Implement custom calculation logic."""
         if n_cf == 0:
             return 0.0
-        
+
         # Example: weighted combination
         numerator = n_cf * self.parameter
         denominator = (n_cf + n_nf) + (n_cp * 0.5)
-        
+
         return safe_divide(numerator, denominator)
 
 # Usage
@@ -416,7 +416,7 @@ from typing import Dict, List, Any
 @dataclass
 class TestResult:
     """Result of test execution."""
-    
+
     coverage_data: Dict[str, Any]  # Enhanced coverage JSON data
     failed_tests: List[str]        # List of failed test names
     passed_tests: List[str]        # List of passed test names
@@ -448,29 +448,29 @@ from pyfault.fl.data import CoverageData
 
 class CoverageData:
     """Coverage data abstraction for FL calculations."""
-    
+
     def __init__(self, coverage_json: Dict[str, Any]) -> None:
         """Initialize from coverage JSON data."""
-        
+
     @classmethod
     def from_json(cls, coverage_json: Dict[str, Any]) -> "CoverageData":
         """Create from JSON data."""
-        
+
     def get_sbfl_params(self, line_key: str) -> Tuple[int, int, int, int]:
         """
         Get SBFL parameters for a specific line.
-        
+
         Args:
             line_key: Line identifier (format: "file:line_number")
-            
+
         Returns:
             Tuple of (n_cf, n_nf, n_cp, n_np)
         """
-        
+
     @property
     def line_coverage(self) -> Dict[str, List[str]]:
         """Get line coverage mapping."""
-        
+
     @property
     def test_outcomes(self) -> Dict[str, bool]:
         """Get test outcome mapping."""
@@ -510,7 +510,7 @@ from pathlib import Path
 
 def run_pyfault_analysis(source_dir: str, test_dir: str, output_file: str) -> Dict:
     """Run PyFault analysis programmatically."""
-    
+
     # Build command
     cmd = [
         "pyfault", "run",
@@ -518,13 +518,13 @@ def run_pyfault_analysis(source_dir: str, test_dir: str, output_file: str) -> Di
         "--test-dir", test_dir,
         "--output", output_file
     ]
-    
+
     # Execute
     result = subprocess.run(cmd, capture_output=True, text=True)
-    
+
     if result.returncode != 0:
         raise RuntimeError(f"PyFault failed: {result.stderr}")
-    
+
     # Load results
     with open(output_file) as f:
         return json.load(f)
@@ -546,19 +546,19 @@ from pyfault.cli.main import main
 def test_cli_integration():
     """Test CLI integration."""
     runner = CliRunner()
-    
+
     with runner.isolated_filesystem():
         # Create test files
         # ... setup code ...
-        
+
         # Test 'test' command
         result = runner.invoke(main, ['test', '--source-dir', 'src'])
         assert result.exit_code == 0
-        
+
         # Test 'fl' command
         result = runner.invoke(main, ['fl', '--input', 'coverage.json'])
         assert result.exit_code == 0
-        
+
         # Test 'run' command
         result = runner.invoke(main, ['run'])
         assert result.exit_code == 0
@@ -575,21 +575,21 @@ import time
 
 def start_dashboard_background(report_file: str, port: int = 8501):
     """Start dashboard in background thread."""
-    
+
     def run_dashboard():
         launch_dashboard(
             report_file=report_file,
             port=port,
             auto_open=False  # Don't auto-open browser
         )
-    
+
     # Start in background thread
     dashboard_thread = threading.Thread(target=run_dashboard, daemon=True)
     dashboard_thread.start()
-    
+
     # Wait for startup
     time.sleep(2)
-    
+
     return f"http://localhost:{port}"
 
 # Usage
@@ -606,28 +606,28 @@ from pyfault.ui.dashboard import calculate_formula_statistics
 
 def create_custom_summary(report_file: str):
     """Create custom summary component."""
-    
+
     # Load data
     with open(report_file) as f:
         data = json.load(f)
-    
+
     # Calculate statistics
     ochiai_stats = calculate_formula_statistics(data, "ochiai")
-    
+
     # Display summary
     st.write("## Custom Project Summary")
-    
+
     col1, col2, col3 = st.columns(3)
-    
+
     with col1:
         st.metric("Total Tests", data.get("totals", {}).get("total_tests", 0))
-    
+
     with col2:
         st.metric("Failed Tests", data.get("totals", {}).get("failed_tests", 0))
-    
+
     with col3:
         st.metric("Max Suspiciousness", f"{ochiai_stats.max_score:.3f}")
-    
+
     # Custom visualization
     if ochiai_stats.all_scores:
         st.write("### Suspiciousness Distribution")
@@ -636,13 +636,13 @@ def create_custom_summary(report_file: str):
 # Usage in Streamlit app
 if __name__ == "__main__":
     st.set_page_config(page_title="Custom PyFault Dashboard")
-    
+
     uploaded_file = st.file_uploader("Upload PyFault Report", type="json")
     if uploaded_file:
         # Save uploaded file
         with open("temp_report.json", "wb") as f:
             f.write(uploaded_file.getbuffer())
-        
+
         # Create custom summary
         create_custom_summary("temp_report.json")
 ```
@@ -659,40 +659,40 @@ import json
 
 class CustomTestRunner:
     """Custom test runner for non-pytest frameworks."""
-    
+
     def __init__(self, config: TestConfig):
         self.config = config
-    
+
     def run_tests(self, test_filter: str = None) -> TestResult:
         """Run tests using custom framework."""
-        
+
         # Example: unittest integration
         cmd = ["python", "-m", "unittest", "discover", "-s", self.config.test_dir]
-        
+
         if test_filter:
             cmd.extend(["-k", test_filter])
-        
+
         # Execute tests
         result = subprocess.run(cmd, capture_output=True, text=True)
-        
+
         # Parse results (custom logic needed)
         passed_tests, failed_tests = self._parse_unittest_output(result.stdout)
-        
+
         # Generate coverage data (custom logic needed)
         coverage_data = self._generate_coverage_data()
-        
+
         return TestResult(
             coverage_data=coverage_data,
             passed_tests=passed_tests,
             failed_tests=failed_tests,
             skipped_tests=[]
         )
-    
+
     def _parse_unittest_output(self, output: str):
         """Parse unittest output for test results."""
         # Implementation specific to unittest output format
         pass
-    
+
     def _generate_coverage_data(self):
         """Generate coverage data in PyFault format."""
         # Implementation specific to coverage tool used
@@ -707,24 +707,24 @@ from pyfault.formulas.base import SBFLFormula
 
 class FormulaPlugin:
     """Plugin interface for custom formulas."""
-    
+
     def get_formulas(self) -> Dict[str, SBFLFormula]:
         """Return dictionary of formula name -> formula instance."""
         raise NotImplementedError
-    
+
     def get_metadata(self) -> Dict[str, str]:
         """Return plugin metadata."""
         raise NotImplementedError
 
 class MyFormulaPlugin(FormulaPlugin):
     """Example custom formula plugin."""
-    
+
     def get_formulas(self) -> Dict[str, SBFLFormula]:
         return {
             "my_formula": MyCustomFormula(),
             "experimental": ExperimentalFormula()
         }
-    
+
     def get_metadata(self) -> Dict[str, str]:
         return {
             "name": "My Formula Plugin",
@@ -749,7 +749,7 @@ from typing import Optional, List
 
 class ExtendedTestConfig(TestConfig):
     """Extended test configuration with additional options."""
-    
+
     def __init__(
         self,
         source_dir: str = ".",
@@ -766,24 +766,24 @@ class ExtendedTestConfig(TestConfig):
         self.parallel_tests = parallel_tests
         self.test_timeout = test_timeout
         self.custom_pytest_args = custom_pytest_args or []
-    
+
     def get_pytest_command(self) -> List[str]:
         """Build extended pytest command."""
         cmd = ["pytest"]
-        
+
         if self.parallel_tests:
             cmd.extend(["-n", "auto"])  # pytest-xdist
-        
+
         if self.test_timeout:
             cmd.extend(["--timeout", str(self.test_timeout)])
-        
+
         cmd.extend(self.custom_pytest_args)
-        
+
         return cmd
 
 class ExtendedFLConfig(FLConfig):
     """Extended FL configuration with additional options."""
-    
+
     def __init__(
         self,
         input_file: str = "coverage.json",
@@ -809,43 +809,43 @@ import json
 
 class BatchProcessor:
     """Process multiple projects with PyFault."""
-    
+
     def __init__(self, base_config: TestConfig):
         self.base_config = base_config
-    
+
     def process_projects(self, project_dirs: List[Path]) -> Dict[str, Dict]:
         """Process multiple projects and return aggregated results."""
         results = {}
-        
+
         for project_dir in project_dirs:
             try:
                 result = self.process_single_project(project_dir)
                 results[str(project_dir)] = result
             except Exception as e:
                 results[str(project_dir)] = {"error": str(e)}
-        
+
         return results
-    
+
     def process_single_project(self, project_dir: Path) -> Dict:
         """Process single project."""
         from pyfault.test import TestRunner
         from pyfault.fl import FLEngine, FLConfig
-        
+
         # Create project-specific config
         config = TestConfig(
             source_dir=str(project_dir / self.base_config.source_dir),
             test_dir=str(project_dir / self.base_config.test_dir) if self.base_config.test_dir else None,
             output_file=str(project_dir / "coverage.json")
         )
-        
+
         # Run tests
         runner = TestRunner(config)
         test_result = runner.run_tests()
-        
+
         # Save coverage data
         with open(config.output_file, 'w') as f:
             json.dump(test_result.coverage_data, f)
-        
+
         # Run fault localization if there are failed tests
         if test_result.failed_tests:
             fl_config = FLConfig(
@@ -853,14 +853,14 @@ class BatchProcessor:
                 output_file=str(project_dir / "report.json"),
                 formulas=["ochiai", "tarantula"]
             )
-            
+
             engine = FLEngine(fl_config)
             engine.calculate_suspiciousness(fl_config.input_file, fl_config.output_file)
-            
+
             # Load report
             with open(fl_config.output_file) as f:
                 report = json.load(f)
-            
+
             return {
                 "status": "completed",
                 "failed_tests": len(test_result.failed_tests),

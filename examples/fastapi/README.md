@@ -18,7 +18,7 @@ Use the centralized setup script to prepare the environment for any bug:
 # Setup environment for bug 11
 ./setup.sh 11
 
-# Setup environment for bug 2  
+# Setup environment for bug 2
 ./setup.sh 2
 
 # Setup environment for bug 7
@@ -70,7 +70,7 @@ fastapi/
 The setup is integrated with the project's CI pipeline (`.github/workflows/examples.yml`). The workflow:
 
 1. Sets up Python 3.8
-2. Installs PyFault 
+2. Installs PyFault
 3. Runs the centralized setup for each bug
 4. Executes PyFault analysis
 5. Validates the output structure
