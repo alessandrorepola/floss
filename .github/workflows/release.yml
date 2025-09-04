@@ -36,6 +36,6 @@ jobs:
           python -m twine check dist/*
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.10.3
+        uses: pypa/gh-action-pypi-publish@release/v1.13
         with:
           print-hash: true
