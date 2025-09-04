@@ -1,12 +1,12 @@
 """
-Test suite for PyFault SBFL formulas.
+Test suite for FLOSS SBFL formulas.
 """
 
 import math
 
 import pytest
 
-from pyfault.core.formulas import (
+from floss.core.formulas import (
     DStarFormula,
     JaccardFormula,
     Kulczynski2Formula,

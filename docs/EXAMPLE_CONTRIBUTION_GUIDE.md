@@ -1,11 +1,11 @@
-# Adding New Examples to PyFault
+# Adding New Examples to floss
 
-This guide explains how to contribute new examples to the PyFault project, helping expand the collection of real-world fault localization demonstrations.
+This guide explains how to contribute new examples to the floss project, helping expand the collection of real-world fault localization demonstrations.
 
 ## Example Categories
 
 ### 1. Educational Examples
-Simple, synthetic bugs designed for learning PyFault concepts.
+Simple, synthetic bugs designed for learning floss concepts.
 
 **Characteristics:**
 - Clear, isolated bugs
@@ -27,7 +27,7 @@ Actual bugs from popular Python frameworks and libraries.
 **Examples**: FastAPI bugs, PyGraphistry
 
 ### 3. Domain-Specific Examples
-Examples showcasing PyFault in specific application domains.
+Examples showcasing floss in specific application domains.
 
 **Potential domains:**
 - Scientific computing (NumPy, SciPy)
@@ -70,7 +70,7 @@ Required files:
 ```
 your-example-name/
 ├── README.md           # Detailed documentation
-├── pyfault.conf       # PyFault configuration
+├── floss.conf       # floss configuration
 ├── setup.sh           # Automated setup script (if needed)
 └── report.json        # Pre-generated results (optional)
 ```
@@ -104,7 +104,7 @@ List and explain each file in the example.
 ### Quick Setup
 ### Manual Setup (if automated setup fails)
 
-## Running PyFault
+## Running floss
 Step-by-step instructions for running fault localization.
 
 ## Viewing Results
@@ -120,7 +120,7 @@ What this example teaches about fault localization.
 Common issues and solutions.
 ```
 
-### Step 4: Create pyfault.conf
+### Step 4: Create floss.conf
 
 Optimize settings for your specific example:
 
@@ -169,7 +169,7 @@ fi
 $PY -m venv "$VENV_NAME"
 source "$VENV_NAME/bin/activate"
 
-# Install PyFault
+# Install floss
 $PY -m pip install -q -e ../../
 
 # Download/setup the project with the bug
@@ -191,12 +191,12 @@ Verify your example works:
 # Test setup script
 ./setup.sh
 
-# Test PyFault execution
+# Test floss execution
 cd project-directory  # If applicable
-pyfault run
+floss run
 
 # Test dashboard
-pyfault ui --report report.json
+floss ui --report report.json
 ```
 
 ### Step 7: Add CI/CD Support
@@ -217,7 +217,7 @@ test-your-example:
     with:
       python-version: "X.X"
 
-  - name: Install PyFault
+  - name: Install floss
     run: |
       python -m pip install --upgrade pip
       pip install -e .
@@ -227,10 +227,10 @@ test-your-example:
       cd examples/your-example-name
       timeout 600 bash setup.sh
 
-  - name: Test PyFault on Your Example
+  - name: Test floss on Your Example
     run: |
       cd examples/your-example-name/project-dir
-      timeout 300 pyfault run
+      timeout 300 floss run
       # Validate outputs
 ```
 
@@ -248,7 +248,7 @@ test-your-example:
 - ✅ Reasonable execution time (< 10 minutes)
 - ✅ Clear failing tests (not all tests should pass)
 - ✅ Meaningful suspiciousness results
-- ✅ Proper PyFault configuration
+- ✅ Proper floss configuration
 
 ### Educational Value
 - ✅ Demonstrates specific fault localization concepts
@@ -266,8 +266,8 @@ Before submitting your example:
 - [ ] Python version requirements are documented
 - [ ] Setup completes within reasonable time (< 10 minutes)
 
-### PyFault Execution
-- [ ] PyFault test execution succeeds
+### floss Execution
+- [ ] floss test execution succeeds
 - [ ] At least one test fails (demonstrating the bug)
 - [ ] Coverage data is collected properly
 - [ ] Fault localization produces meaningful results
@@ -343,4 +343,4 @@ If you need help creating an example:
 - Look at existing examples for inspiration
 - Reach out to maintainers for guidance
 
-Thank you for contributing to PyFault's educational mission!
+Thank you for contributing to floss's educational mission!

@@ -1,5 +1,5 @@
 """
-End-to-end integration tests for PyFault workflow.
+End-to-end integration tests for FLOSS workflow.
 """
 
 import json
@@ -8,11 +8,11 @@ from typing import Any, Dict
 
 from click.testing import CliRunner
 
-from pyfault.core.cli.main import main
+from floss.core.cli.main import main
 
 
 class TestE2EWorkflow:
-    """End-to-end tests for complete PyFault workflow."""
+    """End-to-end tests for complete FLOSS workflow."""
 
     def test_complete_workflow(self) -> None:
         """Test complete test -> FL workflow."""
@@ -78,7 +78,7 @@ def test_divide_by_zero():
                 )
 
             # Create config file
-            with open("pyfault.conf", "w") as f:
+            with open("floss.conf", "w") as f:
                 f.write(
                     """
 [test]
@@ -406,7 +406,7 @@ formulas = ochiai, tarantula, dstar2
 
 
 class TestE2ERunCommand:
-    """End-to-end tests for the 'pyfault run' command."""
+    """End-to-end tests for the 'FLOSS run' command."""
 
     def test_run_command_complete_workflow(self) -> None:
         """Test complete workflow using the run command."""
@@ -463,7 +463,7 @@ def test_multiply():
                 )
 
             # Create config file
-            with open("pyfault.conf", "w") as f:
+            with open("floss.conf", "w") as f:
                 f.write(
                     """[test]
 source_dir = src

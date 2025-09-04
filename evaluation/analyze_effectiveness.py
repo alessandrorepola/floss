@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script to analyze PyFault's effectiveness in bug identification.
+Script to analyze FLOSS's effectiveness in bug identification.
 Analyzes fault localization reports and compares them with real bug patches.
 """
 
@@ -546,7 +546,7 @@ def save_results(
     """Save results to CSV and JSON files"""
 
     # Save detailed metrics to CSV
-    csv_path = "pyfault_effectiveness_summary.csv"
+    csv_path = "FLOSS_effectiveness_summary.csv"
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(
@@ -589,7 +589,7 @@ def save_results(
             )
 
     # Salva summary in JSON
-    json_path = "pyfault_effectiveness_analysis.json"
+    json_path = "FLOSS_effectiveness_analysis.json"
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
 
@@ -600,7 +600,7 @@ def save_results(
 
 def main() -> None:
     """Main function"""
-    print("PyFault Effectiveness Analysis")
+    print("FLOSS Effectiveness Analysis")
     print("=" * 50)
 
     # Find all bugs

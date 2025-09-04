@@ -1,6 +1,6 @@
-# PyFault API Reference
+# floss API Reference
 
-This document provides comprehensive API documentation for PyFault's programmatic interfaces.
+This document provides comprehensive API documentation for floss's programmatic interfaces.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ This document provides comprehensive API documentation for PyFault's programmati
 The `TestRunner` class executes tests with coverage collection and provides comprehensive test results.
 
 ```python
-from pyfault.test import TestRunner, TestConfig
+from floss.test import TestRunner, TestConfig
 
 class TestRunner:
     """Executes tests with pytest and coverage collection."""
@@ -45,7 +45,7 @@ class TestRunner:
 #### Example Usage
 
 ```python
-from pyfault.test import TestRunner, TestConfig
+from floss.test import TestRunner, TestConfig
 
 # Create configuration
 config = TestConfig(
@@ -71,7 +71,7 @@ print(f"Coverage data: {result.coverage_data}")
 The `FLEngine` class calculates fault localization suspiciousness scores using SBFL formulas.
 
 ```python
-from pyfault.fl import FLEngine, FLConfig
+from floss.fl import FLEngine, FLConfig
 
 class FLEngine:
     """Engine for calculating fault localization suspiciousness scores."""
@@ -110,7 +110,7 @@ class FLEngine:
 #### Example Usage
 
 ```python
-from pyfault.fl import FLEngine, FLConfig
+from floss.fl import FLEngine, FLConfig
 
 # Create configuration
 config = FLConfig(
@@ -133,7 +133,7 @@ engine.calculate_suspiciousness("coverage.json", "report.json")
 Configuration class for test execution parameters.
 
 ```python
-from pyfault.test.config import TestConfig
+from floss.test.config import TestConfig
 
 class TestConfig:
     """Configuration for test execution."""
@@ -185,7 +185,7 @@ class TestConfig:
 #### Example Usage
 
 ```python
-from pyfault.test.config import TestConfig
+from floss.test.config import TestConfig
 
 # Create from parameters
 config = TestConfig(
@@ -196,7 +196,7 @@ config = TestConfig(
 )
 
 # Load from file
-config = TestConfig.from_file("pyfault.conf")
+config = TestConfig.from_file("floss.conf")
 
 # Access properties
 print(f"Source directory: {config.source_dir}")
@@ -209,7 +209,7 @@ print(f"Output file: {config.output_file}")
 Configuration class for fault localization parameters.
 
 ```python
-from pyfault.fl.config import FLConfig
+from floss.fl.config import FLConfig
 
 class FLConfig:
     """Configuration for fault localization."""
@@ -245,7 +245,7 @@ class FLConfig:
 #### Example Usage
 
 ```python
-from pyfault.fl.config import FLConfig
+from floss.fl.config import FLConfig
 
 # Create from parameters
 config = FLConfig(
@@ -255,7 +255,7 @@ config = FLConfig(
 )
 
 # Load from file
-config = FLConfig.from_file("pyfault.conf")
+config = FLConfig.from_file("floss.conf")
 
 # Access properties
 print(f"Input file: {config.input_file}")
@@ -270,7 +270,7 @@ print(f"Formulas: {config.formulas}")
 All SBFL formulas inherit from the `SBFLFormula` abstract base class.
 
 ```python
-from pyfault.formulas.base import SBFLFormula
+from floss.formulas.base import SBFLFormula
 
 class SBFLFormula(ABC):
     """Abstract base class for SBFL formulas."""
@@ -303,7 +303,7 @@ class SBFLFormula(ABC):
 #### OchiaiFormula
 
 ```python
-from pyfault.formulas import OchiaiFormula
+from floss.formulas import OchiaiFormula
 
 formula = OchiaiFormula()
 score = formula.calculate(n_cf=3, n_nf=2, n_cp=1, n_np=4)
@@ -317,7 +317,7 @@ print(f"Ochiai score: {score}")
 #### TarantulaFormula
 
 ```python
-from pyfault.formulas import TarantulaFormula
+from floss.formulas import TarantulaFormula
 
 formula = TarantulaFormula()
 score = formula.calculate(n_cf=3, n_nf=2, n_cp=1, n_np=4)
@@ -331,7 +331,7 @@ print(f"Tarantula score: {score}")
 #### JaccardFormula
 
 ```python
-from pyfault.formulas import JaccardFormula
+from floss.formulas import JaccardFormula
 
 formula = JaccardFormula()
 score = formula.calculate(n_cf=3, n_nf=2, n_cp=1, n_np=4)
@@ -345,7 +345,7 @@ print(f"Jaccard score: {score}")
 #### DStarFormula
 
 ```python
-from pyfault.formulas import DStarFormula
+from floss.formulas import DStarFormula
 
 # D* with exponent 2
 formula = DStarFormula(star=2)
@@ -365,7 +365,7 @@ print(f"D*3 score: {score}")
 ### Custom Formula Implementation
 
 ```python
-from pyfault.formulas.base import SBFLFormula, safe_divide
+from floss.formulas.base import SBFLFormula, safe_divide
 
 class CustomFormula(SBFLFormula):
     """Custom SBFL formula implementation."""
@@ -393,7 +393,7 @@ score = custom_formula.calculate(3, 2, 1, 4)
 ### Formula Utilities
 
 ```python
-from pyfault.formulas.base import safe_divide, safe_sqrt
+from floss.formulas.base import safe_divide, safe_sqrt
 
 # Safe division (returns 0.0 if denominator is 0)
 result = safe_divide(10, 0)  # Returns 0.0
@@ -444,7 +444,7 @@ for file_path, file_data in files_data.items():
 Internal data structure for coverage analysis.
 
 ```python
-from pyfault.fl.data import CoverageData
+from floss.fl.data import CoverageData
 
 class CoverageData:
     """Coverage data abstraction for FL calculations."""
@@ -480,7 +480,7 @@ class CoverageData:
 
 ```python
 import json
-from pyfault.fl.data import CoverageData
+from floss.fl.data import CoverageData
 
 # Load coverage data
 with open("coverage.json") as f:
@@ -508,12 +508,12 @@ import subprocess
 import json
 from pathlib import Path
 
-def run_pyfault_analysis(source_dir: str, test_dir: str, output_file: str) -> Dict:
-    """Run PyFault analysis programmatically."""
+def run_floss_analysis(source_dir: str, test_dir: str, output_file: str) -> Dict:
+    """Run floss analysis programmatically."""
 
     # Build command
     cmd = [
-        "pyfault", "run",
+        "floss", "run",
         "--source-dir", source_dir,
         "--test-dir", test_dir,
         "--output", output_file
@@ -523,7 +523,7 @@ def run_pyfault_analysis(source_dir: str, test_dir: str, output_file: str) -> Di
     result = subprocess.run(cmd, capture_output=True, text=True)
 
     if result.returncode != 0:
-        raise RuntimeError(f"PyFault failed: {result.stderr}")
+        raise RuntimeError(f"floss failed: {result.stderr}")
 
     # Load results
     with open(output_file) as f:
@@ -531,7 +531,7 @@ def run_pyfault_analysis(source_dir: str, test_dir: str, output_file: str) -> Di
 
 # Usage
 try:
-    report = run_pyfault_analysis("src", "tests", "analysis_report.json")
+    report = run_floss_analysis("src", "tests", "analysis_report.json")
     print(f"Analysis completed: {report['totals']['total_tests']} tests analyzed")
 except RuntimeError as e:
     print(f"Analysis failed: {e}")
@@ -541,7 +541,7 @@ except RuntimeError as e:
 
 ```python
 from click.testing import CliRunner
-from pyfault.cli.main import main
+from floss.cli.main import main
 
 def test_cli_integration():
     """Test CLI integration."""
@@ -569,7 +569,7 @@ def test_cli_integration():
 ### Programmatic Dashboard Launch
 
 ```python
-from pyfault.ui.dashboard import launch_dashboard
+from floss.ui.dashboard import launch_dashboard
 import threading
 import time
 
@@ -602,7 +602,7 @@ print(f"Dashboard available at: {dashboard_url}")
 ```python
 import streamlit as st
 import json
-from pyfault.ui.dashboard import calculate_formula_statistics
+from floss.ui.dashboard import calculate_formula_statistics
 
 def create_custom_summary(report_file: str):
     """Create custom summary component."""
@@ -635,9 +635,9 @@ def create_custom_summary(report_file: str):
 
 # Usage in Streamlit app
 if __name__ == "__main__":
-    st.set_page_config(page_title="Custom PyFault Dashboard")
+    st.set_page_config(page_title="Custom floss Dashboard")
 
-    uploaded_file = st.file_uploader("Upload PyFault Report", type="json")
+    uploaded_file = st.file_uploader("Upload floss Report", type="json")
     if uploaded_file:
         # Save uploaded file
         with open("temp_report.json", "wb") as f:
@@ -652,8 +652,8 @@ if __name__ == "__main__":
 ### Custom Test Runner Integration
 
 ```python
-from pyfault.test.config import TestConfig
-from pyfault.test.runner import TestResult
+from floss.test.config import TestConfig
+from floss.test.runner import TestResult
 import subprocess
 import json
 
@@ -694,7 +694,7 @@ class CustomTestRunner:
         pass
 
     def _generate_coverage_data(self):
-        """Generate coverage data in PyFault format."""
+        """Generate coverage data in floss format."""
         # Implementation specific to coverage tool used
         pass
 ```
@@ -703,7 +703,7 @@ class CustomTestRunner:
 
 ```python
 from typing import Dict, List
-from pyfault.formulas.base import SBFLFormula
+from floss.formulas.base import SBFLFormula
 
 class FormulaPlugin:
     """Plugin interface for custom formulas."""
@@ -743,8 +743,8 @@ def register_formula_plugin(engine, plugin: FormulaPlugin):
 ### Configuration Extension
 
 ```python
-from pyfault.test.config import TestConfig
-from pyfault.fl.config import FLConfig
+from floss.test.config import TestConfig
+from floss.fl.config import FLConfig
 from typing import Optional, List
 
 class ExtendedTestConfig(TestConfig):
@@ -808,7 +808,7 @@ from typing import List
 import json
 
 class BatchProcessor:
-    """Process multiple projects with PyFault."""
+    """Process multiple projects with floss."""
 
     def __init__(self, base_config: TestConfig):
         self.base_config = base_config
@@ -828,8 +828,8 @@ class BatchProcessor:
 
     def process_single_project(self, project_dir: Path) -> Dict:
         """Process single project."""
-        from pyfault.test import TestRunner
-        from pyfault.fl import FLEngine, FLConfig
+        from floss.test import TestRunner
+        from floss.fl import FLEngine, FLConfig
 
         # Create project-specific config
         config = TestConfig(
@@ -881,4 +881,4 @@ for project, result in results.items():
     print(f"{project}: {result}")
 ```
 
-This API reference provides comprehensive documentation for integrating PyFault into your Python applications and extending its functionality for specific use cases.
+This API reference provides comprehensive documentation for integrating floss into your Python applications and extending its functionality for specific use cases.

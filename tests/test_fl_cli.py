@@ -8,7 +8,7 @@ from typing import Any, Dict
 
 from click.testing import CliRunner
 
-from pyfault.core.cli.main import main
+from floss.core.cli.main import main
 
 
 class TestFLCLI:
@@ -280,7 +280,7 @@ class TestFLCLIIntegration:
                 json.dump(realistic_coverage, f, indent=2)
 
             # Create config file
-            with open("pyfault.conf", "w") as f:
+            with open("floss.conf", "w") as f:
                 f.write(
                     """
 [fl]

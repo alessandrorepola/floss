@@ -1,5 +1,5 @@
 """
-Tests for the 'pyfault ui' CLI command.
+Tests for the 'FLOSS ui' CLI command.
 
 Covers help, successful launch with mocked dashboard, and ImportError path.
 """
@@ -11,7 +11,7 @@ from typing import Any, Optional
 
 from click.testing import CliRunner
 
-from pyfault.core.cli.main import main
+from floss.core.cli.main import main
 
 
 class TestUICLI:
@@ -19,7 +19,7 @@ class TestUICLI:
         runner = CliRunner()
         result = runner.invoke(main, ["ui", "--help"])
         assert result.exit_code == 0
-        assert "Launch PyFault dashboard" in result.output
+        assert "Launch FLOSS dashboard" in result.output
         assert "--report" in result.output
         assert "--port" in result.output
         assert "--no-open" in result.output
@@ -27,7 +27,7 @@ class TestUICLI:
     def test_ui_command_success_with_mock_dashboard(self, monkeypatch: Any) -> None:
         runner = CliRunner()
 
-        # Create a fake module pyfault.ui.dashboard with a mock launch_dashboard
+        # Create a fake module FLOSS.ui.dashboard with a mock launch_dashboard
         fake_module = types.SimpleNamespace()
         calls: dict[str, Any] = {}
 
@@ -42,7 +42,7 @@ class TestUICLI:
         # from ..ui.dashboard import launch_dashboard works
         monkeypatch.setitem(
             sys.modules,
-            "pyfault.ui.dashboard",
+            "floss.ui.dashboard",
             fake_module,
         )
 
@@ -77,7 +77,7 @@ class TestUICLI:
             level: int = 0,
         ) -> Any:
             # Raise only for the dashboard import used by the ui command
-            target = "pyfault.ui.dashboard"
+            target = "floss.ui.dashboard"
             if name == target or (fromlist and target.endswith("." + name)):
                 raise ImportError("Dashboard not installed")
             return real_import(name, globals, locals, fromlist, level)

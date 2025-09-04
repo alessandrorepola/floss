@@ -3,11 +3,11 @@ Tests that validate TestRunner augments coverage JSON with expected
 meta and totals fields, including reordering.
 """
 
-from pyfault.core.test.config import TestConfig
-from pyfault.core.test.runner import TestRunner
+from floss.core.test.config import TestConfig
+from floss.core.test.runner import TestRunner
 
 
-def test_add_pyfault_metadata_and_summary_reorg() -> None:
+def test_add_FLOSS_metadata_and_summary_reorg() -> None:
     config = TestConfig()
     config.source_dir = "src"
     runner = TestRunner(config)
@@ -23,8 +23,8 @@ def test_add_pyfault_metadata_and_summary_reorg() -> None:
         "skipped": [],
     }
 
-    updated = runner._add_pyfault_metadata(coverage_data, test_outcomes)
-    assert updated["meta"]["tool"] == "PyFault"
+    updated = runner._add_floss_metadata(coverage_data, test_outcomes)
+    assert updated["meta"]["tool"] == "floss"
     assert updated["meta"]["phase"] == "test_execution"
     assert updated["meta"]["source_dir"] == "src"
 

@@ -7,8 +7,8 @@ import json
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict
 
-from pyfault.core.fl.config import FLConfig
-from pyfault.core.fl.engine import FLEngine
+from floss.core.fl.config import FLConfig
+from floss.core.fl.engine import FLEngine
 
 
 def test_fl_report_contains_expected_sections_and_order() -> None:
@@ -70,15 +70,15 @@ def test_test_phase_metadata_fields_present_and_promoted() -> None:
     }
 
     # Import internal helpers directly
-    from pyfault.core.test.config import TestConfig
-    from pyfault.core.test.runner import TestRunner
+    from floss.core.test.config import TestConfig
+    from floss.core.test.runner import TestRunner
 
     runner = TestRunner(TestConfig())
-    coverage_data = runner._add_pyfault_metadata(coverage_data, test_outcomes)
+    coverage_data = runner._add_floss_metadata(coverage_data, test_outcomes)
     reorganized = runner._add_test_summary_info(coverage_data, test_outcomes)
 
     # Metadata flags added
-    assert reorganized["meta"]["tool"] == "PyFault"
+    assert reorganized["meta"]["tool"] == "floss"
     assert reorganized["meta"]["phase"] == "test_execution"
 
     # Totals include test_statistics

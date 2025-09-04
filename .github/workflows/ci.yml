@@ -1,4 +1,4 @@
-name: PyFault CI/CD
+name: FLOSS CI/CD
 
 on:
   push:
@@ -28,19 +28,19 @@ jobs:
 
     - name: Check code formatting with Black
       run: |
-        black --check --diff pyfault/
+        black --check --diff FLOSS/
 
     - name: Check import sorting with isort
       run: |
-        isort --check-only --diff pyfault/
+        isort --check-only --diff FLOSS/
 
     - name: Check code style with Flake8
       run: |
-        flake8 pyfault/
+        flake8 FLOSS/
 
     - name: Check type hints with MyPy
       run: |
-        mypy pyfault/
+        mypy FLOSS/
 
   build-and-test:
     name: Build and Test

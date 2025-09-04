@@ -1,6 +1,6 @@
 # Dummy Example - Simple Synthetic Bug
 
-This example provides a simple, synthetic demonstration of PyFault's fault localization capabilities using artificially created bugs in geometric calculation functions.
+This example provides a simple, synthetic demonstration of floss's fault localization capabilities using artificially created bugs in geometric calculation functions.
 
 ## Example Description
 
@@ -11,10 +11,10 @@ This example provides a simple, synthetic demonstration of PyFault's fault local
 
 ### Purpose
 This example serves as:
-- **Introduction to PyFault**: Simple scenario for learning PyFault basics
+- **Introduction to floss**: Simple scenario for learning floss basics
 - **Educational tool**: Clear demonstration of fault localization concepts
-- **Testing baseline**: Controlled environment for validating PyFault functionality
-- **Development aid**: Quick example for PyFault development and debugging
+- **Testing baseline**: Controlled environment for validating floss functionality
+- **Development aid**: Quick example for floss development and debugging
 
 ## Project Structure
 
@@ -28,7 +28,7 @@ dummy-example/
 │   ├── __init__.py
 │   ├── test_equilateral.py # Tests for equilateral triangle (one failing test)
 │   └── test_isosceles.py   # Tests for isosceles triangle (all passing)
-├── pyfault.conf           # PyFault configuration
+├── floss.conf           # floss configuration
 ├── .coverage              # Coverage data (if previously run)
 └── .coveragerc           # Coverage configuration
 ```
@@ -58,43 +58,43 @@ area = const * term  # Should be multiplication
 
 ### Prerequisites
 - Python 3.9+ (any recent Python version)
-- PyFault installed
+- floss installed
 
 ### Quick Setup
 ```bash
 # Navigate to the dummy example directory
 cd examples/dummy-example
 
-# Install PyFault if not already installed
+# Install floss if not already installed
 pip install -e ../../
 
 # Ready to run! No additional setup needed
 ```
 
-## Running PyFault
+## Running floss
 
 ### Complete Pipeline
 ```bash
 # Run the complete fault localization pipeline
-pyfault run --source-dir src --test-dir tests
+floss run --source-dir src --test-dir tests
 ```
 
 ### Step-by-Step
 ```bash
 # Step 1: Run tests with coverage collection
-pyfault test --source-dir src --test-dir tests --output coverage.json
+floss test --source-dir src --test-dir tests --output coverage.json
 
 # Step 2: Calculate fault localization scores
-pyfault fl --input coverage.json --output report.json --formulas ochiai tarantula dstar2
+floss fl --input coverage.json --output report.json --formulas ochiai tarantula dstar2
 
 # Step 3: Launch interactive dashboard
-pyfault ui --report report.json
+floss ui --report report.json
 ```
 
 ### Using Configuration File
 ```bash
-# The included pyfault.conf file has pre-configured settings
-pyfault run --config pyfault.conf
+# The included floss.conf file has pre-configured settings
+floss run --config floss.conf
 ```
 
 ## Expected Results
@@ -105,7 +105,7 @@ pyfault run --config pyfault.conf
 - **Failing tests**: 1 test (test_ea_fail)
 
 ### Fault Localization Results
-PyFault should identify:
+floss should identify:
 1. **Highest suspiciousness**: Line 10 in `equilateral.py` (the actual bug)
 2. **Medium suspiciousness**: Lines around the bug (function definition, variable assignments)
 3. **Low suspiciousness**: Lines in `isosceles.py` (not involved in failing tests)
@@ -124,7 +124,7 @@ This example demonstrates:
 - Relationship between code coverage and fault localization
 - Different SBFL formula behaviors on simple bugs
 
-### PyFault Features
+### floss Features
 - Complete fault localization workflow
 - Configuration file usage
 - Interactive dashboard capabilities
@@ -158,7 +158,7 @@ Use the dashboard to:
 ## Educational Exercises
 
 ### Beginner Exercises
-1. **Run PyFault** and identify the bug location
+1. **Run floss** and identify the bug location
 2. **Compare formulas** - which gives the clearest results?
 3. **Fix the bug** and re-run to see results change
 4. **Add more tests** and observe the impact on suspiciousness
@@ -225,4 +225,4 @@ coverage json -o coverage.json
 If the dashboard doesn't show expected results:
 - Verify `report.json` was generated
 - Check that the report contains the expected failing test
-- Ensure PyFault UI dependencies are installed
+- Ensure floss UI dependencies are installed

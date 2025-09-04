@@ -77,8 +77,8 @@ fi
 echo "==> Upgrading pip, setuptools, wheel"
 $PY -m pip install --upgrade pip setuptools wheel
 
-# Install PyFault
-echo "==> Installing PyFault (editable) from repository root"
+# Install FLOSS
+echo "==> Installing FLOSS (editable) from repository root"
 $PY -m pip install -e ../../
 
 # Clone or update BugsInPy
@@ -106,12 +106,12 @@ echo "==> Installing Cookiecutter in editable mode"
 $PY -m pip install -e cookiecutter
 $PY -m pip install -r cookiecutter/test_requirements.txt
 
-# Copy pyfault.conf if present
-if [[ -f "pyfault.conf" ]]; then
-  echo "==> Copying pyfault.conf into cookiecutter/"
-  cp -f "pyfault.conf" "cookiecutter/"
+# Copy FLOSS.conf if present
+if [[ -f "FLOSS.conf" ]]; then
+  echo "==> Copying FLOSS.conf into cookiecutter/"
+  cp -f "FLOSS.conf" "cookiecutter/"
 else
-  echo "Warning: pyfault.conf not found, skipping copy." >&2
+  echo "Warning: FLOSS.conf not found, skipping copy." >&2
 fi
 
 echo "Setup completed for Cookiecutter bug $BUG_NUMBER."

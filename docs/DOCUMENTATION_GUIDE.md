@@ -1,10 +1,10 @@
-# PyFault Documentation Summary
+# floss Documentation Summary
 
-This document provides an overview of the complete PyFault documentation suite and guides you to the appropriate resources for your needs.
+This document provides an overview of the complete floss documentation suite and guides you to the appropriate resources for your needs.
 
 ## Documentation Structure
 
-The PyFault project includes comprehensive documentation across multiple files:
+The floss project includes comprehensive documentation across multiple files:
 
 ### Core Documentation
 
@@ -46,7 +46,7 @@ The PyFault project includes comprehensive documentation across multiple files:
 - **Quick setup**: See "Quick Start" section in [README.md](README.md)
 - **Installation issues**: Check "Installation" and "Troubleshooting" in [USAGE.md](USAGE.md)
 
-### Using PyFault
+### Using floss
 - **CLI commands**: Reference sections in [README.md](README.md) and [USAGE.md](USAGE.md)
 - **Configuration**: "Configuration" sections in [README.md](README.md) and [USAGE.md](USAGE.md)
 - **Dashboard**: "Web Dashboard" section in [README.md](README.md) and [USAGE.md](USAGE.md)
@@ -142,7 +142,7 @@ Each documentation file follows these principles:
 
 ## Visual Architecture Overview
 
-The included Draw.io diagram ([pyfault_arch.drawio](pyfault_arch.drawio)) provides a visual representation of:
+The included Draw.io diagram ([floss_arch.drawio](floss_arch.drawio)) provides a visual representation of:
 
 - **System layers**: CLI, Core Components, Formulas, Data Flow
 - **Component relationships**: How different parts interact
@@ -150,7 +150,7 @@ The included Draw.io diagram ([pyfault_arch.drawio](pyfault_arch.drawio)) provid
 - **Data flow**: From source code through tests to visualizations
 
 To view the diagram:
-1. Open [pyfault_arch.drawio](pyfault_arch.drawio) in Draw.io
+1. Open [floss_arch.drawio](floss_arch.drawio) in Draw.io
 2. Or import it into any Draw.io-compatible tool
 3. The diagram shows the complete system architecture at a glance
 
@@ -182,4 +182,4 @@ Based on your role and needs:
 3. Study configuration management options
 4. Implement monitoring and reporting
 
-This comprehensive documentation suite ensures that PyFault can be effectively used across different roles, skill levels, and use cases, from simple fault localization tasks to advanced research applications and enterprise integrations.
+This comprehensive documentation suite ensures that floss can be effectively used across different roles, skill levels, and use cases, from simple fault localization tasks to advanced research applications and enterprise integrations.

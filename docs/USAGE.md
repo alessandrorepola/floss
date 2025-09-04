@@ -1,6 +1,6 @@
-# PyFault Usage Guide
+# floss Usage Guide
 
-This guide provides comprehensive examples and best practices for using PyFault in various scenarios.
+This guide provides comprehensive examples and best practices for using floss in various scenarios.
 
 ## Table of Contents
 
@@ -20,7 +20,7 @@ This guide provides comprehensive examples and best practices for using PyFault 
 For basic fault localization functionality:
 
 ```bash
-pip install pyfault
+pip install floss
 ```
 
 ### With Dashboard Support
@@ -28,38 +28,38 @@ pip install pyfault
 For full functionality including the web dashboard:
 
 ```bash
-pip install "pyfault[ui]"
+pip install "floss[ui]"
 ```
 
 ### Development Installation
 
-For contributing to PyFault:
+For contributing to floss:
 
 ```bash
-git clone https://github.com/example/pyfault.git
-cd pyfault
+git clone https://github.com/example/floss.git
+cd floss
 pip install -e ".[dev,ui]"
 ```
 
 ### Verify Installation
 
 ```bash
-pyfault --help
+floss --help
 ```
 
 ## Learning with Examples
 
-PyFault includes curated examples that demonstrate fault localization on real-world projects. These examples are the best way to learn PyFault's capabilities.
+floss includes curated examples that demonstrate fault localization on real-world projects. These examples are the best way to learn floss's capabilities.
 
 ### Example Categories
 
 #### Educational Examples
-Perfect for learning PyFault basics:
+Perfect for learning floss basics:
 ```bash
 # Simple synthetic bug - great for beginners
 cd examples/dummy-example
-pyfault run --source-dir src --test-dir tests
-pyfault ui --report report.json
+floss run --source-dir src --test-dir tests
+floss ui --report report.json
 ```
 
 #### Real Framework Bugs
@@ -69,8 +69,8 @@ Actual bugs from popular Python frameworks:
 cd examples/fastapi
 ./setup.sh 6  # Setup bug 6 specifically
 cd fastapi
-pyfault run
-pyfault ui --report report.json
+floss run
+floss ui --report report.json
 
 # FastAPI with multiple bug examples (1-16 available)
 ./setup.sh 11  # Response model validation issue
@@ -80,7 +80,7 @@ pyfault ui --report report.json
 cd examples/cookiecutter
 ./setup.sh 1   # File encoding issue
 cd cookiecutter
-pyfault run
+floss run
 ```
 
 #### 📊 Data Science Examples
@@ -90,7 +90,7 @@ Fault localization on scientific computing code:
 cd examples/pygraphistry
 ./setup.sh  # Downloads PyGraphistry
 cd pygraphistry
-pyfault test --source-dir graphistry --test-dir tests
+floss test --source-dir graphistry --test-dir tests
 ```
 
 ### Example Learning Path
@@ -112,8 +112,8 @@ Each example includes:
 - ✅ Detailed README with bug description
 - ✅ Automated setup scripts
 - ✅ **Bug patch files** showing the exact fix
-- ✅ Pre-generated PyFault reports for comparison
-- ✅ Pre-configured PyFault settings
+- ✅ Pre-generated floss reports for comparison
+- ✅ Pre-configured floss settings
 - ✅ Expected results and analysis guides
 
 For complete example documentation, see [`examples/README.md`](../examples/README.md).
@@ -132,10 +132,10 @@ my_project/
 ├── tests/
 │   ├── test_calculator.py
 │   └── test_utils.py
-└── pyfault.conf
+└── floss.conf
 ```
 
-**Step 1**: Create configuration file (`pyfault.conf`):
+**Step 1**: Create configuration file (`floss.conf`):
 
 ```ini
 [test]
@@ -150,13 +150,13 @@ formulas = ochiai, tarantula, dstar2
 
 ```bash
 cd my_project
-pyfault run
+floss run
 ```
 
 **Step 3**: View results:
 
 ```bash
-pyfault ui
+floss ui
 ```
 
 ### Example 2: Large Project with Custom Settings
@@ -165,7 +165,7 @@ For larger projects with specific requirements:
 
 ```bash
 # Run with specific test filters and exclusions
-pyfault run \
+floss run \
   --source-dir src \
   --test-dir tests \
   --test-filter "not slow and not integration" \
@@ -176,7 +176,7 @@ pyfault run \
   --output detailed_report.json
 
 # Launch dashboard on custom port
-pyfault ui --report detailed_report.json --port 8080
+floss ui --report detailed_report.json --port 8080
 ```
 
 ### Example 3: CI/CD Integration
@@ -187,14 +187,14 @@ pyfault ui --report detailed_report.json --port 8080
 
 set -e
 
-echo "Running PyFault analysis..."
+echo "Running floss analysis..."
 
 # Run fault localization
-pyfault run \
+floss run \
   --source-dir src \
   --test-dir tests \
   --output fl_report.json \
-  --config .pyfault.conf
+  --config .floss.conf
 
 # Check if report was generated
 if [ -f "fl_report.json" ]; then
@@ -224,42 +224,42 @@ fi
 
 ```bash
 # Minimal setup - auto-detect test directory
-pyfault test --source-dir src
+floss test --source-dir src
 
 # Explicit test directory
-pyfault test --source-dir src --test-dir tests
+floss test --source-dir src --test-dir tests
 
 # Custom output file
-pyfault test --source-dir src --output my_coverage.json
+floss test --source-dir src --output my_coverage.json
 ```
 
 #### Test Filtering
 
 ```bash
 # Run only fast tests
-pyfault test --test-filter "not slow"
+floss test --test-filter "not slow"
 
 # Run specific test categories
-pyfault test --test-filter "unit or integration"
+floss test --test-filter "unit or integration"
 
 # Run tests matching pattern
-pyfault test --test-filter "test_calculate*"
+floss test --test-filter "test_calculate*"
 
 # Exclude specific tests
-pyfault test --test-filter "not test_expensive_operation"
+floss test --test-filter "not test_expensive_operation"
 ```
 
 #### File Pattern Management
 
 ```bash
 # Ignore specific directories from test discovery
-pyfault test --ignore "*/migrations/*" --ignore "*/vendor/*"
+floss test --ignore "*/migrations/*" --ignore "*/vendor/*"
 
 # Omit files from coverage collection
-pyfault test --omit "*/test_*" --omit "*/__init__.py"
+floss test --omit "*/test_*" --omit "*/__init__.py"
 
 # Combine multiple patterns
-pyfault test \
+floss test \
   --ignore "*/migrations/*" \
   --ignore "*/third_party/*" \
   --omit "*/__init__.py" \
@@ -272,25 +272,25 @@ pyfault test \
 
 ```bash
 # Use single formula
-pyfault fl --formulas ochiai
+floss fl --formulas ochiai
 
 # Use multiple formulas
-pyfault fl --formulas ochiai tarantula jaccard
+floss fl --formulas ochiai tarantula jaccard
 
 # Use all available formulas
-pyfault fl --formulas ochiai tarantula jaccard dstar2 dstar3 kulczynski2 naish1 russellrao sorensendice sbi
+floss fl --formulas ochiai tarantula jaccard dstar2 dstar3 kulczynski2 naish1 russellrao sorensendice sbi
 ```
 
 #### File Handling
 
 ```bash
 # Custom input/output files
-pyfault fl --input my_coverage.json --output detailed_report.json
+floss fl --input my_coverage.json --output detailed_report.json
 
 # Process multiple coverage files (requires scripting)
 for coverage_file in coverage_*.json; do
     output_file="report_${coverage_file#coverage_}"
-    pyfault fl --input "$coverage_file" --output "$output_file"
+    floss fl --input "$coverage_file" --output "$output_file"
 done
 ```
 
@@ -300,17 +300,17 @@ done
 
 ```bash
 # Basic pipeline
-pyfault run
+floss run
 
 # Customized pipeline
-pyfault run \
+floss run \
   --source-dir src \
   --test-dir tests \
   --output final_report.json \
   --formulas ochiai tarantula dstar2
 
 # Pipeline with filtering
-pyfault run \
+floss run \
   --test-filter "not slow" \
   --ignore "*/migrations/*" \
   --formulas ochiai dstar2
@@ -322,23 +322,23 @@ pyfault run \
 
 ```bash
 # Default settings
-pyfault ui
+floss ui
 
 # Custom report file
-pyfault ui --report my_report.json
+floss ui --report my_report.json
 
 # Custom port
-pyfault ui --port 8080
+floss ui --port 8080
 
 # Don't auto-open browser
-pyfault ui --no-open
+floss ui --no-open
 ```
 
 #### Dashboard for Remote Access
 
 ```bash
 # For remote server access
-pyfault ui --port 8501 --no-open
+floss ui --port 8501 --no-open
 # Then access via http://server-ip:8501
 ```
 
@@ -347,7 +347,7 @@ pyfault ui --port 8501 --no-open
 ### Basic Configuration
 
 ```ini
-# pyfault.conf
+# floss.conf
 [test]
 source_dir = src
 test_dir = tests
@@ -362,7 +362,7 @@ formulas = ochiai, tarantula
 ### Advanced Configuration
 
 ```ini
-# pyfault.conf
+# floss.conf
 [test]
 source_dir = src
 test_dir = tests
@@ -384,7 +384,7 @@ formulas = ochiai, tarantula, jaccard, dstar2, dstar3, kulczynski2
 #### Django Project
 
 ```ini
-# pyfault.conf
+# floss.conf
 [test]
 source_dir = .
 test_dir = tests
@@ -398,7 +398,7 @@ formulas = ochiai, tarantula, dstar2
 #### Flask Project
 
 ```ini
-# pyfault.conf
+# floss.conf
 [test]
 source_dir = app
 test_dir = tests
@@ -412,7 +412,7 @@ formulas = ochiai, jaccard, dstar2
 #### Scientific Computing Project
 
 ```ini
-# pyfault.conf
+# floss.conf
 [test]
 source_dir = src
 test_dir = tests
@@ -430,7 +430,7 @@ formulas = ochiai, dstar2, kulczynski2
 #### Development Environment
 
 ```ini
-# pyfault.dev.conf
+# floss.dev.conf
 [test]
 source_dir = src
 test_dir = tests
@@ -445,7 +445,7 @@ formulas = ochiai, tarantula
 #### CI/CD Environment
 
 ```ini
-# pyfault.ci.conf
+# floss.ci.conf
 [test]
 source_dir = src
 test_dir = tests
@@ -463,7 +463,7 @@ formulas = ochiai, tarantula, jaccard, dstar2, dstar3
 
 1. **Launch Dashboard**:
    ```bash
-   pyfault ui --report report.json
+   floss ui --report report.json
    ```
 
 2. **File Selection**:
@@ -613,11 +613,11 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -e .
-        pip install pyfault
+        pip install floss
 
     - name: Run fault localization
       run: |
-        pyfault run --source-dir src --test-dir tests --output fl_report.json
+        floss run --source-dir src --test-dir tests --output fl_report.json
 
     - name: Upload fault localization report
       uses: actions/upload-artifact@v3
@@ -648,13 +648,13 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh 'pip install -e .'
-                sh 'pip install pyfault'
+                sh 'pip install floss'
             }
         }
 
         stage('Fault Localization') {
             steps {
-                sh 'pyfault run --config .pyfault.ci.conf --output fl_report.json'
+                sh 'floss run --config .floss.ci.conf --output fl_report.json'
             }
             post {
                 always {
@@ -687,9 +687,9 @@ pipeline {
 repos:
   - repo: local
     hooks:
-      - id: pyfault-analysis
-        name: PyFault Analysis
-        entry: bash -c 'pyfault test --source-dir src --test-dir tests'
+      - id: floss-analysis
+        name: floss Analysis
+        entry: bash -c 'floss test --source-dir src --test-dir tests'
         language: system
         pass_filenames: false
         stages: [pre-push]
@@ -705,9 +705,9 @@ repos:
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "PyFault: Run Analysis",
+            "label": "floss: Run Analysis",
             "type": "shell",
-            "command": "pyfault",
+            "command": "floss",
             "args": ["run", "--source-dir", "src", "--test-dir", "tests"],
             "group": "test",
             "presentation": {
@@ -719,9 +719,9 @@ repos:
             "problemMatcher": []
         },
         {
-            "label": "PyFault: Launch Dashboard",
+            "label": "floss: Launch Dashboard",
             "type": "shell",
-            "command": "pyfault",
+            "command": "floss",
             "args": ["ui", "--report", "report.json"],
             "group": "test",
             "presentation": {
@@ -741,7 +741,7 @@ repos:
 ### Configuration Management
 
 1. **Use Configuration Files**:
-   - Create project-specific `pyfault.conf`
+   - Create project-specific `floss.conf`
    - Version control configuration files
    - Document configuration choices
 
@@ -811,13 +811,13 @@ repos:
 **Solutions**:
 ```bash
 # Check if tests are being discovered
-pyfault test
+floss test
 
 # Verify source and test directories
-pyfault test --source-dir src --test-dir tests
+floss test --source-dir src --test-dir tests
 
 # Check ignore patterns
-pyfault test --ignore "*/__init__.py"
+floss test --ignore "*/__init__.py"
 ```
 
 #### 2. Tests Not Found
@@ -827,10 +827,10 @@ pyfault test --ignore "*/__init__.py"
 **Solutions**:
 ```bash
 # Let pytest auto-discover tests
-pyfault test --source-dir src
+floss test --source-dir src
 
 # Specify test directory explicitly
-pyfault test --source-dir src --test-dir tests
+floss test --source-dir src --test-dir tests
 
 # Check test naming conventions (test_*.py or *_test.py)
 ls tests/test_*.py
@@ -844,7 +844,7 @@ ls tests/test_*.py
 ```bash
 # Ensure source directory is in Python path
 export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
-pyfault test --source-dir src --test-dir tests
+floss test --source-dir src --test-dir tests
 
 # Use relative imports in tests
 # Or install package in development mode
@@ -858,13 +858,13 @@ pip install -e .
 **Solutions**:
 ```bash
 # Check if UI dependencies are installed
-pip install "pyfault[ui]"
+pip install "floss[ui]"
 
 # Verify report file exists and is valid JSON
 python -m json.tool report.json
 
 # Try different port
-pyfault ui --port 8080
+floss ui --port 8080
 ```
 
 #### 5. Performance Issues
@@ -874,17 +874,17 @@ pyfault ui --port 8080
 **Solutions**:
 ```bash
 # Reduce scope with ignore patterns
-pyfault test --ignore "*/migrations/*" --ignore "*/vendor/*"
+floss test --ignore "*/migrations/*" --ignore "*/vendor/*"
 
 # Use test filters to run subset
-pyfault test --test-filter "not slow"
+floss test --test-filter "not slow"
 
 # Reduce number of formulas
-pyfault fl --formulas ochiai tarantula
+floss fl --formulas ochiai tarantula
 
 # Process smaller chunks of tests
-pyfault test --test-filter "unit"
-pyfault test --test-filter "integration"
+floss test --test-filter "unit"
+floss test --test-filter "integration"
 ```
 
 ### Debug Mode
@@ -892,7 +892,7 @@ pyfault test --test-filter "integration"
 Enable verbose output for troubleshooting:
 
 ```bash
-pyfault --verbose run --source-dir src --test-dir tests
+floss --verbose run --source-dir src --test-dir tests
 ```
 
 ### Getting Help
@@ -904,7 +904,7 @@ pyfault --verbose run --source-dir src --test-dir tests
 
 ### Log Analysis
 
-PyFault provides structured logging. Key log messages to look for:
+floss provides structured logging. Key log messages to look for:
 
 - **Configuration Loading**: Verify correct settings are loaded
 - **Test Discovery**: Check how many tests are found
@@ -912,4 +912,4 @@ PyFault provides structured logging. Key log messages to look for:
 - **Formula Calculation**: Verify suspiciousness calculations
 - **Report Generation**: Confirm successful report creation
 
-This usage guide should help you effectively integrate PyFault into your Python development workflow. Start with the basic examples and gradually adopt more advanced features as your needs grow.
+This usage guide should help you effectively integrate floss into your Python development workflow. Start with the basic examples and gradually adopt more advanced features as your needs grow.

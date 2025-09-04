@@ -33,19 +33,19 @@ jobs:
 
     - name: Check code formatting with Black
       run: |
-        black --check --diff pyfault/
+        black --check --diff floss/
 
     - name: Check import sorting with isort
       run: |
-        isort --check-only --diff pyfault/
+        isort --check-only --diff floss/
 
     - name: Check code style with Flake8
       run: |
-        flake8 pyfault/
+        flake8 floss/
 
     - name: Check type hints with MyPy
       run: |
-        mypy pyfault/
+        mypy floss/
 
     - name: Run tests
       run: |

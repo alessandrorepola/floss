@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pyfault"
+name = "floss"
 version = "0.1.0"
-description = "A Python framework for Spectrum-Based Fault Localization (SBFL)"
+description = "FLOSS: Fault Localization with Spectrum-based Scoring - A Python framework for Spectrum-Based Fault Localization (SBFL)"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
@@ -51,11 +51,11 @@ dev = [
 ]
 
 [project.scripts]
-pyfault = "pyfault.core.cli.main:main"
+floss = "floss.core.cli.main:main"
 
 [project.urls]
-Repository = "https://github.com/alessandrorepola/pyfault"
-Issues = "https://github.com/alessandrorepola/pyfault/issues"
+Repository = "https://github.com/alessandrorepola/floss"
+Issues = "https://github.com/alessandrorepola/floss/issues"
 
 [tool.setuptools.packages.find]
 where = [""]

@@ -302,7 +302,7 @@ def main() -> None:
     print("=" * 60)
 
     # Read data from previous analysis
-    csv_path = "pyfault_effectiveness_summary.csv"
+    csv_path = "FLOSS_effectiveness_summary.csv"
     if not os.path.exists(csv_path):
         print(
             f"Errore: File {csv_path} non trovato. "

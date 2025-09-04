@@ -1,12 +1,12 @@
 """
-Documentation and help tests for the pyfault run command.
+Documentation and help tests for the FLOSS run command.
 
 These tests ensure that the command provides proper help and documentation.
 """
 
 from click.testing import CliRunner
 
-from pyfault.core.cli.main import main
+from floss.core.cli.main import main
 
 
 class TestRunCommandDocumentation:
@@ -72,7 +72,7 @@ class TestRunCommandDocumentation:
         assert (
             "report.json)" in result.output
         )  # output default (may be on multiple lines)
-        assert "(default: pyfault.conf)" in result.output  # config default
+        assert "(default: floss.conf)" in result.output  # config default
 
     def test_run_command_examples_in_help(self) -> None:
         """Test that help includes usage examples or clear descriptions."""

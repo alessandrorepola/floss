@@ -1,5 +1,5 @@
 """
-Integration tests specifically for the pyfault run command.
+Integration tests specifically for the FLOSS run command.
 
 These tests focus on the integration between the test and FL phases,
 configuration handling, and file management.
@@ -13,7 +13,7 @@ from pathlib import Path
 
 from click.testing import CliRunner
 
-from pyfault.core.cli.main import main
+from floss.core.cli.main import main
 
 
 class TestRunCommandIntegration:

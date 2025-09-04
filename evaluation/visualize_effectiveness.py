@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script to visualize PyFault effectiveness analysis results.
+Script to visualize FLOSS effectiveness analysis results.
 Generates charts and tables to present results clearly.
 """
 
@@ -16,8 +16,8 @@ import seaborn as sns
 
 def load_results() -> tuple[pd.DataFrame, Dict[str, Any]]:
     """Load analysis results"""
-    csv_path = "pyfault_effectiveness_summary.csv"
-    json_path = "pyfault_effectiveness_analysis.json"
+    csv_path = "FLOSS_effectiveness_summary.csv"
+    json_path = "FLOSS_effectiveness_analysis.json"
 
     # Load detailed data
     df = pd.read_csv(csv_path)
@@ -39,7 +39,7 @@ def create_effectiveness_charts(df: pd.DataFrame, summary: Dict[str, Any]) -> No
     # Figure with multiple subplots
     fig, axes = plt.subplots(2, 2, figsize=(15, 12))
     fig.suptitle(
-        "PyFault: Fault Localization Effectiveness Analysis",
+        "FLOSS: Fault Localization Effectiveness Analysis",
         fontsize=16,
         fontweight="bold",
     )
@@ -179,9 +179,9 @@ def create_effectiveness_charts(df: pd.DataFrame, summary: Dict[str, Any]) -> No
     ax4.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig("pyfault_effectiveness_analysis.png", dpi=300, bbox_inches="tight")
-    plt.savefig("pyfault_effectiveness_analysis.pdf", bbox_inches="tight")
-    print("Grafici salvati come 'pyfault_effectiveness_analysis.png' e '.pdf'")
+    plt.savefig("FLOSS_effectiveness_analysis.png", dpi=300, bbox_inches="tight")
+    plt.savefig("FLOSS_effectiveness_analysis.pdf", bbox_inches="tight")
+    print("Grafici salvati come 'FLOSS_effectiveness_analysis.png' e '.pdf'")
     plt.show()
 
 
@@ -305,15 +305,15 @@ def generate_summary_statistics(df: pd.DataFrame, summary: Dict[str, Any]) -> No
 
 def main() -> None:
     """Main function"""
-    print("PyFault Results Visualization")
+    print("FLOSS Results Visualization")
     print("=" * 50)
 
     # Check that files exist
-    if not Path("pyfault_effectiveness_summary.csv").exists():
+    if not Path("FLOSS_effectiveness_summary.csv").exists():
         print("❌ CSV file not found. Run 'analyze_effectiveness.py' first")
         return
 
-    if not Path("pyfault_effectiveness_analysis.json").exists():
+    if not Path("FLOSS_effectiveness_analysis.json").exists():
         print("❌ JSON file not found. Run 'analyze_effectiveness.py' first")
         return
 

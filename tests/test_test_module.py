@@ -14,8 +14,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pyfault.core.test.config import TestConfig
-from pyfault.core.test.runner import TestResult, TestRunner
+from floss.core.test.config import TestConfig
+from floss.core.test.runner import TestResult, TestRunner
 
 
 class TestTestConfig:
@@ -310,8 +310,8 @@ def test_subtract_normal():
         assert "files" in result
         assert "totals" in result
 
-    @patch("pyfault.core.test.runner.TestRunner._load_coverage_data")
-    @patch("pyfault.core.test.runner.TestRunner._parse_junit_xml")
+    @patch("floss.core.test.runner.TestRunner._load_coverage_data")
+    @patch("floss.core.test.runner.TestRunner._parse_junit_xml")
     @patch("subprocess.run")
     def test_run_tests_success(
         self, mock_run: Mock, mock_parse_xml: Mock, mock_load_coverage: Mock
@@ -358,7 +358,7 @@ def test_subtract_normal():
         with pytest.raises(RuntimeError, match="pytest execution failed"):
             runner.run_tests()
 
-    @patch("pyfault.core.test.runner.TestRunner._parse_junit_xml")
+    @patch("floss.core.test.runner.TestRunner._parse_junit_xml")
     @patch("subprocess.run")
     def test_run_tests_missing_coverage_file(
         self, mock_run: Mock, mock_parse_xml: Mock
@@ -534,7 +534,7 @@ def test_is_even_false():
         )
 
         # Create configuration file
-        (self.temp_dir / "pyfault.conf").write_text(
+        (self.temp_dir / "floss.conf").write_text(
             """[test]
 source_dir = src
 output_file = integration_coverage.json
@@ -543,7 +543,7 @@ output_file = integration_coverage.json
 
     def test_full_workflow_with_config_file(self) -> None:
         """Test the complete workflow using configuration file."""
-        config = TestConfig.from_file("pyfault.conf")
+        config = TestConfig.from_file("floss.conf")
         runner = TestRunner(config)
 
         # This would require pytest to be available and work with the real file system
@@ -555,7 +555,7 @@ output_file = integration_coverage.json
     def test_config_override_precedence(self) -> None:
         """Test that command line arguments override config file."""
         # Load from file
-        config = TestConfig.from_file("pyfault.conf")
+        config = TestConfig.from_file("floss.conf")
         assert config.source_dir == "src"
         assert config.output_file == "integration_coverage.json"
 

@@ -1,4 +1,4 @@
-# PowerShell script for PyFault development tasks
+# PowerShell script for floss development tasks
 # Usage: .\dev.ps1 <command>
 
 param(
@@ -30,8 +30,8 @@ function Install-Dev {
 
 function Format-Code {
     Write-Host "🎨 Formatting code..." -ForegroundColor Blue
-    isort pyfault/
-    black pyfault/
+    isort floss/
+    black floss/
     Write-Host "✅ Code formatting complete!" -ForegroundColor Green
 }
 
@@ -39,19 +39,19 @@ function Run-Lint {
     Write-Host "🔍 Running code quality checks..." -ForegroundColor Blue
 
     Write-Host "Checking code formatting with Black..." -ForegroundColor Yellow
-    black --check --diff pyfault/
+    black --check --diff floss/
     if ($LASTEXITCODE -ne 0) { throw "Black check failed" }
 
     Write-Host "Checking import sorting with isort..." -ForegroundColor Yellow
-    isort --check-only --diff pyfault/
+    isort --check-only --diff floss/
     if ($LASTEXITCODE -ne 0) { throw "isort check failed" }
 
     Write-Host "Checking code style with Flake8..." -ForegroundColor Yellow
-    flake8 pyfault/
+    flake8 floss/
     if ($LASTEXITCODE -ne 0) { throw "Flake8 check failed" }
 
     Write-Host "Checking type hints with MyPy..." -ForegroundColor Yellow
-    mypy pyfault/
+    mypy floss/
     if ($LASTEXITCODE -ne 0) { throw "MyPy check failed" }
 
     Write-Host "✅ All linting checks passed!" -ForegroundColor Green

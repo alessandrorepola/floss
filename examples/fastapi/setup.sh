@@ -77,8 +77,8 @@ fi
 echo "==> Upgrading pip, setuptools, wheel"
 $PY -m pip install --upgrade pip setuptools wheel
 
-# Install PyFault
-echo "==> Installing PyFault (editable) from repository root"
+# Install FLOSS
+echo "==> Installing FLOSS (editable) from repository root"
 $PY -m pip install -e ../../
 
 # Clone or update BugsInPy
@@ -107,12 +107,12 @@ $PY -m pip install python-multipart
 $PY -m pip install -e fastapi
 $PY -m pip install -e fastapi[test]
 
-# Copy pyfault.conf if present
-if [[ -f "pyfault.conf" ]]; then
-  echo "==> Copying pyfault.conf into fastapi/"
-  cp -f "pyfault.conf" "fastapi/"
+# Copy FLOSS.conf if present
+if [[ -f "FLOSS.conf" ]]; then
+  echo "==> Copying FLOSS.conf into fastapi/"
+  cp -f "FLOSS.conf" "fastapi/"
 else
-  echo "Warning: pyfault.conf not found, skipping copy." >&2
+  echo "Warning: FLOSS.conf not found, skipping copy." >&2
 fi
 
 echo "Setup completed for FastAPI bug $BUG_NUMBER."

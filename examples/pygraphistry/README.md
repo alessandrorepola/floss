@@ -1,6 +1,6 @@
 # PyGraphistry Example - Data Visualization Library
 
-This example demonstrates PyFault's fault localization capabilities on PyGraphistry, a real-world data visualization library that provides graph analytics and visualization tools.
+This example demonstrates floss's fault localization capabilities on PyGraphistry, a real-world data visualization library that provides graph analytics and visualization tools.
 
 ## Project Description
 
@@ -22,7 +22,7 @@ PyGraphistry represents a different class of software compared to web frameworks
 ## Files Included
 
 - `setup.sh`: Automated setup script that clones PyGraphistry and configures the environment
-- `pyfault.conf`: Pre-configured PyFault settings optimized for PyGraphistry's structure
+- `floss.conf`: Pre-configured floss settings optimized for PyGraphistry's structure
 - `report.json`: Pre-generated fault localization results (when available)
 
 ## Setup Instructions
@@ -43,7 +43,7 @@ cd examples/pygraphistry
 
 # The script will:
 # 1. Create a Python virtual environment
-# 2. Install PyFault
+# 2. Install floss
 # 3. Clone PyGraphistry repository
 # 4. Install dependencies
 # 5. Copy configuration files
@@ -57,7 +57,7 @@ If the automated setup fails:
 python3 -m venv pygraphistry
 source pygraphistry/bin/activate
 
-# Install PyFault
+# Install floss
 pip install -e ../../
 
 # Clone PyGraphistry
@@ -69,7 +69,7 @@ pip install -e .
 pip install -r requirements-test.txt  # if available
 ```
 
-## Running PyFault
+## Running floss
 
 After setup completes, run fault localization:
 
@@ -78,18 +78,18 @@ After setup completes, run fault localization:
 cd PyGraphistry
 
 # Run complete fault localization pipeline
-pyfault run --source-dir graphistry --test-dir tests
+floss run --source-dir graphistry --test-dir tests
 
 # Or run step by step:
-pyfault test --source-dir graphistry --test-dir tests --output coverage.json
-pyfault fl --input coverage.json --output report.json --formulas ochiai tarantula dstar2 jaccard
+floss test --source-dir graphistry --test-dir tests --output coverage.json
+floss fl --input coverage.json --output report.json --formulas ochiai tarantula dstar2 jaccard
 ```
 
 ## Viewing Results
 
 Launch the interactive dashboard:
 ```bash
-pyfault ui --report report.json
+floss ui --report report.json
 ```
 
 The dashboard will show:
@@ -100,7 +100,7 @@ The dashboard will show:
 
 ## Expected Analysis Areas
 
-PyFault will analyze various components:
+floss will analyze various components:
 
 ### Core Modules
 1. **Graph processing**: Node and edge manipulation algorithms

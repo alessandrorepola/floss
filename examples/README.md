@@ -1,6 +1,6 @@
-# PyFault Examples
+# FLOSS Examples
 
-This directory contains real-world examples demonstrating PyFault's fault localization capabilities on actual software projects with known bugs.
+This directory contains real-world examples demonstrating FLOSS's fault localization capabilities on actual software projects with known bugs.
 
 ## Available Examples
 
@@ -21,7 +21,7 @@ Real bugs from the FastAPI web framework, sourced from the [BugsInPy](https://gi
 
 **Features:**
 - **Centralized Setup**: Single parametrized script for all bugs (`./setup.sh <bug_number>`)
-- **Shared Configuration**: Common `pyfault.conf` for consistent analysis
+- **Shared Configuration**: Common `FLOSS.conf` for consistent analysis
 - **Isolated Environments**: Separate virtual environments per bug
 
 **Available Bugs:**
@@ -47,13 +47,13 @@ Real bugs from the FastAPI web framework, sourced from the [BugsInPy](https://gi
 ```bash
 cd examples/fastapi
 ./setup.sh 11  # Setup bug 11
-cd fastapi && pyfault run
+cd fastapi && FLOSS run
 ```
 
 **Bug Patches:**
 Each bug directory includes a `bug_patch.txt` file containing the exact patch that fixes the bug. This allows you to:
 - Understand the root cause of each bug
-- Compare PyFault's fault localization results with the actual fix
+- Compare FLOSS's fault localization results with the actual fix
 - Apply the fix manually to test the repair
 
 ### PyGraphistry Example
@@ -68,13 +68,13 @@ Simple synthetic example for testing and demonstration purposes.
 
 ## Quick Start
 
-Each example includes setup automation and pre-configured PyFault settings:
+Each example includes setup automation and pre-configured FLOSS settings:
 
 ### FastAPI Examples
 ```bash
 cd examples/fastapi
 ./setup.sh <bug_number>  # e.g., ./setup.sh 11 (available: 1-16, multi-bugs)
-cd fastapi && pyfault run
+cd fastapi && FLOSS run
 ```
 
 ### Cookiecutter Examples
@@ -117,16 +117,16 @@ All examples now include patch files (`bug_patch.txt`) showing the exact fix for
    ./setup.sh
    ```
 
-3. **Execute PyFault:**
+3. **Execute FLOSS:**
    ```bash
    # If setup completed successfully, the project will be in a subdirectory
    cd fastapi  # or pygraphistry for the PyGraphistry example
-   pyfault run
+   FLOSS run
    ```
 
 4. **View results:**
    ```bash
-   pyfault ui --report report.json
+   FLOSS ui --report report.json
    ```
 
 ## Requirements
@@ -142,7 +142,7 @@ Each example follows this structure:
 ```
 example_name/
 ├── setup.sh           # Automated setup script
-├── pyfault.conf       # PyFault configuration
+├── FLOSS.conf       # FLOSS configuration
 ├── report.json        # Pre-generated results (optional)
 ├── bug_patch.txt      # Patch file showing the actual bug fix
 └── README.md          # Example-specific documentation
@@ -188,7 +188,7 @@ git config --global http.postBuffer 1048576000
 To add a new example:
 
 1. Create a new directory under the appropriate category
-2. Include `setup.sh`, `pyfault.conf`, and `README.md`
+2. Include `setup.sh`, `FLOSS.conf`, and `README.md`
 3. Test the setup script on a clean environment
 4. Document the specific bug and expected results
 5. Update this main README.md file

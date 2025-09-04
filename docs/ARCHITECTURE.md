@@ -1,12 +1,12 @@
-# PyFault Technical Architecture
+# floss Technical Architecture
 
 The high‑level pipeline consists of three phases: test execution and coverage collection, fault localization, and visualization. The diagram below summarizes the actual flow and artifacts.
 
-![Architecture Diagram](imgs/pyfault_arch.png)
+![Architecture Diagram](imgs/floss_arch.png)
 
 ## System Overview
 
-PyFault is a modular framework designed for automated fault localization using Spectrum-Based Fault Localization (SBFL) techniques. The system follows a layered architecture pattern with clear separation of concerns and well-defined interfaces between components.
+floss is a modular framework designed for automated fault localization using Spectrum-Based Fault Localization (SBFL) techniques. The system follows a layered architecture pattern with clear separation of concerns and well-defined interfaces between components.
 
 Pipeline at a glance:
 - Phase 1: pytest (with pytest-cov) runs tests and collects contexts; Test Runner merges coverage.py JSON and pytest test outcomes into a single coverage.json that conceptually represents the coverage matrix (lines × tests).
@@ -43,10 +43,10 @@ Pipeline at a glance:
 
 ### Command-Line Interface (CLI) Layer
 
-The CLI layer provides the primary interface for user interaction with PyFault. It consists of four main commands:
+The CLI layer provides the primary interface for user interaction with floss. It consists of four main commands:
 
 ```
-pyfault/
+floss/
 ├── cli/
 │   ├── main.py          # Entry point and command definitions
 │   └── __init__.py      # Package exports
@@ -54,10 +54,10 @@ pyfault/
 
 #### Command Structure:
 
-1. **`pyfault test`** - Test execution with coverage collection
-2. **`pyfault fl`** - Fault localization calculation
-3. **`pyfault run`** - Complete pipeline execution
-4. **`pyfault ui`** - Dashboard launch
+1. **`floss test`** - Test execution with coverage collection
+2. **`floss fl`** - Fault localization calculation
+3. **`floss run`** - Complete pipeline execution
+4. **`floss ui`** - Dashboard launch
 
 Each command follows a consistent pattern:
 - Configuration loading (file + CLI overrides)
@@ -70,7 +70,7 @@ Each command follows a consistent pattern:
 
 #### Test Runner Component
 
-**Location**: `pyfault/core/test/`
+**Location**: `floss/core/test/`
 
 **Responsibilities**:
 - Integration with pytest for test execution (via pytest-cov)
@@ -102,12 +102,12 @@ TestRunner
 4. Parse temporary JUnit XML for test outcomes
 5. Load coverage.py JSON output
 6. Remove redundant function/class contexts; integrate test outcomes into file-level contexts
-7. Add PyFault-specific metadata and summary
+7. Add floss-specific metadata and summary
 8. Produce a single coverage.json (final artifact of Phase 1) and return structured TestResult
 
 #### Fault Localization Engine
 
-**Location**: `pyfault/core/fl/`
+**Location**: `floss/core/fl/`
 
 **Responsibilities**:
 - SBFL formula application
@@ -140,7 +140,7 @@ FLEngine
 
 #### Interactive Dashboard
 
-**Location**: `pyfault/ui/`
+**Location**: `floss/ui/`
 
 **Responsibilities**:
 - Web-based result visualization
@@ -163,7 +163,7 @@ FLEngine
 
 ### SBFL Formulas Layer
 
-**Location**: `pyfault/core/formulas/`
+**Location**: `floss/core/formulas/`
 
 **Architecture**:
 ```python
@@ -232,14 +232,14 @@ User Exploration and Analysis
 ```
 
 Note on implementation details (from code):
-- The Test Runner builds pytest with: --cov, --cov-context=test, --cov-branch, and --cov-report=json:<output> (see `pyfault/core/test/runner.py::_build_pytest_command`).
-- JUnit XML is parsed and then removed; coverage.py JSON is read and then merged; redundant function/class contexts are removed to reduce size (see `pyfault/core/test/runner.py::_remove_redundant_contexts`).
-- Test outcomes are merged under the tests section, and meta/totals are enriched (see `pyfault/core/test/runner.py`).
-- The FL Engine reads coverage.json, computes scores for each line using formulas, writes them into files[*].suspiciousness, and outputs report.json with fl_metadata and totals (see `pyfault/core/fl/engine.py`).
+- The Test Runner builds pytest with: --cov, --cov-context=test, --cov-branch, and --cov-report=json:<output> (see `floss/core/test/runner.py::_build_pytest_command`).
+- JUnit XML is parsed and then removed; coverage.py JSON is read and then merged; redundant function/class contexts are removed to reduce size (see `floss/core/test/runner.py::_remove_redundant_contexts`).
+- Test outcomes are merged under the tests section, and meta/totals are enriched (see `floss/core/test/runner.py`).
+- The FL Engine reads coverage.json, computes scores for each line using formulas, writes them into files[*].suspiciousness, and outputs report.json with fl_metadata and totals (see `floss/core/fl/engine.py`).
 
 ## Configuration System
 
-PyFault uses a hierarchical configuration system with the following precedence (highest to lowest):
+floss uses a hierarchical configuration system with the following precedence (highest to lowest):
 
 1. **Command-line arguments**
 2. **Configuration file values**
@@ -275,7 +275,7 @@ Both support:
 
 ### Coverage Data Format
 
-PyFault uses an enhanced version of coverage.py's JSON format:
+floss uses an enhanced version of coverage.py's JSON format:
 
 ```json
 {
@@ -286,7 +286,7 @@ PyFault uses an enhanced version of coverage.py's JSON format:
     "branch_coverage": true,
     "show_contexts": true,
     "phase": "test_execution",
-    "tool": "PyFault",
+    "tool": "floss",
     "tool_version": "0.1.0"
   },
   "files": {
@@ -370,7 +370,7 @@ The FL engine enhances coverage data with:
 
 ### API Integration
 
-PyFault provides programmatic APIs for:
+floss provides programmatic APIs for:
 - Custom test runners
 - Formula implementations
 - Dashboard extensions
@@ -442,4 +442,4 @@ Support for continuous integration through:
 3. Different report formats
 4. External tool integrations
 
-This architecture supports PyFault's goals of providing a comprehensive, extensible, and user-friendly fault localization framework for Python projects.
+This architecture supports floss's goals of providing a comprehensive, extensible, and user-friendly fault localization framework for Python projects.

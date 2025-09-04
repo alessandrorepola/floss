@@ -32,8 +32,8 @@ source "$VENV_NAME/bin/activate"
 
 $PY -m pip install --upgrade pip setuptools wheel
 
-# Install PyFault
-echo "==> Installing PyFault (editable) from repository root"
+# Install FLOSS
+echo "==> Installing FLOSS (editable) from repository root"
 $PY -m pip install -e ../../
 
 # Clone PyGraphistry
@@ -53,12 +53,12 @@ $PY -m pip install -e .
 $PY -m pip install -e .[test]
 cd ..
 
-# Copy pyfault.conf if present
-if [[ -f "pyfault.conf" ]]; then
-  echo "==> Copying pyfault.conf into pygraphistry/"
-  cp -f "pyfault.conf" "pygraphistry/"
+# Copy FLOSS.conf if present
+if [[ -f "FLOSS.conf" ]]; then
+  echo "==> Copying FLOSS.conf into pygraphistry/"
+  cp -f "FLOSS.conf" "pygraphistry/"
 else
-  echo "Warning: pyfault.conf not found, skipping copy." >&2
+  echo "Warning: FLOSS.conf not found, skipping copy." >&2
 fi
 
 echo "Setup completed."

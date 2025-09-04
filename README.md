@@ -1,6 +1,6 @@
-# PyFault: Spectrum-Based Fault Localization for Python
+# FLOSS: Fault Localization with Spectrum-based Scoring
 
-PyFault is a comprehensive Python framework for automated fault localization using Spectrum-Based Fault Localization (SBFL) techniques. It provides a complete pipeline from test execution with coverage collection to interactive visualization of fault localization results.
+FLOSS is a comprehensive Python framework for automated fault localization using Spectrum-Based Fault Localization (SBFL) techniques. It provides a complete pipeline from test execution with coverage collection to interactive visualization of fault localization results.
 
 ## Table of Contents
 
@@ -22,7 +22,7 @@ PyFault is a comprehensive Python framework for automated fault localization usi
 
 ## Overview
 
-PyFault automates the process of fault localization by:
+FLOSS automates the process of fault localization by:
 
 1. **Test Execution**: Running test suites with comprehensive coverage collection
 2. **Coverage Analysis**: Analyzing which code lines are executed by passing vs failing tests
@@ -33,9 +33,9 @@ The framework supports multiple SBFL formulas and provides both command-line too
 
 ## Architecture
 
-PyFault follows a modular architecture with clear separation of concerns:
+FLOSS follows a modular architecture with clear separation of concerns:
 
-![Architecture Diagram](docs/imgs/pyfault_arch.png)
+![Architecture Diagram](docs/imgs/floss_arch.png)
 
 ### Core Components
 
@@ -73,21 +73,21 @@ PyFault follows a modular architecture with clear separation of concerns:
 ### Basic Installation
 
 ```bash
-pip install pyfault
+pip install floss
 ```
 
 ### Development Installation
 
 ```bash
-git clone https://github.com/example/pyfault.git
-cd pyfault
+git clone https://github.com/example/FLOSS.git
+cd FLOSS
 pip install -e \".[dev]\"
 ```
 
 ### With UI Dependencies
 
 ```bash
-pip install \"pyfault[ui]\"
+pip install \"FLOSS[ui]\"
 # or for development
 pip install -e \".[dev,ui]\"
 ```
@@ -110,20 +110,20 @@ Additional UI dependencies:
 
 ### 1. Try a Real-World Example
 
-The fastest way to see PyFault in action is with our curated examples:
+The fastest way to see FLOSS in action is with our curated examples:
 
 ```bash
 # Try the simple educational example
 cd examples/dummy-example
-pyfault run --source-dir src --test-dir tests
-pyfault ui --report report.json
+floss run --source-dir src --test-dir tests
+floss ui --report report.json
 
 # Or try a real FastAPI bug
 cd examples/fastapi/bug6
 ./setup.sh  # Downloads FastAPI with bug
 cd fastapi
-pyfault run
-pyfault ui --report report.json
+floss run
+floss ui --report report.json
 ```
 
 ### 2. Basic Fault Localization on Your Project
@@ -133,28 +133,28 @@ pyfault ui --report report.json
 cd my_python_project
 
 # Run complete fault localization pipeline
-pyfault run --source-dir src --test-dir tests
+floss run --source-dir src --test-dir tests
 
 # View results in interactive dashboard
-pyfault ui --report report.json
+floss ui --report report.json
 ```
 
 ### 3. Step-by-Step Workflow
 
 ```bash
 # Step 1: Run tests with coverage
-pyfault test --source-dir src --test-dir tests --output coverage.json
+floss test --source-dir src --test-dir tests --output coverage.json
 
 # Step 2: Calculate fault localization scores
-pyfault fl --input coverage.json --output report.json --formulas ochiai tarantula dstar2
+floss fl --input coverage.json --output report.json --formulas ochiai tarantula dstar2
 
 # Step 3: Launch dashboard
-pyfault ui --report report.json --port 8501
+floss ui --report report.json --port 8501
 ```
 
 ### 4. Using Configuration Files
 
-Create a `pyfault.conf` file:
+Create a `floss.conf` file:
 
 ```ini
 [test]
@@ -173,19 +173,19 @@ formulas = ochiai, tarantula, jaccard, dstar2
 Then run:
 
 ```bash
-pyfault run --config pyfault.conf
+floss run --config floss.conf
 ```
 
 ## CLI Usage
 
-PyFault provides a comprehensive command-line interface with four main commands:
+FLOSS provides a comprehensive command-line interface with four main commands:
 
-### `pyfault test`
+### `floss test`
 
 Runs tests with coverage collection.
 
 ```bash
-pyfault test [OPTIONS]
+floss test [OPTIONS]
 
 Options:
   -s, --source-dir PATH     Source code directory (default: .)
@@ -194,43 +194,43 @@ Options:
   -k, --test-filter TEXT    Filter tests using pytest -k pattern
   --ignore PATTERN          File patterns to ignore (multiple allowed)
   --omit PATTERN            File patterns to omit from coverage (multiple allowed)
-  -c, --config PATH         Configuration file (default: pyfault.conf)
+  -c, --config PATH         Configuration file (default: floss.conf)
   -v, --verbose             Enable verbose output
   --help                    Show help message
 ```
 
 **Example:**
 ```bash
-pyfault test -s src -t tests -o my_coverage.json -k \"not slow\"
+floss test -s src -t tests -o my_coverage.json -k \"not slow\"
 ```
 
-### `pyfault fl`
+### `floss fl`
 
 Calculates fault localization suspiciousness scores.
 
 ```bash
-pyfault fl [OPTIONS]
+floss fl [OPTIONS]
 
 Options:
   -i, --input PATH          Input coverage file (default: coverage.json)
   -o, --output PATH         Output report file (default: report.json)
   -f, --formulas FORMULA    SBFL formulas to use (multiple allowed)
-  -c, --config PATH         Configuration file (default: pyfault.conf)
+  -c, --config PATH         Configuration file (default: floss.conf)
   -v, --verbose             Enable verbose output
   --help                    Show help message
 ```
 
 **Example:**
 ```bash
-pyfault fl -i coverage.json -o results.json -f ochiai -f tarantula -f dstar2
+floss fl -i coverage.json -o results.json -f ochiai -f tarantula -f dstar2
 ```
 
-### `pyfault run`
+### `floss run`
 
 Executes the complete fault localization pipeline.
 
 ```bash
-pyfault run [OPTIONS]
+floss run [OPTIONS]
 
 Options:
   -s, --source-dir PATH     Source code directory (default: .)
@@ -240,22 +240,22 @@ Options:
   --ignore PATTERN          File patterns to ignore (multiple allowed)
   --omit PATTERN            File patterns to omit from coverage (multiple allowed)
   -f, --formulas FORMULA    SBFL formulas to use (multiple allowed)
-  -c, --config PATH         Configuration file (default: pyfault.conf)
+  -c, --config PATH         Configuration file (default: floss.conf)
   -v, --verbose             Enable verbose output
   --help                    Show help message
 ```
 
 **Example:**
 ```bash
-pyfault run -s src -t tests -o final_report.json -f ochiai -f dstar2 --ignore \"*/migrations/*\"
+floss run -s src -t tests -o final_report.json -f ochiai -f dstar2 --ignore \"*/migrations/*\"
 ```
 
-### `pyfault ui`
+### `floss ui`
 
 Launches the interactive web dashboard.
 
 ```bash
-pyfault ui [OPTIONS]
+floss ui [OPTIONS]
 
 Options:
   -r, --report PATH         Report file to visualize (default: report.json)
@@ -267,12 +267,12 @@ Options:
 
 **Example:**
 ```bash
-pyfault ui -r my_report.json -p 8080 --no-open
+floss ui -r my_report.json -p 8080 --no-open
 ```
 
 ## Web Dashboard
 
-The PyFault dashboard provides an interactive web interface for exploring fault localization results. Built with Streamlit and Plotly, it offers multiple visualization modes and analysis tools.
+The FLOSS dashboard provides an interactive web interface for exploring fault localization results. Built with Streamlit and Plotly, it offers multiple visualization modes and analysis tools.
 
 ### Dashboard Features
 
@@ -332,11 +332,11 @@ The dashboard uses a sidebar navigation system with the following sections:
 
 ## Configuration
 
-PyFault supports flexible configuration through configuration files and command-line arguments.
+FLOSS supports flexible configuration through configuration files and command-line arguments.
 
 ### Configuration File Format
 
-PyFault uses INI-style configuration files with two main sections:
+FLOSS uses INI-style configuration files with two main sections:
 
 ```ini
 [test]
@@ -364,15 +364,15 @@ Configuration values are resolved in the following order (highest to lowest prio
 
 ### Environment Variables
 
-PyFault supports the following environment variables:
+FLOSS supports the following environment variables:
 
-- `PYFAULT_CONFIG`: Default configuration file path
-- `PYFAULT_VERBOSE`: Enable verbose output (set to \"1\" or \"true\")
-- `PYFAULT_NO_COLOR`: Disable colored output (set to \"1\" or \"true\")
+- `FLOSS_CONFIG`: Default configuration file path
+- `FLOSS_VERBOSE`: Enable verbose output (set to \"1\" or \"true\")
+- `FLOSS_NO_COLOR`: Disable colored output (set to \"1\" or \"true\")
 
 ## Supported SBFL Formulas
 
-PyFault implements 10+ industry-standard SBFL formulas:
+FLOSS implements 10+ industry-standard SBFL formulas:
 
 ### Core Formulas
 
@@ -402,10 +402,10 @@ PyFault implements 10+ industry-standard SBFL formulas:
 
 ### Custom Formulas
 
-PyFault supports custom formula implementation through the `SBFLFormula` base class:
+FLOSS supports custom formula implementation through the `SBFLFormula` base class:
 
 ```python
-from pyfault.formulas.base import SBFLFormula
+from FLOSS.formulas.base import SBFLFormula
 
 class CustomFormula(SBFLFormula):
     def calculate(self, n_cf: int, n_nf: int, n_cp: int, n_np: int) -> float:
@@ -415,7 +415,7 @@ class CustomFormula(SBFLFormula):
 
 ## Examples
 
-PyFault includes comprehensive real-world examples that demonstrate fault localization on actual software projects with known bugs. These examples provide hands-on learning opportunities and showcase PyFault's effectiveness across different domains.
+FLOSS includes comprehensive real-world examples that demonstrate fault localization on actual software projects with known bugs. These examples provide hands-on learning opportunities and showcase FLOSS' effectiveness across different domains.
 
 ### Available Examples
 
@@ -441,7 +441,7 @@ Real bugs from the Cookiecutter project templating tool:
 - **[PyGraphistry](examples/pygraphistry/)** - Graph visualization library fault localization
 
 #### 🎓 Educational Examples
-- **[Dummy Example](examples/dummy-example/)** - Simple synthetic bug for learning PyFault basics
+- **[Dummy Example](examples/dummy-example/)** - Simple synthetic bug for learning FLOSS basics
 
 ### Quick Example Walkthrough
 
@@ -449,15 +449,15 @@ Real bugs from the Cookiecutter project templating tool:
 # FastAPI examples (centralized setup)
 cd examples/fastapi
 ./setup.sh 6  # Setup specific bug (1-16 available)
-cd fastapi && pyfault run
+cd fastapi && floss run
 
 # Cookiecutter examples
 cd examples/cookiecutter
 ./setup.sh 1  # Setup bug 1 or 2
-cd cookiecutter && pyfault run
+cd cookiecutter && floss run
 
 # View interactive results
-pyfault ui --report report.json
+floss ui --report report.json
 ```
 
 ### Key Features of Examples
@@ -477,7 +477,7 @@ pyfault ui --report report.json
 
 ### Learning Path
 
-1. **Start with Dummy Example** - Learn PyFault basics with a simple, controlled bug
+1. **Start with Dummy Example** - Learn FLOSS basics with a simple, controlled bug
 2. **Explore FastAPI Bug #6** - Understand dependency injection fault patterns
 3. **Compare FastAPI Bugs** - See how different bug types affect fault localization
 4. **Try PyGraphistry** - Experience fault localization on scientific computing code
@@ -486,7 +486,7 @@ pyfault ui --report report.json
 
 Each example includes:
 - ✅ **Automated setup scripts** - One-command environment preparation
-- ✅ **Pre-configured settings** - Optimized PyFault configurations
+- ✅ **Pre-configured settings** - Optimized FLOSS configurations
 - ✅ **Detailed documentation** - Bug descriptions and analysis guides
 - ✅ **Expected results** - Clear guidance on what to look for
 - ✅ **Learning objectives** - Educational goals and takeaways
@@ -506,7 +506,7 @@ For detailed setup instructions and analysis guides, see the [examples directory
 
 ```
 root/
-├── pyfault/                        # Main package
+├── FLOSS/                        # Main package
 │   ├── __init__.py                 # Package initialization
 │   ├── core/                       # Core components
 │   │   ├── cli/                    # Command-line interface
@@ -536,7 +536,7 @@ root/
 │   └── ...                         # Additional test files
 ├── examples/                       # Example projects
 │   └── ex1/                        # Sample project
-│       ├── pyfault.conf            # Example configuration
+│       ├── floss.conf            # Example configuration
 │       ├── src/                    # Example source code
 │       └── tests/                  # Example tests
 ├── pyproject.toml                  # Project configuration
@@ -553,7 +553,7 @@ root/
 Executes tests with coverage collection.
 
 ```python
-from pyfault.test import TestRunner, TestConfig
+from FLOSS.test import TestRunner, TestConfig
 
 config = TestConfig(source_dir="src", test_dir="tests")
 runner = TestRunner(config)
@@ -564,7 +564,7 @@ result = runner.run_tests()
 Calculates fault localization scores.
 
 ```python
-from pyfault.fl import FLEngine, FLConfig
+from FLOSS.fl import FLEngine, FLConfig
 
 config = FLConfig(formulas=["ochiai", "tarantula"])
 engine = FLEngine(config)
@@ -575,7 +575,7 @@ engine.calculate_suspiciousness("coverage.json", "report.json")
 Base class for implementing custom formulas.
 
 ```python
-from pyfault.formulas.base import SBFLFormula
+from FLOSS.formulas.base import SBFLFormula
 
 class MyFormula(SBFLFormula):
     def calculate(self, n_cf, n_nf, n_cp, n_np):
@@ -589,7 +589,7 @@ class MyFormula(SBFLFormula):
 Configuration for test execution.
 
 ```python
-from pyfault.test.config import TestConfig
+from FLOSS.test.config import TestConfig
 
 config = TestConfig(
     source_dir="src",
@@ -604,7 +604,7 @@ config = TestConfig(
 Configuration for fault localization.
 
 ```python
-from pyfault.fl.config import FLConfig
+from FLOSS.fl.config import FLConfig
 
 config = FLConfig(
     input_file="coverage.json",
@@ -616,7 +616,7 @@ config = FLConfig(
 ### Dashboard Integration
 
 ```python
-from pyfault.ui.dashboard import launch_dashboard
+from FLOSS.ui.dashboard import launch_dashboard
 
 launch_dashboard(
     report_file="report.json",
@@ -626,7 +626,7 @@ launch_dashboard(
 ```
 
 ```python
-from pyfault.ui.dashboard import launch_dashboard
+from FLOSS.ui.dashboard import launch_dashboard
 
 launch_dashboard(
     report_file="report.json",
@@ -641,8 +641,8 @@ launch_dashboard(
 
 ```bash
 # Clone the repository
-git clone https://github.com/example/pyfault.git
-cd pyfault
+git clone https://github.com/example/FLOSS.git
+cd FLOSS
 
 # Create virtual environment
 python -m venv venv
@@ -662,7 +662,7 @@ pre-commit install
 python -m pytest tests/ -v
 
 # Run with coverage
-python -m pytest tests/ --cov=src/pyfault --cov-report=html
+python -m pytest tests/ --cov=src/FLOSS --cov-report=html
 
 # Run specific test categories
 python -m pytest tests/test_formulas.py -v
@@ -671,31 +671,31 @@ python -m pytest tests/test_e2e.py -v
 
 ### Testing Examples
 
-PyFault includes automated testing for all examples through GitHub Actions:
+FLOSS includes automated testing for all examples through GitHub Actions:
 
 ```bash
 # Test the dummy example locally
 cd examples/dummy-example
-pyfault run --source-dir src --test-dir tests
+floss run --source-dir src --test-dir tests
 
 # Test FastAPI examples (requires setup)
 cd examples/fastapi/bug6
 ./setup.sh
 cd fastapi
-pyfault run
+floss run
 
 # Test PyGraphistry example (requires setup)
 cd examples/pygraphistry
 ./setup.sh
 cd PyGraphistry
-pyfault test --source-dir graphistry --test-dir tests
+floss test --source-dir graphistry --test-dir tests
 ```
 
 #### CI/CD Workflows
 
 The project includes two GitHub Actions workflows:
 
-1. **Main CI (`ci.yml`)**: Tests core PyFault functionality
+1. **Main CI (`ci.yml`)**: Tests core FLOSS functionality
 2. **Examples CI (`examples.yml`)**: Tests all examples including:
    - Dummy example validation
    - FastAPI bug examples (with Python 3.8.3)
@@ -706,13 +706,13 @@ The project includes two GitHub Actions workflows:
 The examples workflow automatically:
 - Sets up required Python versions for each example
 - Runs automated setup scripts
-- Executes PyFault on real bugs
+- Executes FLOSS on real bugs
 - Validates output format and structure
 - Checks documentation completeness
 
 ### Code Quality
 
-PyFault uses several tools to maintain code quality. All these checks are enforced in the CI pipeline.
+FLOSS uses several tools to maintain code quality. All these checks are enforced in the CI pipeline.
 
 #### Quick Commands
 
@@ -728,18 +728,18 @@ make quality
 
 ```bash
 # Code formatting
-black --check --diff pyfault/
-black pyfault/  # to apply fixes
+black --check --diff FLOSS/
+black FLOSS/  # to apply fixes
 
 # Import sorting
-isort --check-only --diff pyfault/
-isort pyfault/  # to apply fixes
+isort --check-only --diff FLOSS/
+isort FLOSS/  # to apply fixes
 
 # Code linting
-flake8 pyfault/
+flake8 FLOSS/
 
 # Type checking
-mypy pyfault/
+mypy FLOSS/
 
 # Run tests
 pytest tests/ -v
@@ -763,9 +763,9 @@ All quality checks must pass before code can be merged. The CI pipeline runs:
 
 ### Adding New SBFL Formulas
 
-1. Implement the formula in `src/pyfault/formulas/sbfl_formulas.py`
-2. Add it to the `AVAILABLE_FORMULAS` dict in `src/pyfault/fl/engine.py`
-3. Export it from `src/pyfault/formulas/__init__.py`
+1. Implement the formula in `src/FLOSS/formulas/sbfl_formulas.py`
+2. Add it to the `AVAILABLE_FORMULAS` dict in `src/FLOSS/fl/engine.py`
+3. Export it from `src/FLOSS/formulas/__init__.py`
 4. Add tests in `tests/test_formulas.py`
 
 ### Contributing
@@ -792,4 +792,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-For more information, visit our [documentation](https://github.com/example/pyfault) or open an [issue](https://github.com/example/pyfault/issues).
+For more information, visit our [documentation](https://github.com/example/FLOSS) or open an [issue](https://github.com/example/FLOSS/issues).

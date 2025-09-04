@@ -8,9 +8,9 @@ import tempfile
 import time
 from typing import Any, Dict
 
-from pyfault.core.fl.config import FLConfig
-from pyfault.core.fl.data import CoverageData
-from pyfault.core.fl.engine import FLEngine
+from floss.core.fl.config import FLConfig
+from floss.core.fl.data import CoverageData
+from floss.core.fl.engine import FLEngine
 
 
 class TestFLEdgeCases:

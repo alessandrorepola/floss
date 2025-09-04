@@ -1,4 +1,4 @@
-# Makefile for PyFault development
+# Makefile for floss development
 .PHONY: help install install-dev format lint test quality clean
 
 # Default target
@@ -22,16 +22,16 @@ install-dev:
 
 # Code formatting
 format:
-	isort pyfault/
-	black pyfault/
+	isort floss/
+	black floss/
 
 # Linting and type checking
 lint:
 	@echo "🔍 Running code quality checks..."
-	black --check --diff pyfault/
-	isort --check-only --diff pyfault/
-	flake8 pyfault/
-	mypy pyfault/
+	black --check --diff floss/
+	isort --check-only --diff floss/
+	flake8 floss/
+	mypy floss/
 
 # Testing
 test:

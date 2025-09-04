@@ -1,6 +1,6 @@
 # FastAPI Bug Examples
 
-This directory contains examples for testing PyFault with different FastAPI bugs from the BugsInPy dataset.
+This directory contains examples for testing floss with different FastAPI bugs from the BugsInPy dataset.
 
 ## Quick Start
 
@@ -27,8 +27,8 @@ Use the centralized setup script to prepare the environment for any bug:
 # Setup environment for multiple bugs
 ./setup.sh multi-bugs
 
-# Run PyFault analysis (after setup)
-cd fastapi && pyfault run
+# Run floss analysis (after setup)
+cd fastapi && floss run
 ```
 
 ## Structure
@@ -36,12 +36,12 @@ cd fastapi && pyfault run
 ```
 fastapi/
 ├── setup.sh           # Centralized, parametrized setup script
-├── pyfault.conf       # Shared configuration for all bugs
+├── floss.conf       # Shared configuration for all bugs
 ├── README.md          # This documentation
 ├── bug1/              # Bug-specific directories
 │   ├── README.md      # Bug description and details (if available)
 │   ├── bug_patch.txt  # Actual patch that fixes the bug
-│   └── report.json    # Expected PyFault output
+│   └── report.json    # Expected floss output
 ├── bug2/
 │   ├── bug_patch.txt
 │   └── report.json
@@ -54,10 +54,10 @@ fastapi/
 ## How It Works
 
 1. **Centralized Setup**: One script (`setup.sh`) handles all bugs, eliminating code duplication
-2. **Shared Configuration**: All bugs use the same `pyfault.conf` file
+2. **Shared Configuration**: All bugs use the same `floss.conf` file
 3. **Isolated Environments**: Each bug gets its own virtual environment (`fastapi-bug<N>`)
 4. **Bug-Specific Data**: Individual directories contain bug-specific documentation, expected results, and patch files
-5. **Patch Files**: Each bug includes a `bug_patch.txt` file with the exact fix for comparison with PyFault results
+5. **Patch Files**: Each bug includes a `bug_patch.txt` file with the exact fix for comparison with floss results
 
 ## Environment Details
 
@@ -70,9 +70,9 @@ fastapi/
 The setup is integrated with the project's CI pipeline (`.github/workflows/examples.yml`). The workflow:
 
 1. Sets up Python 3.8
-2. Installs PyFault
+2. Installs floss
 3. Runs the centralized setup for each bug
-4. Executes PyFault analysis
+4. Executes floss analysis
 5. Validates the output structure
 
 ## Bug Details

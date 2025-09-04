@@ -1,5 +1,5 @@
 """
-Performance and benchmark tests for the pyfault run command.
+Performance and benchmark tests for the FLOSS run command.
 
 These tests ensure the run command performs efficiently and handles
 larger codebases appropriately.
@@ -11,7 +11,7 @@ import time
 
 from click.testing import CliRunner
 
-from pyfault.core.cli.main import main
+from floss.core.cli.main import main
 
 
 class TestRunCommandPerformance:

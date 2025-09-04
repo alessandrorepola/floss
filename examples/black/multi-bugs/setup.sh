@@ -54,8 +54,8 @@ fi
 echo "==> Upgrading pip, setuptools, wheel"
 $PY -m pip install --upgrade pip setuptools wheel
 
-# Install PyFault
-echo "==> Installing PyFault (editable) from repository root"
+# Install FLOSS
+echo "==> Installing FLOSS (editable) from repository root"
 $PY -m pip install -e ../../../
 
 # Ensure BugsInPy's embedded Python can see venv packages (pytest/starlette)
@@ -99,12 +99,12 @@ bugsinpy-multi-checkout -p black -i 23 -w "$SCRIPT_DIR"
 $PY -m pip install -e black
 $PY -m pip install -e black[test]
 
-# Copy pyfault.conf if present
-if [[ -f "../pyfault.conf" ]]; then
-  echo "==> Copying pyfault.conf into black/"
-  cp -f "../pyfault.conf" "black/"
+# Copy FLOSS.conf if present
+if [[ -f "../FLOSS.conf" ]]; then
+  echo "==> Copying FLOSS.conf into black/"
+  cp -f "../FLOSS.conf" "black/"
 else
-  echo "Warning: pyfault.conf not found, skipping copy." >&2
+  echo "Warning: FLOSS.conf not found, skipping copy." >&2
 fi
 
 echo "Setup completed for Black bugs."

@@ -21,7 +21,7 @@ sns.set_palette("husl")
 def load_data() -> tuple[dict, dict, pd.DataFrame]:
     """Load data from analysis"""
     # Load effectiveness data
-    with open("pyfault_effectiveness_analysis.json", "r", encoding="utf-8") as f:
+    with open("FLOSS_effectiveness_analysis.json", "r", encoding="utf-8") as f:
         effectiveness_data = json.load(f)
 
     # Load discrimination data
@@ -29,7 +29,7 @@ def load_data() -> tuple[dict, dict, pd.DataFrame]:
         discrimination_data = json.load(f)
 
     # Load detailed data from CSV
-    csv_data = pd.read_csv("pyfault_effectiveness_summary.csv")
+    csv_data = pd.read_csv("FLOSS_effectiveness_summary.csv")
 
     return effectiveness_data, discrimination_data, csv_data
 

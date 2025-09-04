@@ -1,17 +1,17 @@
-name: PyFault Examples CI
+name: FLOSS Examples CI
 
 on:
   push:
     branches: [ "main" ]
     paths:
       - 'examples/**'
-      - 'pyfault/**'
+      - 'FLOSS/**'
       - '.github/workflows/examples.yml'
   pull_request:
     branches: [ "main" ]
     paths:
       - 'examples/**'
-      - 'pyfault/**'
+      - 'FLOSS/**'
       - '.github/workflows/examples.yml'
   workflow_dispatch:
 
@@ -30,7 +30,7 @@ jobs:
         python-version: "3.12"
         cache: 'pip'
 
-    - name: Install PyFault
+    - name: Install FLOSS
       run: |
         python -m pip install --upgrade pip
         pip install -e .
@@ -38,7 +38,7 @@ jobs:
     - name: Test dummy example
       run: |
         cd examples/dummy-example
-        pyfault run --source-dir src --test-dir tests --output test_report.json
+        FLOSS run --source-dir src --test-dir tests --output test_report.json
         # Verify report was generated and contains expected structure
         python -c "
         import json
@@ -82,7 +82,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y git
 
-    - name: Install PyFault
+    - name: Install FLOSS
       run: |
         python -m pip install --upgrade pip
         pip install -e .
@@ -97,15 +97,15 @@ jobs:
         }
       timeout-minutes: 10
 
-    - name: Test PyFault on FastAPI ${{ matrix.bug }}
+    - name: Test FLOSS on FastAPI ${{ matrix.bug }}
       run: |
         cd examples/fastapi
         # Activate the virtual environment created in setup
         source fastapi-${{ matrix.bug }}/bin/activate
         cd fastapi
-        # Run PyFault with timeout to prevent hanging
-        timeout 300 pyfault run || {
-          echo "PyFault run execution timed out for ${{ matrix.bug }}"
+        # Run FLOSS with timeout to prevent hanging
+        timeout 300 FLOSS run || {
+          echo "FLOSS run execution timed out for ${{ matrix.bug }}"
           exit 1
         }
 
@@ -152,7 +152,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y git
 
-    - name: Install PyFault
+    - name: Install FLOSS
       run: |
         pip install -e .
 
@@ -165,14 +165,14 @@ jobs:
         }
       timeout-minutes: 10
 
-    - name: Test PyFault on PyGraphistry
+    - name: Test FLOSS on PyGraphistry
       run: |
         cd examples/pygraphistry
         # Activate the virtual environment created in setup
         source venv/bin/activate
         cd pygraphistry
-        # Try to run PyFault (allow failures since external projects may have issues)
-        timeout 300 pyfault run || echo "PyFault run completed with exit code $?"
+        # Try to run FLOSS (allow failures since external projects may have issues)
+        timeout 300 FLOSS run || echo "FLOSS run completed with exit code $?"
 
         # Check if report was generated, if not, this is expected for some external projects
         if [ -f "report.json" ]; then
@@ -252,13 +252,13 @@ jobs:
 
     - name: Check configuration files exist
       run: |
-        # Check pyfault.conf files
+        # Check FLOSS.conf files
         for example in dummy-example fastapi pygraphistry; do
-          if [ ! -f "examples/$example/pyfault.conf" ]; then
-            echo "Missing examples/$example/pyfault.conf"
+          if [ ! -f "examples/$example/FLOSS.conf" ]; then
+            echo "Missing examples/$example/FLOSS.conf"
             exit 1
           fi
-          echo "✓ Found examples/$example/pyfault.conf"
+          echo "✓ Found examples/$example/FLOSS.conf"
         done
 
     - name: Validate README content
@@ -289,7 +289,7 @@ jobs:
         python-version: "3.12"
         cache: 'pip'
 
-    - name: Install PyFault with UI dependencies
+    - name: Install FLOSS with UI dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e ".[ui]"
@@ -305,8 +305,8 @@ jobs:
         fi
 
         # Test step-by-step workflow
-        pyfault test --source-dir src --test-dir tests --output coverage.json
-        pyfault fl --input coverage.json --output report.json --formulas "ochiai,tarantula,dstar2"
+        FLOSS test --source-dir src --test-dir tests --output coverage.json
+        FLOSS fl --input coverage.json --output report.json --formulas "ochiai,tarantula,dstar2"
 
         # Verify outputs exist
         if [ ! -f "coverage.json" ] || [ ! -f "report.json" ]; then
