@@ -784,4 +784,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-For more information, visit our [documentation](https://github.com/example/floss) or open an [issue](https://github.com/example/floss/issues).
+For more information, visit our [documentation](https://github.com/alessandrorepola/floss) or open an [issue](https://github.com/alessandrorepola/floss/issues).
