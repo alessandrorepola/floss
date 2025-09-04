@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "floss"
 description = "FLOSS: Fault Localization with Spectrum-based Scoring - A Python framework for Spectrum-Based Fault Localization (SBFL)"
 readme = "README.md"
-license = "MIT"
+license = {text = "MIT"}
 dynamic = ["version"]
 authors = [
     {name = "Alessandro Repola"}
