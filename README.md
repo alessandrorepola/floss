@@ -79,15 +79,15 @@ pip install floss
 ### Development Installation
 
 ```bash
-git clone https://github.com/example/FLOSS.git
-cd FLOSS
+git clone https://github.com/example/floss.git
+cd floss
 pip install -e \".[dev]\"
 ```
 
 ### With UI Dependencies
 
 ```bash
-pip install \"FLOSS[ui]\"
+pip install \"floss[ui]\"
 # or for development
 pip install -e \".[dev,ui]\"
 ```
@@ -362,14 +362,6 @@ Configuration values are resolved in the following order (highest to lowest prio
 2. Configuration file values
 3. Default values
 
-### Environment Variables
-
-FLOSS supports the following environment variables:
-
-- `FLOSS_CONFIG`: Default configuration file path
-- `FLOSS_VERBOSE`: Enable verbose output (set to \"1\" or \"true\")
-- `FLOSS_NO_COLOR`: Disable colored output (set to \"1\" or \"true\")
-
 ## Supported SBFL Formulas
 
 FLOSS implements 10+ industry-standard SBFL formulas:
@@ -405,7 +397,7 @@ FLOSS implements 10+ industry-standard SBFL formulas:
 FLOSS supports custom formula implementation through the `SBFLFormula` base class:
 
 ```python
-from FLOSS.formulas.base import SBFLFormula
+from floss.formulas.base import SBFLFormula
 
 class CustomFormula(SBFLFormula):
     def calculate(self, n_cf: int, n_nf: int, n_cp: int, n_np: int) -> float:
@@ -506,7 +498,7 @@ For detailed setup instructions and analysis guides, see the [examples directory
 
 ```
 root/
-├── FLOSS/                        # Main package
+├── floss/                        # Main package
 │   ├── __init__.py                 # Package initialization
 │   ├── core/                       # Core components
 │   │   ├── cli/                    # Command-line interface
@@ -553,7 +545,7 @@ root/
 Executes tests with coverage collection.
 
 ```python
-from FLOSS.test import TestRunner, TestConfig
+from floss.test import TestRunner, TestConfig
 
 config = TestConfig(source_dir="src", test_dir="tests")
 runner = TestRunner(config)
@@ -564,7 +556,7 @@ result = runner.run_tests()
 Calculates fault localization scores.
 
 ```python
-from FLOSS.fl import FLEngine, FLConfig
+from floss.fl import FLEngine, FLConfig
 
 config = FLConfig(formulas=["ochiai", "tarantula"])
 engine = FLEngine(config)
@@ -575,7 +567,7 @@ engine.calculate_suspiciousness("coverage.json", "report.json")
 Base class for implementing custom formulas.
 
 ```python
-from FLOSS.formulas.base import SBFLFormula
+from floss.formulas.base import SBFLFormula
 
 class MyFormula(SBFLFormula):
     def calculate(self, n_cf, n_nf, n_cp, n_np):
@@ -589,7 +581,7 @@ class MyFormula(SBFLFormula):
 Configuration for test execution.
 
 ```python
-from FLOSS.test.config import TestConfig
+from floss.test.config import TestConfig
 
 config = TestConfig(
     source_dir="src",
@@ -604,7 +596,7 @@ config = TestConfig(
 Configuration for fault localization.
 
 ```python
-from FLOSS.fl.config import FLConfig
+from floss.fl.config import FLConfig
 
 config = FLConfig(
     input_file="coverage.json",
@@ -616,7 +608,7 @@ config = FLConfig(
 ### Dashboard Integration
 
 ```python
-from FLOSS.ui.dashboard import launch_dashboard
+from floss.ui.dashboard import launch_dashboard
 
 launch_dashboard(
     report_file="report.json",
@@ -626,7 +618,7 @@ launch_dashboard(
 ```
 
 ```python
-from FLOSS.ui.dashboard import launch_dashboard
+from floss.ui.dashboard import launch_dashboard
 
 launch_dashboard(
     report_file="report.json",
@@ -641,8 +633,8 @@ launch_dashboard(
 
 ```bash
 # Clone the repository
-git clone https://github.com/example/FLOSS.git
-cd FLOSS
+git clone https://github.com/example/floss.git
+cd floss
 
 # Create virtual environment
 python -m venv venv
@@ -662,7 +654,7 @@ pre-commit install
 python -m pytest tests/ -v
 
 # Run with coverage
-python -m pytest tests/ --cov=src/FLOSS --cov-report=html
+python -m pytest tests/ --cov=floss/ --cov-report=html
 
 # Run specific test categories
 python -m pytest tests/test_formulas.py -v
@@ -728,18 +720,18 @@ make quality
 
 ```bash
 # Code formatting
-black --check --diff FLOSS/
-black FLOSS/  # to apply fixes
+black --check --diff floss/
+black floss/  # to apply fixes
 
 # Import sorting
-isort --check-only --diff FLOSS/
-isort FLOSS/  # to apply fixes
+isort --check-only --diff floss/
+isort floss/  # to apply fixes
 
 # Code linting
-flake8 FLOSS/
+flake8 floss/
 
 # Type checking
-mypy FLOSS/
+mypy floss/
 
 # Run tests
 pytest tests/ -v
@@ -763,9 +755,9 @@ All quality checks must pass before code can be merged. The CI pipeline runs:
 
 ### Adding New SBFL Formulas
 
-1. Implement the formula in `src/FLOSS/formulas/sbfl_formulas.py`
-2. Add it to the `AVAILABLE_FORMULAS` dict in `src/FLOSS/fl/engine.py`
-3. Export it from `src/FLOSS/formulas/__init__.py`
+1. Implement the formula in `floss/core/formulas/sbfl_formulas.py`
+2. Add it to the `AVAILABLE_FORMULAS` dict in `floss/core/fl/engine.py`
+3. Export it from `floss/core/formulas/__init__.py`
 4. Add tests in `tests/test_formulas.py`
 
 ### Contributing
@@ -792,4 +784,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-For more information, visit our [documentation](https://github.com/example/FLOSS) or open an [issue](https://github.com/example/FLOSS/issues).
+For more information, visit our [documentation](https://github.com/example/floss) or open an [issue](https://github.com/example/floss/issues).
